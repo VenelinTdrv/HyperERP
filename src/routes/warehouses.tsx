@@ -68,7 +68,7 @@ function Warehouses(){
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>ID</th><th>Име</th><th>Тип</th><th>Населено място</th><th>Държава</th><th className="text-right">Действия</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
     <td><span className="delivery-id">#{r.id}</span></td>
     <td><Button variant="ghost" className="client-name" onClick={()=>setSelected(r)}>{r.name}</Button></td>
-    <td><span className={`delivery-status ${r.kind==='Физически'?'received':'cancelled'}`}>{r.kind}</span></td>
+    <td><span className={`delivery-status ${r.kind==='Физически'?'received':'neutral'}`}>{r.kind}</span></td>
     <td>{r.city}</td>
     <td>{r.country}</td>
     <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.name}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(r)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>

@@ -176,6 +176,7 @@
 .delivery-status.transit { background:var(--info-soft); color:var(--info); }
 .delivery-status.received { background:var(--success-soft); color:var(--success); }
 .delivery-status.cancelled { background:var(--destructive-soft); color:var(--destructive); }
+.delivery-status.neutral { background:var(--info-soft); color:var(--info); }
 .delivery-row-actions { display:flex; justify-content:flex-end; gap:2px; min-width:104px; }
 .delivery-row-actions button { width:32px; height:32px; color:var(--muted-foreground); }
 .delivery-row-actions button:last-child:not(:first-child) { color:var(--primary); }
