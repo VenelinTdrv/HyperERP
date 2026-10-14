@@ -26,3 +26,7 @@
 - [x] Add a hierarchical categories workspace and expand/collapse controls.
 - [x] Implement demonstration create, subcategory, details, edit, and safe confirmed delete.
 - [x] Verify CRUD, validation, hierarchy, navigation, and smaller-screen layout.
+
+## Settlements screen
+- [x] Add settlements list with name/region filters, pagination, and demonstration CRUD (country, name, region, postal code).
+- [x] Verify CRUD flow, validation, and smaller-screen layout.
