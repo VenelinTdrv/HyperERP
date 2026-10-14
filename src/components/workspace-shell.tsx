@@ -6,12 +6,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 const groups = [
  { name:'Операции', items:[{name:'Поръчки',icon:ClipboardList,to:'/orders' as const}, {name:'Продажби',icon:ShoppingBag,to:'/' as const}, {name:'Доставки',icon:Truck,to:'/deliveries' as const}] },
- { name:'Каталог', items:[{name:'Артикули',icon:Package,to:'/articles' as const}, {name:'Комбота',icon:Boxes,to:'/combos' as const}, {name:'Категории',icon:LayoutGrid}] },
+ { name:'Каталог', items:[{name:'Артикули',icon:Package,to:'/articles' as const}, {name:'Комбота',icon:Boxes,to:'/combos' as const}, {name:'Категории',icon:LayoutGrid,to:'/categories' as const}] },
  { name:'Контакти и логистика', items:[{name:'Клиенти',icon:Users}, {name:'Доставчици',icon:Truck}, {name:'Държави',icon:Globe2}, {name:'Населени места',icon:Warehouse}, {name:'Складове',icon:Warehouse}] },
  { name:'Администрация', items:[{name:'Потребители',icon:ShieldCheck}] },
 ];
 
-export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'; children:ReactNode }) {
+export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'|'Категории'; children:ReactNode }) {
  const [mobileOpen,setMobileOpen] = useState(false);
  const [notice,setNotice] = useState<string|null>(null);
  return <div className="erp-shell">

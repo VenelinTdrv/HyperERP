@@ -21,3 +21,8 @@
 - [x] Add combos list, search, influencer filter, and pagination.
 - [x] Implement demonstration create, details, edit, and confirmed delete with product quantities.
 - [x] Verify CRUD flow and smaller-screen layout.
+
+## Categories screen
+- [x] Add a hierarchical categories workspace and expand/collapse controls.
+- [x] Implement demonstration create, subcategory, details, edit, and safe confirmed delete.
+- [x] Verify CRUD, validation, hierarchy, navigation, and smaller-screen layout.
