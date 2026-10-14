@@ -16,3 +16,8 @@
 - [x] Add article list, category navigation, search, selection, and category changes using SKU terminology.
 - [x] Add and validate the Add article dialog with demonstration-only updates.
 - [x] Verify add flow, filtering, category changes, and narrow-screen layout.
+
+## Combos screen
+- [ ] Add combos list, search, influencer filter, and pagination.
+- [ ] Implement demonstration create, details, edit, and confirmed delete with product quantities.
+- [ ] Verify CRUD flow and smaller-screen layout.
