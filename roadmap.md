@@ -23,6 +23,6 @@
 - [x] Verify CRUD flow and smaller-screen layout.
 
 ## Categories screen
-- [ ] Add a hierarchical categories workspace and expand/collapse controls.
-- [ ] Implement demonstration create, subcategory, details, edit, and safe confirmed delete.
-- [ ] Verify CRUD, validation, hierarchy, navigation, and smaller-screen layout.
+- [x] Add a hierarchical categories workspace and expand/collapse controls.
+- [x] Implement demonstration create, subcategory, details, edit, and safe confirmed delete.
+- [x] Verify CRUD, validation, hierarchy, navigation, and smaller-screen layout.
