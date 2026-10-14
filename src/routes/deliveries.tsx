@@ -43,6 +43,7 @@ function Deliveries() {
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(10);
  const [selected,setSelected]=useState<Delivery|null>(null);
+ const [selection,setSelection]=useState<string[]>([]);
  const [editor,setEditor]=useState(false);
  const [editing,setEditing]=useState<string|null>(null);
  const [form,setForm]=useState(emptyForm);
