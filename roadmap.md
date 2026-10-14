@@ -11,3 +11,8 @@
 ## Orders menu
 - [x] Add Orders above Sales with an unprocessed-only demonstration list.
 - [x] Verify navigation, filtering, details, and pagination.
+
+## Articles screen
+- [x] Add article list, category navigation, search, selection, and category changes using SKU terminology.
+- [x] Add and validate the Add article dialog with demonstration-only updates.
+- [x] Verify add flow, filtering, category changes, and narrow-screen layout.

@@ -1,0 +1,87 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { useState, type FormEvent } from 'react';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Folder, FolderInput, Package, Pencil, Plus, Search, ShieldCheck, X } from 'lucide-react';
+import { WorkspaceShell } from '@/components/workspace-shell';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import perfume from '@/assets/perfume.jpg';
+
+export const Route = createFileRoute('/articles')({
+ head:()=>({meta:[{title:'HyperERP · Артикули'},{name:'description',content:'Каталог на артикули в HyperERP: SKU, категории и наличности.'},{property:'og:title',content:'HyperERP · Артикули'},{property:'og:description',content:'Управление на артикули по SKU и категория в HyperERP.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
+ component:Articles,
+});
+const categories = ['Козметика › Парфюми','Козметика › Дезодоранти','LEGO','Техника'] as const;
+type Article = { id:number; name:string; sku:string; category:string; stock:number; created:string; createdBy:string; edited:string; editedBy:string };
+const initialRows:Article[] = [
+ {id:1,name:'Парфюм 1',sku:'123456',category:categories[0],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:2,name:'Парфюм 2',sku:'234567',category:categories[0],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:3,name:'Парфюм 3',sku:'345678',category:categories[0],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:4,name:'Дезодорант 1',sku:'45678',category:categories[1],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:5,name:'Дезодорант 2',sku:'56789',category:categories[1],stock:0,created:'2026-10-14T11:05',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:6,name:'Дезодорант 3',sku:'6789',category:categories[1],stock:0,created:'2026-10-14T11:05',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:7,name:'LEGO 1',sku:'78791',category:categories[2],stock:0,created:'2026-10-14T11:05',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:8,name:'LEGO 2',sku:'12345678',category:categories[2],stock:0,created:'2026-10-14T11:05',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:9,name:'LEGO 3',sku:'78913',category:categories[2],stock:0,created:'2026-10-14T11:06',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+ {id:10,name:'Артикул 1',sku:'TECH-001',category:categories[3],stock:0,created:'2026-10-14T11:39',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
+];
+const emptyForm = {name:'',sku:'',category:''};
+const date = (value:string) => value ? new Date(value).toLocaleString('bg-BG',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+
+function Articles() {
+ const [rows,setRows] = useState(initialRows);
+ const [name,setName] = useState('');
+ const [sku,setSku] = useState('');
+ const [category,setCategory] = useState('');
+ const [expanded,setExpanded] = useState(true);
+ const [selection,setSelection] = useState<number[]>([]);
+ const [page,setPage] = useState(1);
+ const [pageSize,setPageSize] = useState(10);
+ const [editor,setEditor] = useState(false);
+ const [editing,setEditing] = useState<number|null>(null);
+ const [form,setForm] = useState(emptyForm);
+ const [errors,setErrors] = useState<Partial<Record<keyof typeof emptyForm,string|undefined>>>({});
+ const [bulkOpen,setBulkOpen] = useState(false);
+ const [bulkCategory,setBulkCategory] = useState('');
+ const [announcement,setAnnouncement] = useState('');
+ const filtered = rows.filter(row=>row.name.toLowerCase().includes(name.trim().toLowerCase()) && row.sku.toLowerCase().includes(sku.trim().toLowerCase()) && (!category || row.category===category || (category==='Козметика'&&row.category.startsWith('Козметика'))));
+ const pages = Math.max(1,Math.ceil(filtered.length/pageSize));
+ const current = Math.min(page,pages);
+ const visible = filtered.slice((current-1)*pageSize,current*pageSize);
+ const allSelected = visible.length>0&&visible.every(row=>selection.includes(row.id));
+ const someSelected = visible.some(row=>selection.includes(row.id));
+ const clear = ()=>{setName('');setSku('');setCategory('');setPage(1);setSelection([]);};
+ const chooseCategory = (value:string)=>{setCategory(value);setPage(1);setSelection([]);};
+ const startNew = ()=>{setForm({...emptyForm,category:categories.some(c=>c===category)?category:''});setEditing(null);setErrors({});setEditor(true);};
+ const startEdit = (row:Article)=>{setForm({name:row.name,sku:row.sku,category:row.category});setEditing(row.id);setErrors({});setEditor(true);};
+ const save = (event:FormEvent)=>{
+  event.preventDefault();
+  const next:Partial<typeof emptyForm> = {};
+  if(!form.name.trim())next.name='Въведете име на артикула.';
+  if(!form.sku.trim())next.sku='Въведете SKU.';
+  else if(rows.some(row=>row.id!==editing&&row.sku.toLowerCase()===form.sku.trim().toLowerCase()))next.sku='Вече съществува артикул с този SKU.';
+  if(!categories.some(c=>c===form.category))next.category='Изберете категория.';
+  setErrors(next);
+  if(Object.keys(next).length){document.getElementById(`article-${Object.keys(next)[0]}`)?.focus();return;}
+  const timestamp=new Date().toISOString();
+  if(editing!==null)setRows(prev=>prev.map(row=>row.id===editing?{...row,name:form.name.trim(),sku:form.sku.trim(),category:form.category,edited:timestamp,editedBy:'Венелин Тодоров'}:row));
+  else setRows(prev=>[{id:Math.max(0,...prev.map(row=>row.id))+1,name:form.name.trim(),sku:form.sku.trim(),category:form.category,stock:0,created:timestamp,createdBy:'Венелин Тодоров',edited:'',editedBy:''},...prev]);
+  clear();setEditor(false);setAnnouncement(`${form.name.trim()} · ${editing!==null?'Промените са приложени':'Артикулът е добавен'} само в демонстрацията.`);
+ };
+ const categoryButton = (label:string,value:string,child=false)=><Button key={value} variant="ghost" className={`category-item ${child?'category-child':''}`} aria-pressed={category===value} onClick={()=>chooseCategory(value)}>{!child&&<Folder size={14}/>}<span>{label}</span><span>{rows.filter(row=>!value||row.category===value||(value==='Козметика'&&row.category.startsWith(value))).length}</span></Button>;
+ return <WorkspaceShell active="Артикули"><div className="page-content deliveries-content">
+  <div className="page-heading articles-heading"><div><h1>Артикули</h1><p>Каталог и наличности по категории</p></div><div className="articles-actions"><Button variant="outline" disabled={selection.length===0} onClick={()=>{setBulkCategory('');setBulkOpen(true);}}><FolderInput/>Смени категорията</Button><Button onClick={startNew}><Plus/>Добави артикул</Button></div></div>
+  <div className="articles-filters"><div className="search-box"><Search/><input aria-label="Търси по име" className="search-input" placeholder="Търсене по име…" value={name} onChange={e=>{setName(e.target.value);setPage(1);setSelection([]);}}/></div><div className="field"><label className="sr-only" htmlFor="article-sku-search">Търси по SKU</label><input id="article-sku-search" placeholder="SKU" value={sku} onChange={e=>{setSku(e.target.value);setPage(1);setSelection([]);}}/></div><Button variant="outline" size="icon" aria-label="Изчисти филтрите" title="Изчисти филтрите" disabled={!name&&!sku&&!category} onClick={clear}><X/></Button></div>
+  {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
+  <div className="articles-layout"><aside className="article-categories" aria-label="Категории артикули"><h2>Категории</h2><nav>{categoryButton('Всички категории','')}{categoryButton('LEGO','LEGO')}<div className="category-branch"><Button variant="ghost" size="icon" aria-label={expanded?'Скрий подкатегориите на Козметика':'Покажи подкатегориите на Козметика'} aria-expanded={expanded} aria-controls="cosmetics-categories" onClick={()=>setExpanded(!expanded)}>{expanded?<ChevronDown size={14}/>:<ChevronRight size={14}/>}</Button>{categoryButton('Козметика','Козметика')}</div>{expanded&&<div id="cosmetics-categories">{categoryButton('Парфюми',categories[0],true)}{categoryButton('Дезодоранти',categories[1],true)}</div>}{categoryButton('Техника','Техника')}</nav></aside>
+   <section className="delivery-list" aria-label="Списък с артикули"><div className="delivery-list-heading"><h2>{category?category.split(' › ').at(-1):'Всички артикули'} <span>{filtered.length}</span></h2><span className="text-xs text-muted-foreground">{filtered.reduce((sum,row)=>sum+row.stock,0)} бр. налични</span></div>
+   {selection.length>0&&<div className="article-selection"><span>{selection.length} избрани артикула</span><Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
+   <div className="delivery-table-scroll"><table className="delivery-table article-table"><thead><tr><th className="article-select-cell"><Checkbox aria-label="Избери всички на страницата" checked={allSelected?true:someSelected?'indeterminate':false} onCheckedChange={checked=>setSelection(prev=>checked?[...new Set([...prev,...visible.map(row=>row.id)])]:prev.filter(id=>!visible.some(row=>row.id===id)))}/></th><th>SKU</th><th>Име</th><th>Категория</th><th>Наличност</th><th>Създадено</th><th>Последна промяна</th><th className="text-right">Действия</th></tr></thead><tbody>{visible.map(row=><tr key={row.id} data-selected={selection.includes(row.id)}><td className="article-select-cell"><Checkbox aria-label={`Избери ${row.sku}`} checked={selection.includes(row.id)} onCheckedChange={checked=>setSelection(prev=>checked?[...prev,row.id]:prev.filter(id=>id!==row.id))}/></td><td><span className="article-sku">{row.sku}</span></td><td><div className="article-name">{row.category===categories[0]?<img src={perfume} alt="Примерен парфюм" loading="lazy"/>:<span className="article-placeholder"><Package size={16}/></span>}<Button variant="link" className="delivery-id" onClick={()=>startEdit(row)}>{row.name}</Button></div></td><td className="category-path">{row.category}</td><td><span className="article-stock">{row.stock} бр.</span></td><td>{date(row.created)}<span className="delivery-cell-sub">{row.createdBy}</span></td><td>{date(row.edited)}<span className="delivery-cell-sub">{row.editedBy||'Без промени'}</span></td><td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Редактирай ${row.sku}`} title="Редактирай артикула" onClick={()=>startEdit(row)}><Pencil/></Button></div></td></tr>)}</tbody></table></div>
+   {!visible.length&&<div className="delivery-empty"><Package size={32}/><h3>Няма намерени артикули</h3><p>Няма резултати за избраните филтри.</p><Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button></div>}
+   <div className="delivery-pagination"><span>{filtered.length?`${(current-1)*pageSize+1}–${Math.min(current*pageSize,filtered.length)}`:'0'} от {filtered.length} артикула</span><div className="delivery-pagination-controls"><label htmlFor="articles-page-size">На страница</label><select id="articles-page-size" value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[5,10,25,50].map(n=><option key={n}>{n}</option>)}</select><Button variant="ghost" size="icon" aria-label="Първа страница" disabled={current===1} onClick={()=>setPage(1)}><ChevronsLeft/></Button><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={current===1} onClick={()=>setPage(current-1)}><ChevronLeft/></Button><span>{current} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={current===pages} onClick={()=>setPage(current+1)}><ChevronRight/></Button><Button variant="ghost" size="icon" aria-label="Последна страница" disabled={current===pages} onClick={()=>setPage(pages)}><ChevronsRight/></Button></div></div>
+   </section></div><div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни артикули и наличности · без реално записване</div>
+ </div>
+ <Dialog open={editor} onOpenChange={setEditor}><DialogContent className="max-w-lg max-h-[90dvh] overflow-y-auto"><DialogHeader><DialogTitle className="article-dialog-title">{editing!==null?'Редактирай артикул':'Добави артикул'}</DialogTitle><DialogDescription>Примерни данни · без реално записване</DialogDescription></DialogHeader><form className="delivery-editor" onSubmit={save} noValidate>{([{key:'name',label:'Име',placeholder:'Име на артикула',max:120},{key:'sku',label:'SKU',placeholder:'Напр. PRF-004',max:64}] as const).map(field=><div className="field" key={field.key}><label htmlFor={`article-${field.key}`}>{field.label}<span className="required">*</span></label><input id={`article-${field.key}`} required maxLength={field.max} placeholder={field.placeholder} value={form[field.key]} aria-invalid={Boolean(errors[field.key])} aria-describedby={errors[field.key]?`error-${field.key}`:undefined} onChange={e=>{setForm(prev=>({...prev,[field.key]:e.target.value}));setErrors(prev=>({...prev,[field.key]:undefined}));}}/>{errors[field.key]&&<p id={`error-${field.key}`} className="text-xs text-destructive" role="alert">{errors[field.key]}</p>}</div>)}<div className="field"><label htmlFor="article-category">Категория<span className="required">*</span></label><select id="article-category" required value={form.category} aria-invalid={Boolean(errors.category)} aria-describedby={errors.category?'error-category':undefined} onChange={e=>{setForm(prev=>({...prev,category:e.target.value}));setErrors(prev=>({...prev,category:undefined}));}}><option value="">Изберете категория</option>{categories.map(c=><option key={c}>{c}</option>)}</select>{errors.category&&<p id="error-category" className="text-xs text-destructive" role="alert">{errors.category}</p>}</div><div className="flex justify-end gap-2 pt-2"><Button variant="outline" type="button" onClick={()=>setEditor(false)}>Отказ</Button><Button type="submit"><Check/>Запази</Button></div></form></DialogContent></Dialog>
+ <Dialog open={bulkOpen} onOpenChange={setBulkOpen}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">Смени категорията</DialogTitle><DialogDescription>{selection.length} избрани артикула · промяна само в демонстрацията</DialogDescription></DialogHeader><div className="field"><label htmlFor="bulk-category">Нова категория</label><select id="bulk-category" value={bulkCategory} onChange={e=>setBulkCategory(e.target.value)}><option value="">Изберете категория</option>{categories.map(c=><option key={c}>{c}</option>)}</select></div><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setBulkOpen(false)}>Отказ</Button><Button disabled={!bulkCategory} onClick={()=>{if(!bulkCategory)return;const timestamp=new Date().toISOString();setRows(prev=>prev.map(row=>selection.includes(row.id)?{...row,category:bulkCategory,edited:timestamp,editedBy:'Венелин Тодоров'}:row));setAnnouncement(`Категорията на ${selection.length} артикула е променена само в демонстрацията.`);setSelection([]);setBulkOpen(false);}}><Check/>Приложи</Button></div></DialogContent></Dialog>
+ </WorkspaceShell>;
+}
