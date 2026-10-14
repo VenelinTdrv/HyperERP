@@ -85,7 +85,7 @@ function Warehouses(){
     {sel('kind','Тип склад',kinds)}
     {sel('country','Държава',countries)}
     {f('city','Град',{req:true,ph:'Ямбол',max:100})}
-    {f('street','Бул./ул. и номер',{ph:'ул. Търговска 12',max:150,hint:form.kind==='Виртуален'?'Незадължително за виртуален склад':undefined})}
+    {f('street','Бул./ул. и номер',{ph:'ул. Търговска 12',max:150,...(form.kind==='Виртуален'?{hint:'Незадължително за виртуален склад'}:{})})}
     {f('postalCode','Пощенски код',{ph:'8600',max:10,hint:'Незадължително'})}
    </div>
    <div className="flex justify-end gap-2 pt-2"><Button variant="outline" type="button" onClick={()=>setEditor(false)}>Отказ</Button><Button type="submit"><Check/>Запиши</Button></div>
