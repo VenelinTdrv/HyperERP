@@ -30,3 +30,7 @@
 ## Settlements screen
 - [x] Add settlements list with name/region filters, pagination, and demonstration CRUD (country, name, region, postal code).
 - [x] Verify CRUD flow, validation, and smaller-screen layout.
+
+## Warehouses screen
+- [x] Add warehouses list with name/city filters, pagination, and demonstration CRUD (physical/virtual, country, city, address, postal code).
+- [x] Verify CRUD flow, validation, and smaller-screen layout.
