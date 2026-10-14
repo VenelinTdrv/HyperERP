@@ -1,3 +1,4 @@
+import { WorkspaceShell } from '@/components/workspace-shell';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowRight, Bell, Boxes, Check, CheckCheck, ChevronDown, ChevronRight, CircleHelp, ClipboardList, CreditCard, FileText, Globe2, LayoutGrid, ListFilter, LogOut, Menu, Minus, Package, Plus, RotateCcw, Search, Settings2, ShieldCheck, ShoppingBag, Sparkles, Trash2, Truck, UserRound, UserRoundPlus, Users, Warehouse, X } from 'lucide-react';
@@ -21,12 +22,6 @@ const catalog = [
 ];
 type OrderItem = { id:number; quantity:number };
 const money = (value:number) => `${value.toLocaleString('bg-BG', {minimumFractionDigits:2, maximumFractionDigits:2})} €`;
-const groups = [
- { name:'Операции', items:[{name:'Продажби',icon:ShoppingBag,count:'24'}, {name:'Доставки',icon:Truck}] },
- { name:'Каталог', items:[{name:'Артикули',icon:Package}, {name:'Комбота',icon:Boxes}, {name:'Категории',icon:LayoutGrid}] },
- { name:'Контакти и логистика', items:[{name:'Клиенти',icon:Users}, {name:'Доставчици',icon:Truck}, {name:'Държави',icon:Globe2}, {name:'Населени места',icon:Warehouse}, {name:'Складове',icon:Warehouse}] },
- { name:'Администрация', items:[{name:'Потребители',icon:ShieldCheck}] },
-];
 function Field({label, id, required, children, className=''}:{label:string;id:string;required?:boolean;children:React.ReactNode;className?:string}) {
  return <div className={`field ${className}`}><label htmlFor={id}>{label}{required && <span className="required">*</span>}</label>{children}</div>;
 }
@@ -42,9 +37,7 @@ function Index() {
  const [productSearch,setProductSearch] = useState('');
  const [clientSearch,setClientSearch] = useState('');
  const [catalogOpen,setCatalogOpen] = useState(false);
- const [mobileOpen,setMobileOpen] = useState(false);
  const [error,setError] = useState('');
- const [notice,setNotice] = useState<string|null>(null);
  const [success,setSuccess] = useState(false);
  const [resetOpen,setResetOpen] = useState(false);
  const [resetAction,setResetAction] = useState<'reset'|'cancel'>('reset');
@@ -62,16 +55,7 @@ function Index() {
   if(items.length===0) {setError('Добавете поне един продукт към поръчката.');return;}
   setError('');setSuccess(true);if(newOrder)reset();
  };
- return <div className="erp-shell">
-  {mobileOpen && <div className="sidebar-scrim" aria-hidden="true" onClick={()=>setMobileOpen(false)} />}
-  <aside className={`sidebar ${mobileOpen?'mobile-open':''}`} aria-label="Главна навигация">
-   <div className="brand"><div className="brand-mark">h</div><div className="brand-name">hyper<span>ERP</span></div><Button variant="ghost" size="icon" className="mobile-menu" aria-label="Затвори менюто" onClick={()=>setMobileOpen(false)}><X/></Button></div>
-   <div className="workspace-switch"><div className="workspace-icon"><Sparkles size={17}/></div><div className="min-w-0 flex-1"><strong className="block text-xs">Ehype Perfumes</strong><span className="text-[10px] text-muted-foreground">Работно пространство</span></div><ChevronDown size={13} className="text-muted-foreground"/></div>
-   <nav>{groups.map(group=><div key={group.name} className="nav-group"><p className="nav-label">{group.name}</p>{group.items.map(item=><Button key={item.name} variant="ghost" className={`nav-item ${item.name==='Продажби'?'active':''}`} aria-current={item.name==='Продажби'?'page':undefined} onClick={()=>{setMobileOpen(false);setNotice(item.name==='Продажби'?'Продажби · Нова поръчка':`${item.name} · Този раздел не е включен в демонстрацията.`);}}><item.icon size={17}/><span>{item.name}</span>{'count' in item && <span className="nav-count">{item.count}</span>}</Button>)}</div>)}</nav>
-   <div className="sidebar-bottom"><Button variant="ghost" className="nav-item" onClick={()=>setNotice('Помощ · Попълнете клиента и доставката, добавете продукти и проверете общата сума.')}><CircleHelp/>Помощ и поддръжка<ArrowRight className="ml-auto"/></Button><div className="flex items-center gap-10px gap-3 mt-4"><div className="user-avatar">ВТ</div><div className="min-w-0 flex-1"><strong className="text-[11px] block">Венелин Тодоров</strong><span className="text-[10px] text-muted-foreground">Администратор</span></div><Button variant="ghost" size="icon" aria-label="Настройки на профила" title="Настройки на профила" onClick={()=>setNotice('Профил · Демонстрационен изглед на администратор. Реален вход и ролеви достъп не са свързани.')}><Settings2/></Button></div></div>
-  </aside>
-  <div className="page-shell">
-   <header className="topbar"><div className="flex items-center gap-2 min-w-0"><Button variant="ghost" size="icon" className="mobile-menu" aria-label="Отвори менюто" onClick={()=>setMobileOpen(true)}><Menu/></Button><div className="crumb"><span>Работно пространство</span><ChevronRight size={12}/><span>Продажби</span><ChevronRight size={12}/><strong>Нова поръчка</strong></div></div><div className="topbar-actions"><span className="topbar-date text-[10px] text-muted-foreground">14 октомври 2026</span><Button variant="ghost" size="icon" aria-label="Известия" title="Известия" onClick={()=>setNotice('Известия · Няма нови известия.')}><Bell size={17}/></Button><div className="h-5 border-l border-border"/><Button variant="ghost" className="text-[11px] px-2" onClick={()=>setNotice('Език · Българският е активният език в тази демонстрация.')}><Globe2 size={14}/>BG<ChevronDown size={12}/></Button></div></header>
+ return <WorkspaceShell active="Продажби">
    <div className="page-content">
     <div className="page-heading"><div className="min-w-0"><h1>Нова поръчка</h1><p>Всяка добра връзка с клиент започва с внимание към детайла.</p></div><div className="draft-badge"><span className="draft-dot"/>Чернова</div></div>
     <form onSubmit={e=>submit(e)} noValidate>
@@ -99,10 +83,8 @@ function Index() {
      <div className="demo-caption"><ShieldCheck size={12}/>Демонстрационни продукти и цени · без реално записване на поръчки</div>
     </form>
    </div>
-  </div>
   <Dialog open={catalogOpen} onOpenChange={setCatalogOpen}><DialogContent className="max-w-2xl max-h-[85dvh] overflow-y-auto"><DialogHeader><DialogTitle>Продуктов каталог</DialogTitle><DialogDescription>Примерни продукти · Ehype Perfumes</DialogDescription></DialogHeader><div className="catalog-grid">{catalog.map(p=><div className="catalog-product" key={p.id}><img src={perfume} width={200} height={200} alt={`Примерен парфюм ${p.name}`} loading="lazy"/><div className="catalog-info"><p>{p.name}</p><small>{p.detail}</small><div className="flex items-center justify-between mt-4"><strong className="text-xs">{money(p.price)}</strong><Button type="button" size="icon" aria-label={`Добави ${p.name}`} onClick={()=>{addProduct(p.id);setCatalogOpen(false);}}><Plus/></Button></div></div></div>)}</div></DialogContent></Dialog>
   <Dialog open={success} onOpenChange={setSuccess}><DialogContent><DialogHeader><div className="w-12 h-12 bg-success-soft text-success grid place-items-center rounded-full mb-3"><CheckCheck size={24}/></div><DialogTitle>Поръчката е проверена успешно</DialogTitle><DialogDescription>Това е демонстрация на екрана. Данните не са изпратени и поръчката не е записана в реална система.</DialogDescription></DialogHeader><Button onClick={()=>setSuccess(false)}>Обратно към поръчката</Button></DialogContent></Dialog>
-  <Dialog open={notice!==null} onOpenChange={open=>{if(!open)setNotice(null);}}><DialogContent><DialogHeader><DialogTitle>{notice?.split(' · ')[0]}</DialogTitle><DialogDescription>{notice?.split(' · ').slice(1).join(' · ')||'Разглеждате демонстрационния екран за нова поръчка.'}</DialogDescription></DialogHeader><Button variant="outline" onClick={()=>setNotice(null)}>Затвори</Button></DialogContent></Dialog>
   <Dialog open={resetOpen} onOpenChange={setResetOpen}><DialogContent><DialogHeader><DialogTitle>{resetAction==='cancel'?'Отказ от поръчката?':'Изчистване на формата?'}</DialogTitle><DialogDescription>Въведените данни и добавените продукти ще бъдат премахнати.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setResetOpen(false)}>Продължи редакцията</Button><Button variant="destructive" onClick={()=>{reset();setResetOpen(false);}}>Изчисти</Button></div></DialogContent></Dialog>
- </div>;
+ </WorkspaceShell>;
 }
