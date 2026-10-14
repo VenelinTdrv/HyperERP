@@ -9,7 +9,6 @@ const groups = [
  { name:'Каталог', items:[{name:'Артикули',icon:Package,to:'/articles' as const}, {name:'Комбота',icon:Boxes,to:'/combos' as const}, {name:'Категории',icon:LayoutGrid,to:'/categories' as const}] },
  { name:'Контакти и логистика', items:[{name:'Клиенти',icon:Users,to:'/clients' as const}, {name:'Доставчици',icon:Truck,to:'/suppliers' as const}, {name:'Държави',icon:Globe2,to:'/countries' as const}, {name:'Населени места',icon:Warehouse,to:'/settlements' as const}, {name:'Складове',icon:Warehouse,to:'/warehouses' as const}] },
  { name:'Администрация', items:[{name:'Потребители',icon:UserCog,to:'/users' as const}] },
- { name:'Администрация', items:[{name:'Потребители',icon:ShieldCheck}] },
 ];
 
 export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'|'Категории'|'Клиенти'|'Доставчици'|'Държави'|'Населени места'|'Складове'|'Потребители'; children:ReactNode }) {
