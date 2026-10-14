@@ -1,0 +1,54 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import { Boxes, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, MoreVertical, Package, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { WorkspaceShell } from '@/components/workspace-shell';
+import { ComboEditor } from '@/components/combo-editor';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { comboDate, comboProducts, influencers, initialCombos, type Combo, type ComboForm } from '@/lib/combo-data';
+import perfume from '@/assets/perfume.jpg';
+
+export const Route=createFileRoute('/combos')({
+ head:()=>({meta:[{title:'HyperERP · Комбота'},{name:'description',content:'Комбота от продукти в HyperERP: инфлуенсъри, състав, създаване и редакция.'},{property:'og:title',content:'HyperERP · Комбота'},{property:'og:description',content:'Управление на продуктови комплекти и количества по инфлуенсър.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
+ component:Combos,
+});
+const emptyForm:ComboForm={name:'',influencer:'',description:'',items:[]};
+function Combos() {
+ const [rows,setRows]=useState(initialCombos);
+ const [search,setSearch]=useState('');
+ const [influencer,setInfluencer]=useState('');
+ const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
+ const [editor,setEditor]=useState(false);
+ const [editing,setEditing]=useState<Combo|null>(null);
+ const [selected,setSelected]=useState<Combo|null>(null);
+ const [deleting,setDeleting]=useState<Combo|null>(null);
+ const [announcement,setAnnouncement]=useState('');
+ const filtered=rows.filter(row=>row.name.toLowerCase().includes(search.trim().toLowerCase())&&(!influencer||row.influencer===influencer));
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));
+ const current=Math.min(page,pages);
+ const visible=filtered.slice((current-1)*pageSize,current*pageSize);
+ const clear=()=>{setSearch('');setInfluencer('');setPage(1);};
+ const startNew=()=>{setEditing(null);setEditor(true);};
+ const startEdit=(row:Combo)=>{setSelected(null);setEditing(row);setEditor(true);};
+ const save=(form:ComboForm)=>{
+  const timestamp=new Date().toISOString();
+  if(editing)setRows(prev=>prev.map(row=>row.id===editing.id?{...row,...form,edited:timestamp,editedBy:'Венелин Тодоров'}:row));
+  else setRows(prev=>[{...form,id:Math.max(0,...prev.map(row=>row.id))+1,created:timestamp,createdBy:'Венелин Тодоров',edited:'',editedBy:''},...prev]);
+  setAnnouncement(`${form.name} · ${editing?'Промените са приложени':'Комбото е добавено'} само в демонстрацията.`);setEditor(false);clear();
+ };
+ return <WorkspaceShell active="Комбота"><div className="page-content deliveries-content">
+  <div className="page-heading"><div><h1>Комбота</h1><p>Продуктови комплекти по инфлуенсър</p></div><Button className="delivery-add" onClick={startNew}><Plus/>Добави комбо</Button></div>
+  <div className="combo-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Търси комбо по име" placeholder="Търсене по име…" value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}}/></div><div className="field"><label className="sr-only" htmlFor="combo-filter-influencer">Инфлуенсър</label><select id="combo-filter-influencer" value={influencer} onChange={e=>{setInfluencer(e.target.value);setPage(1);}}><option value="">Всички инфлуенсъри</option>{influencers.map(name=><option key={name}>{name}</option>)}</select></div><Button variant="outline" size="icon" aria-label="Изчисти филтрите" title="Изчисти филтрите" disabled={!search&&!influencer} onClick={clear}><X/></Button></div>
+  {announcement&&<div className="delivery-notice" role="status"><ShieldCheck size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
+  <section className="delivery-list" aria-label="Списък с комбота"><div className="delivery-list-heading"><h2>Всички комбота <span>{filtered.length}</span></h2><Boxes size={18} className="text-muted-foreground"/></div><div className="delivery-table-scroll"><table className="delivery-table combo-table"><thead><tr><th>ID / Име</th><th>Инфлуенсър</th><th>Описание</th><th>Продукти</th><th>Създадено</th><th>Последна промяна</th><th className="text-right">Действия</th></tr></thead><tbody>{visible.map(row=><tr key={row.id}><td><Button variant="link" className="delivery-id" onClick={()=>setSelected(row)}>{row.name}</Button><span className="delivery-cell-sub">#{row.id} · {row.items.reduce((sum,item)=>sum+item.quantity,0)} бр.</span></td><td>{row.influencer}</td><td className="combo-description">{row.description||'—'}</td><td className="combo-products-cell">{row.items.map(item=><span key={item.productId} className="combo-product-line">{comboProducts.find(p=>p.id===item.productId)?.name??'Продукт'} <strong>× {item.quantity}</strong></span>)}</td><td>{comboDate(row.created)}<span className="delivery-cell-sub">{row.createdBy}</span></td><td>{comboDate(row.edited)}<span className="delivery-cell-sub">{row.editedBy||'Без промени'}</span></td><td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${row.name}`} title="Действия за комбото"><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(row)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>startEdit(row)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(row)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td></tr>)}</tbody></table></div>
+  {!visible.length&&<div className="delivery-empty"><Boxes size={32}/><h3>{rows.length?'Няма намерени комбота':'Все още няма комбота'}</h3>{rows.length?<><p>Няма резултати за избраните филтри.</p><Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button></>:<Button className="mt-4" onClick={startNew}><Plus/>Добави комбо</Button>}</div>}
+  <div className="delivery-pagination"><span>{filtered.length?`${(current-1)*pageSize+1}–${Math.min(current*pageSize,filtered.length)}`:'0'} от {filtered.length} комбота</span><div className="delivery-pagination-controls"><label htmlFor="combos-page-size">На страница</label><select id="combos-page-size" value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[5,10,25,50].map(n=><option key={n}>{n}</option>)}</select><Button variant="ghost" size="icon" aria-label="Първа страница" disabled={current===1} onClick={()=>setPage(1)}><ChevronsLeft/></Button><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={current===1} onClick={()=>setPage(current-1)}><ChevronLeft/></Button><span>{current} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={current===pages} onClick={()=>setPage(current+1)}><ChevronRight/></Button><Button variant="ghost" size="icon" aria-label="Последна страница" disabled={current===pages} onClick={()=>setPage(pages)}><ChevronsRight/></Button></div></div></section>
+  <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни комбота · без реално записване или промяна на наличности</div>
+ </div>
+ <Dialog open={editor} onOpenChange={setEditor}><DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto"><DialogHeader><DialogTitle className="article-dialog-title">{editing?'Редактирай комбо':'Добави комбо'}</DialogTitle><DialogDescription>Примерни данни · без реално записване</DialogDescription></DialogHeader>{editor&&<ComboEditor key={editing?.id??'new'} initial={editing??emptyForm} onSave={save} onCancel={()=>setEditor(false)}/>}</DialogContent></Dialog>
+ <Dialog open={selected!==null} onOpenChange={open=>{if(!open)setSelected(null);}}><DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">{selected&&<><DialogHeader><DialogTitle className="article-dialog-title">{selected.name}</DialogTitle><DialogDescription>Комбо #{selected.id} · примерни данни</DialogDescription></DialogHeader><dl className="delivery-details"><div><dt>Инфлуенсър</dt><dd>{selected.influencer}</dd></div><div><dt>Общо продукти</dt><dd>{selected.items.reduce((sum,item)=>sum+item.quantity,0)} бр.</dd></div></dl>{selected.description&&<p className="combo-detail-description">{selected.description}</p>}<div>{selected.items.map(item=>{const product=comboProducts.find(p=>p.id===item.productId);if(!product)return null;return <div key={item.productId} className="combo-editor-product">{product.perfume?<img src={perfume} alt="Примерен парфюм"/>:<span className="article-placeholder"><Package size={16}/></span>}<div className="combo-product-copy"><strong>{product.name}</strong><span>SKU · {product.sku}</span></div><strong>{item.quantity} бр.</strong></div>;})}</div><dl className="delivery-details">{[['Създадено от',selected.createdBy],['Създадено на',comboDate(selected.created)],['Редактирано от',selected.editedBy||'—'],['Редактирано на',comboDate(selected.edited)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button onClick={()=>startEdit(selected)}><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog>
+ <Dialog open={deleting!==null} onOpenChange={open=>{if(!open)setDeleting(null);}}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">Изтриване на комбо?</DialogTitle><DialogDescription>„{deleting?.name}“ ще бъде премахнато само от демонстрационния списък. Продуктите и наличностите няма да се променят.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setDeleting(null)}>Отказ</Button><Button variant="destructive" onClick={()=>{if(!deleting)return;setRows(prev=>prev.filter(row=>row.id!==deleting.id));setAnnouncement(`${deleting.name} · Комбото е изтрито само в демонстрацията.`);setDeleting(null);}}><Trash2/>Изтрий комбото</Button></div></DialogContent></Dialog>
+ </WorkspaceShell>;
+}
