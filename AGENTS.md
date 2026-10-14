@@ -19,3 +19,4 @@
 - Keep combos at /combos within WorkspaceShell with a separate combo editor; CRUD and product quantities remain frontend demonstration state until a real catalog service is connected.
 - Keep categories at /categories within WorkspaceShell as a frontend demonstration hierarchy; prevent cyclic parent assignments and deleting parents with children to protect the tree until a real catalog service is connected.
 - Keep countries at /countries within WorkspaceShell as frontend demonstration nomenclature with unique 2-letter codes; the Bulgaria system row stays locked against edit and delete until a real catalog service is connected.
+- Keep settlements at /settlements within WorkspaceShell as frontend demonstration nomenclature (country, name, region, postal code) until a real catalog service is connected.
