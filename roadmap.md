@@ -11,6 +11,7 @@
 ## Orders menu
 - [x] Add Orders above Sales with an unprocessed-only demonstration list.
 - [x] Verify navigation, filtering, details, and pagination.
+- [x] Add per-row checkboxes with select-all on the current page and a selection summary.
 
 ## Articles screen
 - [x] Add article list, category navigation, search, selection, and category changes using SKU terminology.
