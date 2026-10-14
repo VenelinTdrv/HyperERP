@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, FileSpreadsheet, FileText, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -35,6 +35,11 @@ const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFracti
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG');
 const tone: Record<Status,string> = { 'Необработена':'pending','Обработена':'transit','Изпратена':'transit','Доставена':'received','Отказана':'cancelled' };
 function OrderStatus({status}:{status:Status}) { return <span className={`delivery-status ${tone[status]}`}><span/>{status}</span>; }
+const esc=(s:string)=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]??c));
+function tableHtml(list:Order[]){
+ const head=['Поръчка','Статус','Клиент','Телефон','Доставка','Общо с ДДС','Създадена'];
+ return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(r=>`<tr><td>${esc(r.id)}</td><td>${r.status}</td><td>${esc(r.customer)}</td><td>${esc(r.phone)}</td><td>${esc(r.city)} · ${esc(r.courier)} · ${esc(r.address)}</td><td>${money(r.quantity*r.price+r.shipping)}</td><td>${date(r.created)}</td></tr>`).join('')}</tbody></table>`;
+}
 
 function Sales() {
  const [filters, setFilters] = useState(emptyFilters);
@@ -60,8 +65,10 @@ function Sales() {
  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id=>!pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
  const activeFilters = Object.values(filters).filter(Boolean).length;
+ const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='prodazhbi.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
+ const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Продажби</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Продажби</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  return <WorkspaceShell active="Продажби"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Продажби</h1><p>Всички продажби</p></div><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div>
+  <div className="page-heading"><div><h1>Продажби</h1><p>Всички продажби</p></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={filters.status} onChange={e=>filter('status',e.target.value)}><option value="">Всички статуси</option>{statuses.map(s=><option key={s}>{s}</option>)}</select></div>
