@@ -44,7 +44,7 @@ function Users(){
  const open=(u:User|null)=>{setSelected(null);setEditing(u);setErrors({});setShowPw(false);setForm(u?{...blank,email:u.email,firstName:u.firstName,lastName:u.lastName,role:u.role,active:u.active}:{...blank});setEditor(true);};
  const set=<K extends keyof Form>(k:K,v:Form[K])=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
  const save=(ev:FormEvent)=>{
-  ev.preventDefault();const er:Record<string,string>={};const email=form.email.trim().toLowerCase();
+  ev.preventDefault();const er:Partial<Record<'email'|'firstName'|'lastName'|'role'|'password'|'confirm',string>>={};const email=form.email.trim().toLowerCase();
   if(!email)er.email='Въведете имейл';else if(!EMAIL.test(email))er.email='Невалиден имейл адрес';
   else if(rows.some(r=>r.id!==editing?.id&&r.email===email))er.email='Вече има потребител с този имейл';
   if(!form.firstName.trim())er.firstName='Въведете име';
@@ -71,8 +71,8 @@ function Users(){
  return <WorkspaceShell active="Потребители"><div className="page-content deliveries-content">
   <div className="page-heading"><div><h1>Потребители</h1><p>Достъп до системата и роли</p></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави потребител</Button></div>
   <div className="suppliers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Име или имейл" placeholder="Име или имейл…" value={q} onChange={ev=>{setQ(ev.target.value);setPage(1);}}/></div>
-   <select className="filter-select" aria-label="Роля" value={role} onChange={ev=>{setRole(ev.target.value);setPage(1);}}><option value="">Всички роли</option>{ROLES.map(r=><option key={r}>{r}</option>)}</select>
-   <select className="filter-select" aria-label="Статус" value={status} onChange={ev=>{setStatus(ev.target.value);setPage(1);}}><option value="">Всички статуси</option><option value="active">Активен</option><option value="inactive">Неактивен</option></select>
+   <select className="search-input" style={{maxWidth:'13rem'}} aria-label="Роля" value={role} onChange={ev=>{setRole(ev.target.value);setPage(1);}}><option value="">Всички роли</option>{ROLES.map(r=><option key={r}>{r}</option>)}</select>
+   <select className="search-input" style={{maxWidth:'13rem'}} aria-label="Статус" value={status} onChange={ev=>{setStatus(ev.target.value);setPage(1);}}><option value="">Всички статуси</option><option value="active">Активен</option><option value="inactive">Неактивен</option></select>
    <Button variant="outline" disabled={!q&&!role&&!status} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с потребители"><div className="delivery-list-heading"><h2>Всички потребители <span>{filtered.length}</span></h2></div>
