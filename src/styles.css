@@ -295,3 +295,15 @@
 .client-address-list li { display:flex; align-items:center; gap:7px; }
 .client-badge { background:var(--accent); color:var(--accent-foreground); border-radius:4px; padding:2px 7px; font-size:10px; font-weight:700; }
 @media(max-width:700px) { .clients-filters { grid-template-columns:1fr; } .clients-filters>button { min-height:44px; } .client-street { grid-template-columns:1fr 90px; } }
+
+/* Suppliers */
+.suppliers-filters { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,180px) auto; gap:12px; max-width:960px; margin-bottom:22px; }
+.suppliers-filters>button, .suppliers-filters>select { height:41px; }
+.suppliers-filters>select { border:1px solid var(--border); border-radius:var(--radius); background:var(--card); color:var(--foreground); padding:0 12px; font-size:13px; }
+.supplier-section { border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+.supplier-section>legend { padding:0 6px; font-size:12px; font-weight:700; color:var(--muted-foreground); text-transform:uppercase; letter-spacing:.04em; }
+.supplier-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.supplier-grid-4 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.supplier-active { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
+.supplier-active input { width:16px; height:16px; accent-color:var(--primary); }
+@media(max-width:700px) { .suppliers-filters, .supplier-grid { grid-template-columns:1fr; } .supplier-grid>.col-span-2 { grid-column:auto; } .supplier-grid-4 { grid-template-columns:1fr 1fr; } .suppliers-filters>button { min-height:44px; } }
