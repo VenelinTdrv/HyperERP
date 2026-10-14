@@ -40,7 +40,7 @@ function Articles() {
  const [editor,setEditor] = useState(false);
  const [editing,setEditing] = useState<number|null>(null);
  const [form,setForm] = useState(emptyForm);
- const [errors,setErrors] = useState<Partial<typeof emptyForm>>({});
+ const [errors,setErrors] = useState<Partial<Record<keyof typeof emptyForm,string|undefined>>>({});
  const [bulkOpen,setBulkOpen] = useState(false);
  const [bulkCategory,setBulkCategory] = useState('');
  const [announcement,setAnnouncement] = useState('');
