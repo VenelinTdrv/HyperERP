@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, FileSpreadsheet, FileText, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -32,6 +32,11 @@ const emptyFilters = { search:'', city:'', courier:'', from:'', to:'' };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG');
 function OrderStatus() { return <span className="delivery-status pending"><span/>Необработена</span>; }
+const esc=(s:string)=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]??c));
+function tableHtml(list:Order[]){
+ const head=['Поръчка','Статус','Клиент','Телефон','Доставка','Общо с ДДС','Създадена'];
+ return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(r=>`<tr><td>${esc(r.id)}</td><td>${r.status}</td><td>${esc(r.customer)}</td><td>${esc(r.phone)}</td><td>${esc(r.city)} · ${esc(r.courier)} · ${esc(r.address)}</td><td>${money(r.quantity*r.price+r.shipping)}</td><td>${date(r.created)}</td></tr>`).join('')}</tbody></table>`;
+}
 
 function Orders() {
  const [filters, setFilters] = useState(emptyFilters);
