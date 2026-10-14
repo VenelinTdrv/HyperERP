@@ -12,9 +12,9 @@ export const Route = createFileRoute('/deliveries')({
 });
 type Status = 'Очаквана'|'В транзит'|'Получена'|'Отказана';
 type Delivery = {id:string;status:Status;supplier:string;warehouse:string;expected:string;received:string;created:string;createdBy:string;edited:string;editedBy:string;quantity:number;product:string;note:string};
-const suppliers=['Maison Beauty','Bloom Cosmetics','Essence Lab'];
-const warehouses=['Основен склад · София','Склад · Пловдив'];
-const products=['Rose Élixir','Velvet Bloom','Pure Essence'];
+const suppliers=['Maison Beauty','Bloom Cosmetics','Essence Lab'] as const;
+const warehouses=['Основен склад · София','Склад · Пловдив'] as const;
+const products=['Rose Élixir','Velvet Bloom','Pure Essence'] as const;
 const statuses:Status[]=['Очаквана','В транзит','Получена','Отказана'];
 const initialRows:Delivery[]=[
  {id:'DEL-0018',status:'В транзит',supplier:suppliers[0],warehouse:warehouses[0],expected:'2026-10-15',received:'',created:'2026-10-12',createdBy:'Венелин Тодоров',edited:'2026-10-14',editedBy:'Венелин Тодоров',quantity:48,product:products[0],note:'Доставка до основния склад.'},
@@ -25,7 +25,7 @@ const initialRows:Delivery[]=[
  {id:'DEL-0013',status:'Отказана',supplier:suppliers[2],warehouse:warehouses[0],expected:'2026-10-10',received:'',created:'2026-10-07',createdBy:'Венелин Тодоров',edited:'2026-10-09',editedBy:'Венелин Тодоров',quantity:20,product:products[2],note:'Отказана от доставчика.'},
 ];
 const emptyFilters={search:'',status:'',supplier:'',warehouse:'',created:'',expected:'',received:''};
-const emptyForm={supplier:'',warehouse:'',expected:'',product:products[0],quantity:'1',note:'',status:'Очаквана' as Status};
+const emptyForm={supplier:'',warehouse:'',expected:'',product:products[0] as string,quantity:'1',note:'',status:'Очаквана' as Status};
 const date=(value:string)=>value ? new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG') : '—';
 const statusClass=(status:Status)=>status==='Получена'?'received':status==='В транзит'?'transit':status==='Отказана'?'cancelled':'pending';
 function StatusBadge({status}:{status:Status}) { return <span className={`delivery-status ${statusClass(status)}`}><span/>{status}</span>; }
