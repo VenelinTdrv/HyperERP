@@ -13,6 +13,6 @@
 - [x] Verify navigation, filtering, details, and pagination.
 
 ## Articles screen
-- [ ] Add article list, category navigation, search, selection, and category changes using SKU terminology.
-- [ ] Add and validate the Add article dialog with demonstration-only updates.
-- [ ] Verify add flow, filtering, category changes, and narrow-screen layout.
+- [x] Add article list, category navigation, search, selection, and category changes using SKU terminology.
+- [x] Add and validate the Add article dialog with demonstration-only updates.
+- [x] Verify add flow, filtering, category changes, and narrow-screen layout.
