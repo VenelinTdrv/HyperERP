@@ -42,15 +42,15 @@ function Clients(){
  const setA=(id:number,patch:Partial<Address>)=>{setForm(f=>({...f,addresses:f.addresses.map(a=>a.id===id?{...a,...patch}:a)}));setErrors({});};
  const save=(e:FormEvent)=>{
   e.preventDefault();const er:Record<string,string>={};
-  if(!form.first.trim())er.first='Въведете име';
-  if(!form.last.trim())er.last='Въведете фамилия';
+  if(!form.first.trim())er['first']='Въведете име';
+  if(!form.last.trim())er['last']='Въведете фамилия';
   const ph=form.phone.replace(/[\s-]/g,'');
-  if(!ph)er.phone='Въведете телефон';else if(!/^(\+359|0)\d{8,9}$/.test(ph))er.phone='Невалиден телефон (напр. 0888123456)';
-  else if(rows.some(r=>r.id!==editing?.id&&r.phone===ph))er.phone='Вече има клиент с този телефон';
+  if(!ph)er['phone']='Въведете телефон';else if(!/^(\+359|0)\d{8,9}$/.test(ph))er['phone']='Невалиден телефон (напр. 0888123456)';
+  else if(rows.some(r=>r.id!==editing?.id&&r.phone===ph))er['phone']='Вече има клиент с този телефон';
   form.addresses.forEach(a=>{if(!a.city)er[`city-${a.id}`]='Изберете населено място';if(a.kind==='street'){if(!a.street.trim())er[`street-${a.id}`]='Въведете улица';if(!a.number.trim())er[`number-${a.id}`]='Въведете номер';}else if(!a.place.trim())er[`place-${a.id}`]='Въведете местоназначение';});
   setErrors(er);
   if(Object.keys(er).length){document.getElementById(`client-${Object.keys(er)[0]}`)?.focus();return;}
-  const data={first:form.first.trim(),last:form.last.trim(),phone:ph,notes:form.notes.trim(),addresses:form.addresses,primary:form.addresses.some(a=>a.id===form.primary)?form.primary:form.addresses[0].id};
+  const data={first:form.first.trim(),last:form.last.trim(),phone:ph,notes:form.notes.trim(),addresses:form.addresses,primary:form.addresses.some(a=>a.id===form.primary)?form.primary:form.addresses[0]!.id};
   if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,editedBy:'Венелин Тодоров',editedAt:now()}:r));
   else setRows(prev=>[...prev,{id:Math.max(0,...prev.map(r=>r.id))+1,...data,createdBy:'Венелин Тодоров',createdAt:now(),editedBy:'',editedAt:''}]);
   setEditor(false);setAnnouncement(`${data.first} ${data.last} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
@@ -85,7 +85,7 @@ function Clients(){
    <div className="field"><label htmlFor="client-phone">Телефон<span className="required">*</span></label><input id="client-phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0888 123 456" value={form.phone} {...inv('phone')} onChange={e=>{setForm(f=>({...f,phone:e.target.value}));setErrors({});}}/>{err('phone')}</div>
    <div className="field"><label htmlFor="client-notes">Бележки <span className="text-muted-foreground font-normal">({form.notes.length}/500)</span></label><textarea id="client-notes" rows={2} maxLength={500} value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}/></div>
    <fieldset className="client-addresses"><legend>Адреси</legend>{form.addresses.map((a,i)=><div key={a.id} className="client-address">
-    <div className="client-address-head"><label className="client-primary"><input type="radio" name="primary" checked={form.primary===a.id} onChange={()=>setForm(f=>({...f,primary:a.id}))}/>{form.primary===a.id?<><Star size={13}/>Основен адрес</>:`Адрес ${i+1} · направи основен`}</label><Button type="button" variant="ghost" size="icon" aria-label={`Премахни адрес ${i+1}`} disabled={form.addresses.length===1} title={form.addresses.length===1?'Клиентът трябва да има поне един адрес':undefined} onClick={()=>setForm(f=>{const list=f.addresses.filter(x=>x.id!==a.id);return {...f,addresses:list,primary:f.primary===a.id?list[0].id:f.primary};})}><Trash2/></Button></div>
+    <div className="client-address-head"><label className="client-primary"><input type="radio" name="primary" checked={form.primary===a.id} onChange={()=>setForm(f=>({...f,primary:a.id}))}/>{form.primary===a.id?<><Star size={13}/>Основен адрес</>:`Адрес ${i+1} · направи основен`}</label><Button type="button" variant="ghost" size="icon" aria-label={`Премахни адрес ${i+1}`} disabled={form.addresses.length===1} title={form.addresses.length===1?'Клиентът трябва да има поне един адрес':undefined} onClick={()=>setForm(f=>{const list=f.addresses.filter(x=>x.id!==a.id);return {...f,addresses:list,primary:f.primary===a.id?list[0]!.id:f.primary};})}><Trash2/></Button></div>
     <div className="field"><label htmlFor={`client-city-${a.id}`}>Населено място<span className="required">*</span></label><select id={`client-city-${a.id}`} value={a.city} {...inv(`city-${a.id}`)} onChange={e=>setA(a.id,{city:e.target.value})}><option value="">Изберете населено място</option>{cities.map(c=><option key={c}>{c}</option>)}</select>{err(`city-${a.id}`)}</div>
     <div className="segmented" role="group" aria-label="Вид адрес"><Button type="button" variant="ghost" className="segment" aria-pressed={a.kind==='street'} onClick={()=>setA(a.id,{kind:'street'})}>{a.kind==='street'&&<Check size={13}/>}Улица и номер</Button><Button type="button" variant="ghost" className="segment" aria-pressed={a.kind==='place'} onClick={()=>setA(a.id,{kind:'place'})}>{a.kind==='place'&&<Check size={13}/>}Местоназначение</Button></div>
     {a.kind==='street'?<div className="client-street"><div className="field"><label htmlFor={`client-street-${a.id}`}>Улица<span className="required">*</span></label><input id={`client-street-${a.id}`} value={a.street} {...inv(`street-${a.id}`)} onChange={e=>setA(a.id,{street:e.target.value})}/>{err(`street-${a.id}`)}</div><div className="field"><label htmlFor={`client-number-${a.id}`}>Номер<span className="required">*</span></label><input id={`client-number-${a.id}`} value={a.number} {...inv(`number-${a.id}`)} onChange={e=>setA(a.id,{number:e.target.value})}/>{err(`number-${a.id}`)}</div></div>
