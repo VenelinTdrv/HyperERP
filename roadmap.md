@@ -39,3 +39,4 @@
 ## Transfers screen
 - [x] Add /transfers with filters, statuses, product picker, stock move on completion, PDF/XLS export.
 - [x] Add per-row checkboxes with select-all on the current page and a selection summary.
+- [x] Продажби: списък на / с checkboxes, Нова поръчка на /sales/new

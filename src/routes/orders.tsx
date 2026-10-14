@@ -58,7 +58,7 @@ function Orders() {
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
  const activeFilters = Object.values(filters).filter(Boolean).length;
  return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Поръчки</h1><p>Необработени поръчки</p></div><Button asChild className="delivery-add"><Link to="/"><Plus/>Нова поръчка</Link></Button></div>
+  <div className="page-heading"><div><h1>Поръчки</h1><p>Необработени поръчки</p></div><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><input id="orders-status" value="Необработена" readOnly/></div>

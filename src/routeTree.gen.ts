@@ -22,6 +22,7 @@ import { Route as SuppliersRouteImport } from './routes/suppliers'
 import { Route as TransfersRouteImport } from './routes/transfers'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as WarehousesRouteImport } from './routes/warehouses'
+import { Route as SalesNewRouteImport } from './routes/sales.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,6 +89,11 @@ const WarehousesRoute = WarehousesRouteImport.update({
   path: '/warehouses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SalesNewRoute = SalesNewRouteImport.update({
+  id: '/sales/new',
+  path: '/sales/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/transfers': typeof TransfersRoute
   '/users': typeof UsersRoute
   '/warehouses': typeof WarehousesRoute
+  '/sales/new': typeof SalesNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/transfers': typeof TransfersRoute
   '/users': typeof UsersRoute
   '/warehouses': typeof WarehousesRoute
+  '/sales/new': typeof SalesNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/transfers': typeof TransfersRoute
   '/users': typeof UsersRoute
   '/warehouses': typeof WarehousesRoute
+  '/sales/new': typeof SalesNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/transfers'
     | '/users'
     | '/warehouses'
+    | '/sales/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/transfers'
     | '/users'
     | '/warehouses'
+    | '/sales/new'
   id:
     | '__root__'
     | '/'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/transfers'
     | '/users'
     | '/warehouses'
+    | '/sales/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   TransfersRoute: typeof TransfersRoute
   UsersRoute: typeof UsersRoute
   WarehousesRoute: typeof WarehousesRoute
+  SalesNewRoute: typeof SalesNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WarehousesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sales/new': {
+      id: '/sales/new'
+      path: '/sales/new'
+      fullPath: '/sales/new'
+      preLoaderRoute: typeof SalesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -309,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   TransfersRoute: TransfersRoute,
   UsersRoute: UsersRoute,
   WarehousesRoute: WarehousesRoute,
+  SalesNewRoute: SalesNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
