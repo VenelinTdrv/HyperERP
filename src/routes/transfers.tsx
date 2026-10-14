@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, Eye, FileSpreadsheet, FileText, Minus, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -47,11 +48,17 @@ function Transfers(){
  const [form,setForm]=useState({from:'',to:'',description:'',items:[] as Item[]});const [errors,setErrors]=useState<Record<string,string>>({});
  const [picker,setPicker]=useState(false);const [pq,setPq]=useState('');
  const [selected,setSelected]=useState<Transfer|null>(null);const [deleting,setDeleting]=useState<Transfer|null>(null);
+ const [selection,setSelection]=useState<number[]>([]);
  const [announcement,setAnnouncement]=useState('');
  const q=docQ.trim().toLowerCase();
  const filtered=rows.filter(r=>(!q||r.doc.toLowerCase().includes(q))&&(!dateFrom||r.created.slice(0,10)>=dateFrom)&&(!dateTo||r.created.slice(0,10)<=dateTo)&&(!statusQ||r.status===statusQ)&&(!userQ||r.createdBy===userQ));
  const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pageIds=shown.map(r=>r.id);
+ const allSelected=pageIds.length>0&&pageIds.every(id=>selection.includes(id));
+ const someSelected=pageIds.some(id=>selection.includes(id));
+ const toggleAll=(on:boolean)=>setSelection(p=>on?[...new Set([...p,...pageIds])]:p.filter(id=>!pageIds.includes(id)));
+ const toggleRow=(id:number,on:boolean)=>setSelection(p=>on?[...new Set([...p,id])]:p.filter(x=>x!==id));
  const anyFilter=Boolean(docQ||dateFrom||dateTo||statusQ||userQ);
  const clear=()=>{setDocQ('');setDateFrom('');setDateTo('');setStatusQ('');setUserQ('');setPage(1);};
  const open=(t:Transfer|null)=>{setSelected(null);setEditing(t);setErrors({});setForm(t?{from:t.from,to:t.to,description:t.description,items:t.items.map(i=>({...i}))}:{from:'',to:'',description:'',items:[]});setEditor(true);};
@@ -80,7 +87,7 @@ function Transfers(){
   } else setAnnouncement(`${t.doc} · Статусът е променен на „${s}“ само в демонстрацията.`);
   setRows(p=>p.map(r=>r.id===t.id?{...r,status:s}:r));setSelected(null);
  };
- const remove=()=>{if(!deleting)return;setRows(p=>p.filter(r=>r.id!==deleting.id));setAnnouncement(`${deleting.doc} · Трансферът е изтрит само в демонстрацията.`);setDeleting(null);};
+ const remove=()=>{if(!deleting)return;const id=deleting.id;setRows(p=>p.filter(r=>r.id!==id));setSelection(p=>p.filter(x=>x!==id));setAnnouncement(`${deleting.doc} · Трансферът е изтрит само в демонстрацията.`);setDeleting(null);};
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='transferi.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Трансфер на стоки</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Трансфер на стоки</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  const plist=comboProducts.filter(p=>{const s=pq.trim().toLocaleLowerCase('bg-BG');return !s||p.name.toLocaleLowerCase('bg-BG').includes(s)||p.sku.includes(s);});
@@ -97,7 +104,8 @@ function Transfers(){
   </div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с трансфери"><div className="delivery-list-heading"><h2>Всички трансфери <span>{filtered.length}</span></h2></div>
-   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Документ номер</th><th>Дата на създаване</th><th>От склад</th><th>Към склад</th><th>Артикули</th><th>Статус</th><th>Създаден от</th><th className="text-right">Действия</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
+   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th className="row-select-cell"><Checkbox aria-label="Избери всички на страницата" checked={allSelected?true:someSelected?'indeterminate':false} onCheckedChange={c=>toggleAll(Boolean(c))}/></th><th>Документ номер</th><th>Дата на създаване</th><th>От склад</th><th>Към склад</th><th>Артикули</th><th>Статус</th><th>Създаден от</th><th className="text-right">Действия</th></tr></thead><tbody>{shown.map(r=><tr key={r.id} data-selected={selection.includes(r.id)}>
+    <td className="row-select-cell"><Checkbox aria-label={`Избери ${r.doc}`} checked={selection.includes(r.id)} onCheckedChange={c=>toggleRow(r.id,Boolean(c))}/></td>
     <td><Button variant="ghost" className="client-name" onClick={()=>setSelected(r)}>{r.doc}</Button></td>
     <td>{fmt(r.created)}</td><td>{r.from}</td><td>{r.to}</td>
     <td>{r.items.reduce((s,i)=>s+i.quantity,0)} бр.</td>
@@ -112,6 +120,7 @@ function Transfers(){
      {editable(r)&&<><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></>}
     </DropdownMenuContent></DropdownMenu></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><ArrowLeftRight size={32}/><h3>Няма намерени трансфери</h3>{anyFilter&&<Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button>}</div>}
+   {selection.length>0&&<div className="article-selection"><span>{selection.length} {selection.length===1?'избран трансфер':'избрани трансфера'}</span><Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
    <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни трансфери · наличностите се променят само в демонстрацията</div>
