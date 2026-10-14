@@ -1,17 +1,17 @@
 import { Link } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
-import { ArrowRight, Bell, Boxes, ChevronDown, ChevronRight, CircleHelp, Globe2, LayoutGrid, Menu, Package, Settings2, ShieldCheck, ShoppingBag, Sparkles, Truck, Users, Warehouse, X } from 'lucide-react';
+import { ArrowRight, Bell, Boxes, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShieldCheck, ShoppingBag, Sparkles, Truck, Users, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const groups = [
- { name:'Операции', items:[{name:'Продажби',icon:ShoppingBag,to:'/' as const}, {name:'Доставки',icon:Truck,to:'/deliveries' as const}] },
+ { name:'Операции', items:[{name:'Поръчки',icon:ClipboardList,to:'/orders' as const}, {name:'Продажби',icon:ShoppingBag,to:'/' as const}, {name:'Доставки',icon:Truck,to:'/deliveries' as const}] },
  { name:'Каталог', items:[{name:'Артикули',icon:Package}, {name:'Комбота',icon:Boxes}, {name:'Категории',icon:LayoutGrid}] },
  { name:'Контакти и логистика', items:[{name:'Клиенти',icon:Users}, {name:'Доставчици',icon:Truck}, {name:'Държави',icon:Globe2}, {name:'Населени места',icon:Warehouse}, {name:'Складове',icon:Warehouse}] },
  { name:'Администрация', items:[{name:'Потребители',icon:ShieldCheck}] },
 ];
 
-export function WorkspaceShell({ active, children }: { active:'Продажби'|'Доставки'; children:ReactNode }) {
+export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Продажби'|'Доставки'; children:ReactNode }) {
  const [mobileOpen,setMobileOpen] = useState(false);
  const [notice,setNotice] = useState<string|null>(null);
  return <div className="erp-shell">

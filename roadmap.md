@@ -7,3 +7,7 @@
 - [x] Add a deliveries workspace matching the order screen and supplied reference.
 - [x] Implement filters, delivery details, and demonstration add/edit/receive actions.
 - [x] Verify navigation and delivery flow on wide and narrow screens.
+
+## Orders menu
+- [ ] Add Orders above Sales with an unprocessed-only demonstration list.
+- [ ] Verify navigation, filtering, details, and pagination.
