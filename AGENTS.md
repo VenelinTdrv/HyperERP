@@ -12,3 +12,5 @@
 ## Application rules
 - Keep the requested order workspace at the index route and its styling in the semantic global design system, so the entry screen stays consistent.
 - Treat order and catalog data as frontend demonstration state until a real service is connected; never imply that demo confirmation persists an order.
+- Share sidebar and header through WorkspaceShell across order and delivery routes so navigation and workspace styling remain consistent.
+- Keep incoming supplier deliveries in frontend demonstration state, including add/edit/receive actions, until a real inventory service is connected; never imply that stock is actually updated.
