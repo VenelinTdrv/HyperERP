@@ -40,4 +40,5 @@
 - [x] Add /transfers with filters, statuses, product picker, stock move on completion, PDF/XLS export.
 - [x] Add per-row checkboxes with select-all on the current page and a selection summary.
 - [x] Продажби: списък на / с checkboxes, Нова поръчка на /sales/new
-- Поръчки: икони за експорт в PDF (прозорец за печат) и XLS (porachki.xls) до бутона "Нова поръчка"; експортират филтрирания списък.
+- [x] Поръчки: икони за експорт в PDF (прозорец за печат) и XLS (porachki.xls) до бутона "Нова поръчка"; експортират филтрирания списък.
+- [x] Продажби: икони за експорт в PDF (прозорец за печат) и XLS (prodazhbi.xls) до бутона "Нова поръчка"; експортират филтрирания списък.
