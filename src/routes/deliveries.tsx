@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { ArrowDownToLine, ArrowRight, Check, CheckCheck, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock3, Eye, Package, Pencil, Plus, Search, ShieldCheck, SlidersHorizontal, Truck, Warehouse, X } from 'lucide-react';
+import { ArrowDownToLine, ArrowRight, Check, CheckCheck, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock3, Eye, FileSpreadsheet, FileText, Package, Pencil, Plus, Search, ShieldCheck, SlidersHorizontal, Truck, Warehouse, X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -28,6 +29,11 @@ const emptyFilters={search:'',status:'',supplier:'',warehouse:'',created:'',expe
 const emptyForm={supplier:'',warehouse:'',expected:'',product:products[0] as string,quantity:'1',note:'',status:'Очаквана' as Status};
 const date=(value:string)=>value ? new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG') : '—';
 const statusClass=(status:Status)=>status==='Получена'?'received':status==='В транзит'?'transit':status==='Отказана'?'cancelled':'pending';
+const esc=(s:string)=>s.replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"'}[c]??c));
+function tableHtml(list:Delivery[]){
+ const head=['Доставка','Статус','Доставчик','Склад','Продукт','Количество','Очаквана на','Получена на','Създадена'];
+ return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(r=>`<tr><td>${esc(r.id)}</td><td>${esc(r.status)}</td><td>${esc(r.supplier)}</td><td>${esc(r.warehouse)}</td><td>${esc(r.product)}</td><td>${r.quantity}</td><td>${date(r.expected)}</td><td>${date(r.received)}</td><td>${date(r.created)}</td></tr>`).join('')}</tbody></table>`;
+}
 function StatusBadge({status}:{status:Status}) { return <span className={`delivery-status ${statusClass(status)}`}><span/>{status}</span>; }
 
 function Deliveries() {
