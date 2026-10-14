@@ -18,6 +18,6 @@
 - [x] Verify add flow, filtering, category changes, and narrow-screen layout.
 
 ## Combos screen
-- [ ] Add combos list, search, influencer filter, and pagination.
-- [ ] Implement demonstration create, details, edit, and confirmed delete with product quantities.
-- [ ] Verify CRUD flow and smaller-screen layout.
+- [x] Add combos list, search, influencer filter, and pagination.
+- [x] Implement demonstration create, details, edit, and confirmed delete with product quantities.
+- [x] Verify CRUD flow and smaller-screen layout.
