@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
-import { ArrowRight, Bell, Boxes, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShieldCheck, ShoppingBag, Sparkles, Truck, Users, Warehouse, X } from 'lucide-react';
+import { ArrowRight, Bell, Boxes, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShieldCheck, ShoppingBag, Sparkles, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
