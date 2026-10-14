@@ -19,6 +19,7 @@ import { Route as DeliveriesRouteImport } from './routes/deliveries'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as SettlementsRouteImport } from './routes/settlements'
 import { Route as SuppliersRouteImport } from './routes/suppliers'
+import { Route as TransfersRouteImport } from './routes/transfers'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as WarehousesRouteImport } from './routes/warehouses'
 
@@ -72,6 +73,11 @@ const SuppliersRoute = SuppliersRouteImport.update({
   path: '/suppliers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TransfersRoute = TransfersRouteImport.update({
+  id: '/transfers',
+  path: '/transfers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/orders': typeof OrdersRoute
   '/settlements': typeof SettlementsRoute
   '/suppliers': typeof SuppliersRoute
+  '/transfers': typeof TransfersRoute
   '/users': typeof UsersRoute
   '/warehouses': typeof WarehousesRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/orders': typeof OrdersRoute
   '/settlements': typeof SettlementsRoute
   '/suppliers': typeof SuppliersRoute
+  '/transfers': typeof TransfersRoute
   '/users': typeof UsersRoute
   '/warehouses': typeof WarehousesRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/orders': typeof OrdersRoute
   '/settlements': typeof SettlementsRoute
   '/suppliers': typeof SuppliersRoute
+  '/transfers': typeof TransfersRoute
   '/users': typeof UsersRoute
   '/warehouses': typeof WarehousesRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/settlements'
     | '/suppliers'
+    | '/transfers'
     | '/users'
     | '/warehouses'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/settlements'
     | '/suppliers'
+    | '/transfers'
     | '/users'
     | '/warehouses'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/settlements'
     | '/suppliers'
+    | '/transfers'
     | '/users'
     | '/warehouses'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   OrdersRoute: typeof OrdersRoute
   SettlementsRoute: typeof SettlementsRoute
   SuppliersRoute: typeof SuppliersRoute
+  TransfersRoute: typeof TransfersRoute
   UsersRoute: typeof UsersRoute
   WarehousesRoute: typeof WarehousesRoute
 }
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppliersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/transfers': {
+      id: '/transfers'
+      path: '/transfers'
+      fullPath: '/transfers'
+      preLoaderRoute: typeof TransfersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users': {
       id: '/users'
       path: '/users'
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersRoute: OrdersRoute,
   SettlementsRoute: SettlementsRoute,
   SuppliersRoute: SuppliersRoute,
+  TransfersRoute: TransfersRoute,
   UsersRoute: UsersRoute,
   WarehousesRoute: WarehousesRoute,
 }
