@@ -9,5 +9,5 @@
 - [x] Verify navigation and delivery flow on wide and narrow screens.
 
 ## Orders menu
-- [ ] Add Orders above Sales with an unprocessed-only demonstration list.
-- [ ] Verify navigation, filtering, details, and pagination.
+- [x] Add Orders above Sales with an unprocessed-only demonstration list.
+- [x] Verify navigation, filtering, details, and pagination.
