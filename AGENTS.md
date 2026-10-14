@@ -22,3 +22,4 @@
 - Keep settlements at /settlements within WorkspaceShell as frontend demonstration nomenclature (country, name, region, postal code) until a real catalog service is connected.
 - Keep warehouses at /warehouses within WorkspaceShell as frontend demonstration nomenclature (physical/virtual type, country, city, address, postal code) until a real inventory service is connected; never imply that stock transfers actually move goods.
 - Keep users at /users within WorkspaceShell as frontend demonstration state with roles Администратор/Инфлуенсър/Търговец на едро; passwords are never stored or sent, real auth/roles need a backend with a separate roles table.
+- Keep stock transfers at /transfers within WorkspaceShell; statuses, product quantities and stock moves on completion are frontend demonstration state until a real inventory service is connected.

@@ -34,3 +34,6 @@
 ## Warehouses screen
 - [x] Add warehouses list with name/city filters, pagination, and demonstration CRUD (physical/virtual, country, city, address, postal code).
 - [x] Verify CRUD flow, validation, and smaller-screen layout.
+
+## Transfers screen
+- [x] Add /transfers with filters, statuses, product picker, stock move on completion, PDF/XLS export.
