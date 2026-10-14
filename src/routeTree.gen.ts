@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArticlesRouteImport } from './routes/articles'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as CombosRouteImport } from './routes/combos'
 import { Route as DeliveriesRouteImport } from './routes/deliveries'
 import { Route as OrdersRouteImport } from './routes/orders'
@@ -29,6 +30,11 @@ const ArticlesRoute = ArticlesRouteImport.update({
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientsRoute = ClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CombosRoute = CombosRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/articles': typeof ArticlesRoute
   '/categories': typeof CategoriesRoute
+  '/clients': typeof ClientsRoute
   '/combos': typeof CombosRoute
   '/deliveries': typeof DeliveriesRoute
   '/orders': typeof OrdersRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/articles': typeof ArticlesRoute
   '/categories': typeof CategoriesRoute
+  '/clients': typeof ClientsRoute
   '/combos': typeof CombosRoute
   '/deliveries': typeof DeliveriesRoute
   '/orders': typeof OrdersRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/articles': typeof ArticlesRoute
   '/categories': typeof CategoriesRoute
+  '/clients': typeof ClientsRoute
   '/combos': typeof CombosRoute
   '/deliveries': typeof DeliveriesRoute
   '/orders': typeof OrdersRoute
@@ -75,14 +84,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/articles' | '/categories' | '/combos' | '/deliveries' | '/orders'
+    | '/'
+    | '/articles'
+    | '/categories'
+    | '/clients'
+    | '/combos'
+    | '/deliveries'
+    | '/orders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles' | '/categories' | '/combos' | '/deliveries' | '/orders'
+  to:
+    | '/'
+    | '/articles'
+    | '/categories'
+    | '/clients'
+    | '/combos'
+    | '/deliveries'
+    | '/orders'
   id:
     | '__root__'
     | '/'
     | '/articles'
     | '/categories'
+    | '/clients'
     | '/combos'
     | '/deliveries'
     | '/orders'
@@ -92,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArticlesRoute: typeof ArticlesRoute
   CategoriesRoute: typeof CategoriesRoute
+  ClientsRoute: typeof ClientsRoute
   CombosRoute: typeof CombosRoute
   DeliveriesRoute: typeof DeliveriesRoute
   OrdersRoute: typeof OrdersRoute
@@ -118,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clients': {
+      id: '/clients'
+      path: '/clients'
+      fullPath: '/clients'
+      preLoaderRoute: typeof ClientsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/combos': {
@@ -148,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArticlesRoute: ArticlesRoute,
   CategoriesRoute: CategoriesRoute,
+  ClientsRoute: ClientsRoute,
   CombosRoute: CombosRoute,
   DeliveriesRoute: DeliveriesRoute,
   OrdersRoute: OrdersRoute,
