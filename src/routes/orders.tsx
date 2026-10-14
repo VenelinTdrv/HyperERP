@@ -1,0 +1,73 @@
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { WorkspaceShell } from '@/components/workspace-shell';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import perfume from '@/assets/perfume.jpg';
+
+export const Route = createFileRoute('/orders')({
+ head: () => ({ meta: [
+  { title: 'HyperERP · Необработени поръчки' },
+  { name: 'description', content: 'Списък с необработени поръчки за козметика в HyperERP.' },
+  { property: 'og:title', content: 'HyperERP · Необработени поръчки' },
+  { property: 'og:description', content: 'Клиенти, продукти и доставка за поръчки в статус Необработена.' },
+  { property: 'og:type', content: 'website' },
+  { name: 'twitter:card', content: 'summary_large_image' },
+ ] }),
+ component: Orders,
+});
+
+type Order = { id: string; status: 'Необработена'; customer: string; phone: string; city: string; address: string; courier: string; created: string; product: string; quantity: number; price: number; shipping: number };
+const rows: Order[] = [
+ { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', product:'Rose Élixir', quantity:2, price:49, shipping:4.9 },
+ { id:'ORD-0023', status:'Необработена', customer:'Елена Петрова', phone:'0888 234 567', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-14', product:'Velvet Bloom', quantity:1, price:69, shipping:4.9 },
+ { id:'ORD-0022', status:'Необработена', customer:'Иван Георгиев', phone:'0888 345 678', city:'Варна', address:'Офис · Център', courier:'Еконт', created:'2026-10-13', product:'Pure Essence', quantity:3, price:35, shipping:4.9 },
+ { id:'ORD-0021', status:'Необработена', customer:'Десислава Николова', phone:'0888 456 789', city:'София', address:'ул. „Искър“ 18', courier:'Спиди', created:'2026-10-13', product:'Rose Élixir', quantity:1, price:49, shipping:4.9 },
+ { id:'ORD-0020', status:'Необработена', customer:'Петър Димитров', phone:'0888 567 890', city:'Бургас', address:'Офис · Център', courier:'Еконт', created:'2026-10-12', product:'Velvet Bloom', quantity:2, price:69, shipping:4.9 },
+ { id:'ORD-0019', status:'Необработена', customer:'Анна Стоянова', phone:'0888 678 901', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-12', product:'Pure Essence', quantity:1, price:35, shipping:4.9 },
+];
+const emptyFilters = { search:'', city:'', courier:'', from:'', to:'' };
+const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
+const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG');
+function OrderStatus() { return <span className="delivery-status pending"><span/>Необработена</span>; }
+
+function Orders() {
+ const [filters, setFilters] = useState(emptyFilters);
+ const [advanced, setAdvanced] = useState(false);
+ const [sort, setSort] = useState('newest');
+ const [page, setPage] = useState(1);
+ const [pageSize, setPageSize] = useState(10);
+ const [selected, setSelected] = useState<Order|null>(null);
+ const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
+ const clear = () => { setFilters(emptyFilters); setPage(1); };
+ const filtered = rows.filter(row => row.status === 'Необработена'
+  && `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.product}`.toLowerCase().includes(filters.search.trim().toLowerCase())
+  && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
+  && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to))
+  .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
+ const pages = Math.max(1, Math.ceil(filtered.length/pageSize));
+ const current = Math.min(page, pages);
+ const visible = filtered.slice((current-1)*pageSize, current*pageSize);
+ const activeFilters = Object.values(filters).filter(Boolean).length;
+ return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content">
+  <div className="page-heading"><div><h1>Поръчки</h1><p>Необработени поръчки</p></div><Button asChild className="delivery-add"><Link to="/"><Plus/>Нова поръчка</Link></Button></div>
+  <div className="delivery-filters"><div className="delivery-filter-primary">
+   <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
+   <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><input id="orders-status" value="Необработена" readOnly/></div>
+   <div className="field"><label htmlFor="orders-courier" className="sr-only">Куриер</label><select id="orders-courier" value={filters.courier} onChange={e=>filter('courier',e.target.value)}><option value="">Всички куриери</option><option>Еконт</option><option>Спиди</option></select></div>
+   <Button variant={advanced?'secondary':'outline'} aria-expanded={advanced} aria-controls="orders-filters" onClick={()=>setAdvanced(!advanced)}><SlidersHorizontal/>Филтри{activeFilters>0&&<span className="filter-count">{activeFilters}</span>}</Button>
+  </div>{advanced&&<div className="delivery-filter-advanced" id="orders-filters">
+   <div className="field"><label htmlFor="orders-city">Населено място</label><select id="orders-city" value={filters.city} onChange={e=>filter('city',e.target.value)}><option value="">Всички населени места</option>{Array.from(new Set(rows.map(row=>row.city))).map(city=><option key={city}>{city}</option>)}</select></div>
+   <div className="field"><label htmlFor="orders-from">Създадена от</label><input id="orders-from" type="date" value={filters.from} max={filters.to||undefined} onChange={e=>filter('from',e.target.value)}/></div>
+   <div className="field"><label htmlFor="orders-to">Създадена до</label><input id="orders-to" type="date" value={filters.to} min={filters.from||undefined} onChange={e=>filter('to',e.target.value)}/></div>
+  </div>}{activeFilters>0&&<div className="delivery-filter-state"><span>{filtered.length} намерени поръчки</span><Button variant="ghost" size="sm" onClick={clear}><X/>Изчисти филтрите</Button></div>}</div>
+  <section className="delivery-list" aria-label="Списък с поръчки"><div className="delivery-list-heading"><h2>Списък с поръчки <span>{filtered.length}</span></h2><div className="field"><label className="sr-only" htmlFor="orders-sort">Подреждане</label><select id="orders-sort" value={sort} onChange={e=>{setSort(e.target.value);setPage(1);}}><option value="newest">Най-новите първо</option><option value="oldest">Най-старите първо</option></select></div></div>
+   <div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Поръчка</th><th>Статус</th><th>Клиент</th><th>Доставка</th><th>Общо с ДДС</th><th>Създадена</th><th className="text-right">Действия</th></tr></thead><tbody>{visible.map(row=><tr key={row.id}>
+    <td><Button variant="link" className="delivery-id" onClick={()=>setSelected(row)}>{row.id}</Button><span className="delivery-cell-sub">{row.quantity} бр. · {row.product}</span></td><td><OrderStatus/></td><td><strong className="delivery-supplier">{row.customer}</strong><span className="delivery-cell-sub">{row.phone}</span></td><td>{row.city}<span className="delivery-cell-sub">{row.courier} · {row.address}</span></td><td className="font-semibold">{money(row.quantity*row.price+row.shipping)}</td><td>{date(row.created)}<span className="delivery-cell-sub">Венелин Тодоров</span></td><td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${row.id}`} title="Преглед на поръчката" onClick={()=>setSelected(row)}><Eye/></Button></div></td>
+   </tr>)}</tbody></table></div>
+   {visible.length===0&&<div className="delivery-empty"><ClipboardList size={32}/><h3>Няма намерени поръчки</h3><p>Няма необработени поръчки за избраните филтри.</p><Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button></div>}
+   <div className="delivery-pagination"><span>{filtered.length?`${(current-1)*pageSize+1}–${Math.min(current*pageSize,filtered.length)}`:'0'} от {filtered.length} поръчки</span><div className="delivery-pagination-controls"><label htmlFor="orders-page-size">На страница</label><select id="orders-page-size" value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[5,10,25,50].map(n=><option key={n}>{n}</option>)}</select><Button variant="ghost" size="icon" aria-label="Първа страница" disabled={current===1} onClick={()=>setPage(1)}><ChevronsLeft/></Button><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={current===1} onClick={()=>setPage(current-1)}><ChevronLeft/></Button><span>{current} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={current===pages} onClick={()=>setPage(current+1)}><ChevronRight/></Button><Button variant="ghost" size="icon" aria-label="Последна страница" disabled={current===pages} onClick={()=>setPage(pages)}><ChevronsRight/></Button></div></div>
+  </section><div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни поръчки · без реално записване</div>
+ </div><Dialog open={selected!==null} onOpenChange={open=>{if(!open)setSelected(null);}}><DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">{selected&&<><DialogHeader><DialogTitle>Поръчка {selected.id}</DialogTitle><DialogDescription>Примерна поръчка · без реално записване</DialogDescription></DialogHeader><OrderStatus/><dl className="delivery-details">{[['Клиент',selected.customer],['Телефон',selected.phone],['Населено място',selected.city],['Куриер',selected.courier],['Адрес / офис',selected.address],['Създадена на',date(selected.created)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><div className="delivery-detail-product"><img src={perfume} alt="Примерен парфюм"/><div><strong>{selected.product}</strong><p>{selected.quantity} бр. × {money(selected.price)}</p></div><strong className="ml-auto">{money(selected.quantity*selected.price)}</strong></div><dl className="delivery-details"><div><dt>Доставка</dt><dd>{money(selected.shipping)}</dd></div><div><dt>Общо с ДДС</dt><dd>{money(selected.quantity*selected.price+selected.shipping)}</dd></div></dl><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button></>}</DialogContent></Dialog></WorkspaceShell>;
+}
