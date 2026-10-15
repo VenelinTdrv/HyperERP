@@ -27,6 +27,21 @@ function pageHtml(o: Order, page: number, pages: number) {
       <div class="row grand"><span>Общо с ДДС</span><span>${money(total(o))}</span></div>
     </div>
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
+    <h2>Товарителница</h2>
+    <div class="grid">
+      <div class="row"><dt>Изпращач</dt><dd>hyperERP — Козметика ЕООД</dd></div>
+      <div class="row"><dt>Куриер</dt><dd>${esc(o.courier)}</dd></div>
+      <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
+      <div class="row"><dt>Адрес</dt><dd>${esc(o.city)}, ${esc(o.address)}</dd></div>
+      <div class="row"><dt>Плащане на транспорта</dt><dd>${esc(o.payment)}</dd></div>
+      <div class="row"><dt>Съдържание</dt><dd>Козметика · ${o.items.reduce((s, it) => s + it.quantity, 0)} бр.</dd></div>
+      <div class="row"><dt>Брой колети</dt><dd>__________</dd></div>
+      <div class="row"><dt>Тегло (кг)</dt><dd>__________</dd></div>
+    </div>
+    <div class="signatures">
+      <div><span>Изпратил (подпис)</span></div>
+      <div><span>Получил (подпис и дата)</span></div>
+    </div>
     <div class="foot"><span>Генерирано от hyperERP · демонстрационен документ</span><span>Страница ${page} от ${pages}</span></div>
   </section>`;
 }
@@ -59,6 +74,8 @@ function blankHtml(orders: Order[]) {
     .totals .row { justify-content: space-between; border-bottom: 1px dashed #c9d2dd; }
     .totals .row.grand { font-size: 14px; font-weight: 800; border-bottom: 2px solid #1c2430; }
     .note { margin-top: 16px; padding: 8px 10px; background: #f0f4f8; border-radius: 4px; }
+    .signatures { display: flex; gap: 40px; margin-top: 26px; }
+    .signatures > div { flex: 1; border-top: 1px solid #1c2430; padding-top: 4px; text-align: center; color: #5b6675; font-size: 10px; }
     .foot { margin-top: 28px; display: flex; justify-content: space-between; color: #5b6675; font-size: 10px; }
   </style></head><body>
     ${pages}
