@@ -168,6 +168,7 @@
 .delivery-table tbody tr:hover { background:var(--muted); }
 .delivery-table th:first-child,.delivery-table td:first-child { padding-left:20px; }
 .delivery-table .row-select-cell { width:44px; padding-right:0; }
+.delivery-table th.text-right,.delivery-table td.text-right { text-align:right; }
 .delivery-table tbody tr[data-selected=true] { background:var(--secondary); }
 .delivery-id { height:auto; padding:0; font-size:11px; font-weight:750; }
 .delivery-supplier { font-size:11px; font-weight:650; }
