@@ -15,9 +15,26 @@ const SENDER = [
 ];
 const SENDER_HTML = SENDER.map(esc).join('<br>');
 
+// Баркод за товарителницата (Code 128)
+type BarcodeImage = { dataUrl: string; w: number; h: number };
+type BarcodeFn = typeof import('jsbarcode');
+
+async function barcodeImage(value: string): Promise<BarcodeImage | undefined> {
+  if (typeof document === 'undefined') return undefined;
+  try {
+    const mod = (await import('jsbarcode')) as unknown as { default?: BarcodeFn } & BarcodeFn;
+    const draw = mod.default ?? mod;
+    const canvas = document.createElement('canvas');
+    draw(canvas, value, { format: 'CODE128', height: 56, width: 2, margin: 2, fontSize: 18, displayValue: true, lineColor: '#1c2430', background: '#ffffff' });
+    return { dataUrl: canvas.toDataURL('image/png'), w: canvas.width, h: canvas.height };
+  } catch {
+    return undefined;
+  }
+}
 
 
-function pageHtml(o: Order, page: number, pages: number) {
+
+function pageHtml(o: Order, page: number, pages: number, code?: BarcodeImage) {
   const rows = o.items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name)}</td><td>${esc(it.sku)}</td><td class="num">${it.quantity}</td><td class="num">${money(it.price)}</td><td class="num">${money(it.quantity * it.price)}</td></tr>`).join('');
   return `<section class="page">
     <div class="head"><div class="brand">hyperERP<small>Еcommerce &amp; складова система</small></div>
@@ -38,7 +55,7 @@ function pageHtml(o: Order, page: number, pages: number) {
       <div class="row grand"><span>Общо с ДДС</span><span>${money(total(o))}</span></div>
     </div>
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
-    <h2>Товарителница</h2>
+    <div class="wbhead"><h2>Товарителница</h2>${code ? `<img class="barcode" src="${code.dataUrl}" alt="Баркод ${esc(o.id)}" style="height:46px">` : ''}</div>
     <div class="grid">
       <div class="row wide"><dt>Изпращач</dt><dd>${SENDER_HTML}</dd></div>
       <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
@@ -57,8 +74,8 @@ function pageHtml(o: Order, page: number, pages: number) {
   </section>`;
 }
 
-function blankHtml(orders: Order[]) {
-  const pages = orders.map((o, i) => pageHtml(o, i + 1, orders.length)).join('');
+function blankHtml(orders: Order[], codes: (BarcodeImage | undefined)[]) {
+  const pages = orders.map((o, i) => pageHtml(o, i + 1, orders.length, codes[i])).join('');
   const title = orders.length === 1 ? `Бланка ${esc(orders[0]!.id)}` : `Бланки (${orders.length} поръчки)`;
   return `<!doctype html><html lang="bg"><head><meta charset="utf-8"><title>${title}</title><style>
     @page { size: A4; margin: 14mm; }
@@ -78,6 +95,9 @@ function blankHtml(orders: Order[]) {
     .row dt { min-width: 130px; color: #5b6675; }
     .row dd { margin: 0; font-weight: 600; }
     .row.wide { grid-column: 1 / -1; }
+    .wbhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+    .wbhead h2 { margin-bottom: 0; }
+    .barcode { flex: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #c9d2dd; padding: 6px 8px; text-align: left; }
     th { background: #f0f4f8; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
@@ -95,12 +115,13 @@ function blankHtml(orders: Order[]) {
   </body></html>`;
 }
 
-export function openOrderBlank(orders: Order | Order[]) {
+export async function openOrderBlank(orders: Order | Order[]) {
   const list = Array.isArray(orders) ? orders : [orders];
   if (list.length === 0) return;
   const w = window.open('', '_blank');
   if (!w) return;
-  w.document.write(blankHtml(list));
+  const codes = await Promise.all(list.map(o => barcodeImage(o.id)));
+  w.document.write(blankHtml(list, codes));
   w.document.close();
 }
 
@@ -120,7 +141,7 @@ function ensureFont(doc: jsPDF) {
   fontReady = true;
 }
 
-function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
+function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?: BarcodeImage) {
   const L = 14, R = 196, W = R - L;
   let y = 18;
   doc.setFont(FONT, 'normal');
@@ -211,6 +232,11 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
   y += 6;
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
   doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
+  if (code) {
+    const bh = 14;
+    const bw = (code.w / code.h) * bh;
+    doc.addImage(code.dataUrl, 'PNG', R - bw, y + 2, bw, bh);
+  }
   const wb: [string, string][] = [
     ['Получател', `${o.customer}, ${o.phone}`],
     ['Куриер', o.courier],
@@ -256,14 +282,15 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
   doc.text(`Страница ${page} от ${pages}`, R, 285, { align: 'right' });
 }
 
-export function downloadOrderBlankPdf(orders: Order | Order[]) {
+export async function downloadOrderBlankPdf(orders: Order | Order[]) {
   const list = Array.isArray(orders) ? orders : [orders];
   if (list.length === 0) return;
+  const codes = await Promise.all(list.map(o => barcodeImage(o.id)));
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   ensureFont(doc);
   list.forEach((o, i) => {
     if (i > 0) doc.addPage();
-    drawBlankPage(doc, o, i + 1, list.length);
+    drawBlankPage(doc, o, i + 1, list.length, codes[i]);
   });
   const name = list.length === 1 ? `blanka-${list[0]!.id}.pdf` : `blanki-${list.length}-porachki.pdf`;
   doc.save(name);
