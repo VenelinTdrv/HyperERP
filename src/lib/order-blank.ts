@@ -15,18 +15,33 @@ const SENDER = [
 ];
 const SENDER_HTML = SENDER.map(esc).join('<br>');
 
-// Баркод за товарителницата (Code 128)
-type BarcodeImage = { dataUrl: string; w: number; h: number };
+// Баркод за товарителницата (Code 128, векторни ивици)
+type Barcode = { markup: string; bars: { x: number; y: number; w: number; h: number }[]; left: number; right: number; top: number; bottom: number; value: string };
 type BarcodeFn = typeof import('jsbarcode');
 
-async function barcodeImage(value: string): Promise<BarcodeImage | undefined> {
+async function barcode(value: string): Promise<Barcode | undefined> {
   if (typeof document === 'undefined') return undefined;
   try {
     const mod = (await import('jsbarcode')) as unknown as { default?: BarcodeFn } & BarcodeFn;
     const draw = mod.default ?? mod;
-    const canvas = document.createElement('canvas');
-    draw(canvas, value, { format: 'CODE128', height: 56, width: 2, margin: 20, fontSize: 20, textMargin: 8, displayValue: true, lineColor: '#1c2430', background: '#ffffff' });
-    return { dataUrl: canvas.toDataURL('image/png'), w: canvas.width, h: canvas.height };
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    draw(svg, value, { format: 'CODE128', height: 60, width: 2, margin: 12, displayValue: false, lineColor: '#1c2430', background: 'none' });
+    const bars = Array.from(svg.querySelectorAll('rect'))
+      .map(r => ({ x: Number(r.getAttribute('x') ?? 0), y: Number(r.getAttribute('y') ?? 0), w: Number(r.getAttribute('width') ?? 0), h: Number(r.getAttribute('height') ?? 0) }))
+      .filter(r => r.w > 0 && r.h > 0 && r.w < 10);
+    if (bars.length === 0) return undefined;
+    const left = Math.min(...bars.map(b => b.x));
+    const right = Math.max(...bars.map(b => b.x + b.w));
+    const top = Math.min(...bars.map(b => b.y));
+    const bottom = Math.max(...bars.map(b => b.y + b.h));
+    const W = right + 12;
+    const H = bottom + 22;
+    return {
+      value, bars, left, right, top, bottom,
+      markup: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Баркод ${esc(value)}">`
+        + bars.map(b => `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="#1c2430"/>`).join('')
+        + `<text x="${(left + right) / 2}" y="${bottom + 16}" font-family="'Segoe UI', Arial, sans-serif" font-size="15" text-anchor="middle" fill="#1c2430">${esc(value)}</text></svg>`,
+    };
   } catch {
     return undefined;
   }
@@ -34,7 +49,7 @@ async function barcodeImage(value: string): Promise<BarcodeImage | undefined> {
 
 
 
-function pageHtml(o: Order, page: number, pages: number, code?: BarcodeImage) {
+function pageHtml(o: Order, page: number, pages: number, code?: Barcode) {
   const rows = o.items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name)}</td><td>${esc(it.sku)}</td><td class="num">${it.quantity}</td><td class="num">${money(it.price)}</td><td class="num">${money(it.quantity * it.price)}</td></tr>`).join('');
   return `<section class="page">
     <div class="head"><div class="brand">hyperERP<small>Еcommerce &amp; складова система</small></div>
@@ -55,7 +70,7 @@ function pageHtml(o: Order, page: number, pages: number, code?: BarcodeImage) {
       <div class="row grand"><span>Общо с ДДС</span><span>${money(total(o))}</span></div>
     </div>
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
-    <div class="wbhead"><h2>Товарителница</h2>${code ? `<img class="barcode" src="${code.dataUrl}" alt="Баркод ${esc(o.id)}" style="height:46px">` : ''}</div>
+    <div class="wbhead"><h2>Товарителница</h2>${code ? `<div class="barcode">${code.markup}</div>` : ''}</div>
     <div class="grid">
       <div class="row wide"><dt>Изпращач</dt><dd>${SENDER_HTML}</dd></div>
       <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
@@ -74,7 +89,7 @@ function pageHtml(o: Order, page: number, pages: number, code?: BarcodeImage) {
   </section>`;
 }
 
-function blankHtml(orders: Order[], codes: (BarcodeImage | undefined)[]) {
+function blankHtml(orders: Order[], codes: (Barcode | undefined)[]) {
   const pages = orders.map((o, i) => pageHtml(o, i + 1, orders.length, codes[i])).join('');
   const title = orders.length === 1 ? `Бланка ${esc(orders[0]!.id)}` : `Бланки (${orders.length} поръчки)`;
   return `<!doctype html><html lang="bg"><head><meta charset="utf-8"><title>${title}</title><style>
@@ -97,7 +112,7 @@ function blankHtml(orders: Order[], codes: (BarcodeImage | undefined)[]) {
     .row.wide { grid-column: 1 / -1; }
     .wbhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
     .wbhead h2 { margin-bottom: 0; }
-    .barcode { flex: none; }
+    .barcode svg { display: block; height: 46px; width: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #c9d2dd; padding: 6px 8px; text-align: left; }
     th { background: #f0f4f8; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
@@ -120,7 +135,7 @@ export async function openOrderBlank(orders: Order | Order[]) {
   if (list.length === 0) return;
   const w = window.open('', '_blank');
   if (!w) return;
-  const codes = await Promise.all(list.map(o => barcodeImage(o.id)));
+  const codes = await Promise.all(list.map(o => barcode(o.id)));
   w.document.write(blankHtml(list, codes));
   w.document.close();
 }
@@ -141,7 +156,7 @@ function ensureFont(doc: jsPDF) {
   fontReady = true;
 }
 
-function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?: BarcodeImage) {
+function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?: Barcode) {
   const L = 14, R = 196, W = R - L;
   let y = 18;
   doc.setFont(FONT, 'normal');
@@ -233,9 +248,15 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
   doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
   if (code) {
-    const bh = 14;
-    const bw = (code.w / code.h) * bh;
-    doc.addImage(code.dataUrl, 'PNG', R - bw, y + 2, bw, bh);
+    const bh = 12;
+    const scale = bh / (code.bottom - code.top);
+    const bw = (code.right - code.left) * scale;
+    const bx = R - 3 - bw;
+    const by = y + 1.5;
+    doc.setFillColor(28, 36, 48);
+    code.bars.forEach(b => doc.rect(bx + (b.x - code.left) * scale, by + (b.y - code.top) * scale, b.w * scale, b.h * scale, 'F'));
+    doc.setFontSize(7.5); doc.setTextColor(28, 36, 48);
+    doc.text(code.value, bx + bw / 2, by + bh + 3.4, { align: 'center' });
   }
   const wb: [string, string][] = [
     ['Получател', `${o.customer}, ${o.phone}`],
@@ -285,7 +306,7 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
 export async function downloadOrderBlankPdf(orders: Order | Order[]) {
   const list = Array.isArray(orders) ? orders : [orders];
   if (list.length === 0) return;
-  const codes = await Promise.all(list.map(o => barcodeImage(o.id)));
+  const codes = await Promise.all(list.map(o => barcode(o.id)));
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   ensureFont(doc);
   list.forEach((o, i) => {
