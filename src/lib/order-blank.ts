@@ -209,22 +209,30 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
     ['Брой колети', '__________'],
     ['Тегло (кг)', '__________'],
   ];
-  wb.forEach(([label, value], i) => {
-    const col = i % 2, row = Math.floor(i / 2);
-    const x = L + col * (W / 2), cy = y + row * 5.5;
-    doc.setFontSize(8); doc.setTextColor(91, 102, 117);
-    doc.text(label, x, cy);
-    doc.setFontSize(9); doc.setTextColor(28, 36, 48);
-    doc.text(doc.splitTextToSize(value, W / 2 - 42)[0] ?? '', x + 42, cy);
-  });
-  y += Math.ceil(wb.length / 2) * 5.5 + 10;
-  const sigY = Math.max(y, 262);
+  wb.forEach(() => undefined);
+  const half = W / 2;
+  for (let i = 0; i < wb.length; i += 2) {
+    const pair = [wb[i], wb[i + 1]];
+    const cy = y;
+    pair.forEach((item, col) => {
+      if (!item) return;
+      const x = L + col * half;
+      doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+      doc.text(item[0], x, cy);
+      doc.setFontSize(9); doc.setTextColor(28, 36, 48);
+      doc.text(item[1], x + 42, cy, { maxWidth: half - 46, lineHeightFactor: 1.15 });
+    });
+    const maxLines = Math.max(...pair.filter(Boolean).map(it => doc.splitTextToSize(it[1], half - 46).length));
+    y += Math.max(5.5, maxLines * 4.6);
+  }
+  y += 12;
   doc.setDrawColor(28, 36, 48); doc.setLineWidth(0.4);
-  doc.line(L, sigY, L + 70, sigY);
-  doc.line(R - 70, sigY, R, sigY);
+  doc.line(L, y, L + 70, y);
+  doc.line(R - 70, y, R, y);
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
-  doc.text('Изпратил (подпис)', L + 35, sigY + 4, { align: 'center' });
-  doc.text('Получил (подпис и дата)', R - 35, sigY + 4, { align: 'center' });
+  doc.text('Изпратил (подпис)', L + 35, y + 4, { align: 'center' });
+  doc.text('Получил (подпис и дата)', R - 35, y + 4, { align: 'center' });
+
 
 
   // Footer
