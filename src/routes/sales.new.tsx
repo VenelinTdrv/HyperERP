@@ -1,7 +1,7 @@
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { ArrowLeft, ArrowRight, Bell, Boxes, Check, CheckCheck, ChevronDown, ChevronRight, CircleHelp, ClipboardList, CreditCard, FileText, Globe2, LayoutGrid, ListFilter, LogOut, Menu, Minus, Package, Plus, RotateCcw, Search, Settings2, ShieldCheck, ShoppingBag, Sparkles, Trash2, Truck, UserRound, UserRoundPlus, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bell, Boxes, Check, CheckCheck, ChevronDown, ChevronRight, CircleHelp, ClipboardList, CreditCard, FileText, Globe2, LayoutGrid, ListFilter, LogOut, Menu, Minus, Package, Plus, RotateCcw, Search, Settings2, ShieldCheck, ShoppingBag, Sparkles, Trash2, Truck, UserCog, UserRound, UserRoundPlus, Users, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import perfume from '@/assets/perfume.jpg';
@@ -21,6 +21,9 @@ const catalog = [
  { id: 3, name: 'Pure Essence', detail: 'Парфюмна вода · 30 ml', sku: 'PRF-003', price: 35 },
 ];
 type OrderItem = { id:number; quantity:number };
+const INFLUENCERS = ['Виктория Григорова','Елена Петрова','Мария Иванова'];
+const DEMO_INFLUENCER = INFLUENCERS[0]!;
+type CreatorRole = 'Администратор'|'Инфлуенсър';
 const money = (value:number) => `${value.toLocaleString('bg-BG', {minimumFractionDigits:2, maximumFractionDigits:2})} €`;
 function Field({label, id, required, children, className=''}:{label:string;id:string;required?:boolean;children:React.ReactNode;className?:string}) {
  return <div className={`field ${className}`}><label htmlFor={id}>{label}{required && <span className="required">*</span>}</label>{children}</div>;
@@ -40,6 +43,8 @@ function Index() {
  const [error,setError] = useState('');
  const [success,setSuccess] = useState(false);
  const [resetOpen,setResetOpen] = useState(false);
+ const [creatorRole,setCreatorRole] = useState<CreatorRole>('Администратор');
+ const [influencer,setInfluencer] = useState('');
  const [resetAction,setResetAction] = useState<'reset'|'cancel'>('reset');
  const subtotal = items.reduce((sum,item) => sum + (catalog.find(p=>p.id===item.id)?.price ?? 0)*item.quantity,0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
@@ -47,17 +52,18 @@ function Index() {
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
  const addProduct = (id:number) => { setItems(prev=>prev.some(p=>p.id===id)?prev.map(p=>p.id===id?{...p,quantity:p.quantity+1}:p):[...prev,{id,quantity:1}]); setProductSearch(''); };
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(p=>p.id===id?{...p,quantity:Math.max(1,Math.min(999,value||1))}:p));
- const reset = () => {setForm({first:'',last:'',phone:'',city:'',courier:'Еконт',address:'',note:''});setItems([]);setDiscount(0);setShipping(4.9);setClientSearch('');setProductSearch('');setError('');setDelivery('address');};
+ const reset = () => {setForm({first:'',last:'',phone:'',city:'',courier:'Еконт',address:'',note:''});setItems([]);setDiscount(0);setShipping(4.9);setClientSearch('');setProductSearch('');setError('');setDelivery('address');setInfluencer('');};
  const submit = (event?:FormEvent, newOrder=false) => {
   event?.preventDefault();
   if(!form.first.trim()||!form.last.trim()||!form.phone.trim()||!form.city||!form.address.trim()) {setError('Попълнете името, фамилията, телефона и данните за доставка.');document.getElementById(!form.first?'first':!form.last?'last':!form.phone?'phone':!form.city?'city':'address')?.focus();return;}
   if(!/^[+\d\s()-]{8,20}$/.test(form.phone)) {setError('Въведете валиден телефонен номер.');document.getElementById('phone')?.focus();return;}
   if(items.length===0) {setError('Добавете поне един продукт към поръчката.');return;}
+  if(creatorRole==='Администратор'&&!influencer) {setError('Изберете инфлуенсър, към когото да се отнесе поръчката.');document.getElementById('influencer')?.focus();return;}
   setError('');setSuccess(true);if(newOrder)reset();
  };
  return <WorkspaceShell active="Продажби">
    <div className="page-content">
-    <div className="page-heading"><div className="min-w-0"><Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Всички продажби</Link><h1>Нова поръчка</h1><p>Всяка добра връзка с клиент започва с внимание към детайла.</p></div><div className="draft-badge"><span className="draft-dot"/>Чернова</div></div>
+    <div className="page-heading"><div className="min-w-0"><Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Всички продажби</Link><h1>Нова поръчка</h1><p>Всяка добра връзка с клиент започва с внимание към детайла.</p></div><div className="flex items-center gap-3 flex-wrap"><div className="segmented" aria-label="Демо роля на създателя"><Button type="button" variant="ghost" className="segment" aria-pressed={creatorRole==='Администратор'} onClick={()=>setCreatorRole('Администратор')}><UserCog size={14}/>Администратор{creatorRole==='Администратор'&&<Check size={13}/>}</Button><Button type="button" variant="ghost" className="segment" aria-pressed={creatorRole==='Инфлуенсър'} onClick={()=>setCreatorRole('Инфлуенсър')}><Sparkles size={14}/>Инфлуенсър{creatorRole==='Инфлуенсър'&&<Check size={13}/>}</Button></div><div className="draft-badge"><span className="draft-dot"/>Чернова</div></div></div>
     <form onSubmit={e=>submit(e)} noValidate>
      {error && <div className="form-error" role="alert">{error}</div>}
      <div className="order-layout"><div className="min-w-0">
@@ -65,6 +71,7 @@ function Index() {
        <div className="field"><label htmlFor="client-search">Избор на клиент</label><div className="client-search-row"><div className="search-box"><Search/><input id="client-search" className="search-input" placeholder="Търсене по име или телефон…" value={clientSearch} onChange={e=>setClientSearch(e.target.value)}/></div><Button type="button" variant="outline" className="new-client h-[41px]" onClick={()=>{setForm(prev=>({...prev,first:'',last:'',phone:''}));setClientSearch('');document.getElementById('first')?.focus();}}><UserRoundPlus/>Нов клиент</Button></div></div>
        {clientSearch && <div className="search-results">{'Мария Иванова 0888123456'.toLowerCase().includes(clientSearch.toLowerCase())?<Button type="button" variant="ghost" className="search-result" onClick={()=>{setForm(prev=>({...prev,first:'Мария',last:'Иванова',phone:'0888123456',city:'София',address:'ул. „Оборище“ 12'}));setClientSearch('');}}><span>Мария Иванова <small className="text-muted-foreground">· примерен клиент</small></span><span>0888 123 456</span></Button>:<p className="p-2 text-xs text-muted-foreground">Няма намерен клиент. Добавете нов.</p>}</div>}
        <div className="field-grid mt-5"><Field label="Име" id="first" required><input id="first" autoComplete="given-name" placeholder="Име на клиента" value={form.first} onChange={e=>update('first',e.target.value)} required/></Field><Field label="Фамилия" id="last" required><input id="last" autoComplete="family-name" placeholder="Фамилия на клиента" value={form.last} onChange={e=>update('last',e.target.value)} required/></Field><Field label="Телефон" id="phone" required className="phone-field"><input id="phone" type="tel" autoComplete="tel" placeholder="Напр. 0888 123 456" value={form.phone} onChange={e=>update('phone',e.target.value)} required/></Field></div>
+       {creatorRole==='Администратор'?<div className="field mt-5"><label htmlFor="influencer">Инфлуенсър<span className="required">*</span></label><select id="influencer" value={influencer} onChange={e=>setInfluencer(e.target.value)} required><option value="">Изберете инфлуенсър, към когото се отнася поръчката</option>{INFLUENCERS.map(name=><option key={name}>{name}</option>)}</select><p className="text-xs text-muted-foreground mt-1">Поръчката ще бъде отнесена към избрания инфлуенсър.</p></div>:<div className="delivery-notice mt-5" role="status"><Sparkles size={16}/><span>Поръчката ще бъде отнесена автоматично към {DEMO_INFLUENCER} (вписаният инфлуенсър).</span></div>}
        <div className="form-divider"/><div className="delivery-heading"><Truck size={16}/>Данни за доставка</div>
        <div className="delivery-grid"><Field label="Населено място" id="city" required><select id="city" value={form.city} onChange={e=>{update('city',e.target.value);if(delivery==='office')update('address','');}} required><option value="">Изберете населено място</option>{['София','Пловдив','Варна','Бургас','Русе','Стара Загора','Плевен'].map(city=><option key={city}>{city}</option>)}</select></Field><Field label="Куриер" id="courier"><select id="courier" value={form.courier} onChange={e=>{update('courier',e.target.value);if(delivery==='office')update('address','');}}><option>Еконт</option><option>Спиди</option></select></Field></div>
        <div className="field mt-5"><span className="text-[11px] font-semibold">Доставка до</span><div className="segmented" aria-label="Вид доставка"><Button type="button" variant="ghost" className="segment" aria-pressed={delivery==='address'} onClick={()=>{setDelivery('address');update('address','');}}><Warehouse size={14}/>Адрес{delivery==='address'&&<Check size={13}/>}</Button><Button type="button" variant="ghost" className="segment" aria-pressed={delivery==='office'} onClick={()=>{setDelivery('office');update('address','');}}><Package size={14}/>Офис{delivery==='office'&&<Check size={13}/>}</Button></div></div>
