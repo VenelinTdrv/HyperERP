@@ -52,12 +52,13 @@ function Index() {
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
  const addProduct = (id:number) => { setItems(prev=>prev.some(p=>p.id===id)?prev.map(p=>p.id===id?{...p,quantity:p.quantity+1}:p):[...prev,{id,quantity:1}]); setProductSearch(''); };
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(p=>p.id===id?{...p,quantity:Math.max(1,Math.min(999,value||1))}:p));
- const reset = () => {setForm({first:'',last:'',phone:'',city:'',courier:'Еконт',address:'',note:''});setItems([]);setDiscount(0);setShipping(4.9);setClientSearch('');setProductSearch('');setError('');setDelivery('address');};
+ const reset = () => {setForm({first:'',last:'',phone:'',city:'',courier:'Еконт',address:'',note:''});setItems([]);setDiscount(0);setShipping(4.9);setClientSearch('');setProductSearch('');setError('');setDelivery('address');setInfluencer('');};
  const submit = (event?:FormEvent, newOrder=false) => {
   event?.preventDefault();
   if(!form.first.trim()||!form.last.trim()||!form.phone.trim()||!form.city||!form.address.trim()) {setError('Попълнете името, фамилията, телефона и данните за доставка.');document.getElementById(!form.first?'first':!form.last?'last':!form.phone?'phone':!form.city?'city':'address')?.focus();return;}
   if(!/^[+\d\s()-]{8,20}$/.test(form.phone)) {setError('Въведете валиден телефонен номер.');document.getElementById('phone')?.focus();return;}
   if(items.length===0) {setError('Добавете поне един продукт към поръчката.');return;}
+  if(creatorRole==='Администратор'&&!influencer) {setError('Изберете инфлуенсър, към когото да се отнесе поръчката.');document.getElementById('influencer')?.focus();return;}
   setError('');setSuccess(true);if(newOrder)reset();
  };
  return <WorkspaceShell active="Продажби">
