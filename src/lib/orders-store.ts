@@ -3,7 +3,9 @@ import { useSyncExternalStore } from 'react';
 export const ORDER_STATUSES = ['Необработена', 'Обработена', 'Анулирана'] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type OrderItem = { sku: string; name: string; quantity: number; price: number };
-export type Order = { id: string; status: OrderStatus; customer: string; phone: string; city: string; address: string; courier: string; created: string; items: OrderItem[]; shipping: number; note: string; edited?: string };
+export const PAYMENT_METHODS = ['Наложен платеж', 'Банкова карта', 'Банков превод'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export type Order = { id: string; status: OrderStatus; customer: string; phone: string; city: string; address: string; courier: string; created: string; items: OrderItem[]; shipping: number; note: string; payment: PaymentMethod; edited?: string };
 
 export const CATALOG: Omit<OrderItem, 'quantity'>[] = [
   { sku: 'PRF-ROSE-50', name: 'Rose Élixir', price: 49 },
