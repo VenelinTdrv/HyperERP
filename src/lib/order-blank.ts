@@ -195,6 +195,38 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
     y += 10;
   }
 
+  // Товарителница (waybill)
+  y += 6;
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
+  const wb: [string, string][] = [
+    ['Изпращач', 'hyperERP — Козметика ЕООД'],
+    ['Получател', `${o.customer}, ${o.phone}`],
+    ['Куриер', o.courier],
+    ['Адрес', `${o.city}, ${o.address}`],
+    ['Плащане на транспорта', o.payment],
+    ['Съдържание', `Козметика · ${o.items.reduce((s, it) => s + it.quantity, 0)} бр.`],
+    ['Брой колети', '__________'],
+    ['Тегло (кг)', '__________'],
+  ];
+  wb.forEach(([label, value], i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const x = L + col * (W / 2), cy = y + row * 5.5;
+    doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+    doc.text(label, x, cy);
+    doc.setFontSize(9); doc.setTextColor(28, 36, 48);
+    doc.text(doc.splitTextToSize(value, W / 2 - 42)[0] ?? '', x + 42, cy);
+  });
+  y += Math.ceil(wb.length / 2) * 5.5 + 10;
+  const sigY = Math.max(y, 262);
+  doc.setDrawColor(28, 36, 48); doc.setLineWidth(0.4);
+  doc.line(L, sigY, L + 70, sigY);
+  doc.line(R - 70, sigY, R, sigY);
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('Изпратил (подпис)', L + 35, sigY + 4, { align: 'center' });
+  doc.text('Получил (подпис и дата)', R - 35, sigY + 4, { align: 'center' });
+
+
   // Footer
   doc.setFontSize(7.5); doc.setTextColor(91, 102, 117);
   doc.text('Генерирано от hyperERP · демонстрационен документ', L, 285);
