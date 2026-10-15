@@ -74,3 +74,125 @@ export function openOrderBlank(orders: Order | Order[]) {
   w.document.write(blankHtml(list));
   w.document.close();
 }
+
+// ============= PDF download (jsPDF + embedded Cyrillic font) =============
+
+import { jsPDF } from 'jspdf';
+import fontDataUri from '@/assets/DejaVuSans.ttf?inline';
+
+const FONT = 'DejaVuSans';
+let fontReady = false;
+
+function ensureFont(doc: jsPDF) {
+  if (fontReady) return;
+  const base64 = fontDataUri.slice(fontDataUri.indexOf(',') + 1);
+  doc.addFileToVFS('DejaVuSans.ttf', base64);
+  doc.addFont('DejaVuSans.ttf', FONT, 'normal');
+  fontReady = true;
+}
+
+function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
+  const L = 14, R = 196, W = R - L;
+  let y = 18;
+  doc.setFont(FONT, 'normal');
+
+  // Header
+  doc.setFontSize(18); doc.setTextColor(28, 36, 48);
+  doc.text('hyperERP', L, y);
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('Ecommerce & складова система', L, y + 5);
+  doc.setFontSize(13); doc.setTextColor(28, 36, 48);
+  doc.text(`Бланка на поръчка ${o.id}`, R, y, { align: 'right' });
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text(`Създадена на ${date(o.created)} · Статус: ${o.status}`, R, y + 5, { align: 'right' });
+  y += 10;
+  doc.setDrawColor(28, 36, 48); doc.setLineWidth(0.6);
+  doc.line(L, y, R, y);
+  y += 9;
+
+  // Client
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('КЛИЕНТ', L, y); y += 5;
+  const client: [string, string][] = [
+    ['Имена', o.customer], ['Телефон', o.phone], ['Населено място', o.city],
+    ['Адрес за доставка', o.address], ['Начин на получаване', deliveryMethod(o)], ['Метод на плащане', o.payment],
+  ];
+  client.forEach(([label, value], i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const x = L + col * (W / 2), cy = y + row * 6;
+    doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+    doc.text(label, x, cy);
+    doc.setFontSize(9); doc.setTextColor(28, 36, 48);
+    doc.text(doc.splitTextToSize(value, W / 2 - 34)[0] ?? '', x + 34, cy);
+  });
+  y += Math.ceil(client.length / 2) * 6 + 6;
+
+  // Products table
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('ПРОДУКТИ', L, y); y += 4;
+  const cols = [10, 78, 34, 14, 24, 24]; // №, Продукт, SKU, Кол., Ед. цена, Сума
+  const heads = ['№', 'Продукт', 'SKU', 'Кол.', 'Ед. цена', 'Сума'];
+  const drawRow = (cells: string[], cy: number, header = false) => {
+    let x = L;
+    cells.forEach((c, i) => {
+      if (header) { doc.setFillColor(240, 244, 248); doc.rect(x, cy - 4.4, cols[i]!, 6.4, 'F'); }
+      doc.setDrawColor(201, 210, 221); doc.setLineWidth(0.2);
+      doc.rect(x, cy - 4.4, cols[i]!, 6.4);
+      doc.setFontSize(header ? 7 : 8.5);
+      doc.setTextColor(header ? 91 : 28, header ? 102 : 36, header ? 117 : 48);
+      const numeric = i >= 3;
+      doc.text(c, numeric ? x + cols[i]! - 1.5 : x + 1.5, cy, { align: numeric ? 'right' : 'left' });
+      x += cols[i]!;
+    });
+  };
+  drawRow(heads, y, true); y += 6.4;
+  o.items.forEach((it, i) => {
+    drawRow([String(i + 1), it.name, it.sku, String(it.quantity), money(it.price), money(it.quantity * it.price)], y);
+    y += 6.4;
+  });
+  y += 8;
+
+  // Totals
+  const tx = R - 70;
+  const totals: [string, string, boolean][] = [
+    ['Междинна сума', money(subtotal(o)), false],
+    ['Доставка', money(o.shipping), false],
+    ['Общо с ДДС', money(total(o)), true],
+  ];
+  totals.forEach(([label, value, grand]) => {
+    doc.setFontSize(grand ? 11 : 9); doc.setTextColor(28, 36, 48);
+    doc.text(label, tx, y);
+    doc.text(value, R, y, { align: 'right' });
+    doc.setDrawColor(201, 210, 221); doc.setLineWidth(grand ? 0.5 : 0.2);
+    doc.line(tx, y + 1.8, R, y + 1.8);
+    y += grand ? 8 : 6;
+  });
+
+  // Note
+  if (o.note.trim()) {
+    y += 4;
+    doc.setFillColor(240, 244, 248);
+    doc.rect(L, y - 4, W, 8, 'F');
+    doc.setFontSize(8.5); doc.setTextColor(28, 36, 48);
+    doc.text(`Бележка: ${o.note}`, L + 2, y + 1);
+    y += 10;
+  }
+
+  // Footer
+  doc.setFontSize(7.5); doc.setTextColor(91, 102, 117);
+  doc.text('Генерирано от hyperERP · демонстрационен документ', L, 285);
+  doc.text(`Страница ${page} от ${pages}`, R, 285, { align: 'right' });
+}
+
+export function downloadOrderBlankPdf(orders: Order | Order[]) {
+  const list = Array.isArray(orders) ? orders : [orders];
+  if (list.length === 0) return;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  ensureFont(doc);
+  list.forEach((o, i) => {
+    if (i > 0) doc.addPage();
+    drawBlankPage(doc, o, i + 1, list.length);
+  });
+  const name = list.length === 1 ? `blanka-${list[0]!.id}.pdf` : `blanki-${list.length}-porachki.pdf`;
+  doc.save(name);
+}
