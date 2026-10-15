@@ -21,6 +21,9 @@ const catalog = [
  { id: 3, name: 'Pure Essence', detail: 'Парфюмна вода · 30 ml', sku: 'PRF-003', price: 35 },
 ];
 type OrderItem = { id:number; quantity:number };
+const INFLUENCERS = ['Виктория Григорова','Елена Петрова','Мария Иванова'];
+const DEMO_INFLUENCER = INFLUENCERS[0]!;
+type CreatorRole = 'Администратор'|'Инфлуенсър';
 const money = (value:number) => `${value.toLocaleString('bg-BG', {minimumFractionDigits:2, maximumFractionDigits:2})} €`;
 function Field({label, id, required, children, className=''}:{label:string;id:string;required?:boolean;children:React.ReactNode;className?:string}) {
  return <div className={`field ${className}`}><label htmlFor={id}>{label}{required && <span className="required">*</span>}</label>{children}</div>;
@@ -40,6 +43,8 @@ function Index() {
  const [error,setError] = useState('');
  const [success,setSuccess] = useState(false);
  const [resetOpen,setResetOpen] = useState(false);
+ const [creatorRole,setCreatorRole] = useState<CreatorRole>('Администратор');
+ const [influencer,setInfluencer] = useState('');
  const [resetAction,setResetAction] = useState<'reset'|'cancel'>('reset');
  const subtotal = items.reduce((sum,item) => sum + (catalog.find(p=>p.id===item.id)?.price ?? 0)*item.quantity,0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
