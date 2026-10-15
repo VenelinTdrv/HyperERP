@@ -179,9 +179,11 @@
 .delivery-status.received { background:var(--success-soft); color:var(--success); }
 .delivery-status.cancelled { background:var(--destructive-soft); color:var(--destructive); }
 .delivery-status.neutral { background:var(--info-soft); color:var(--info); }
-.delivery-row-actions { display:flex; justify-content:flex-end; gap:2px; min-width:104px; }
+.delivery-row-actions { display:flex; justify-content:flex-end; align-items:center; gap:2px; min-width:104px; }
 .delivery-row-actions button { width:32px; height:32px; color:var(--muted-foreground); }
 .delivery-row-actions button:last-child:not(:first-child) { color:var(--primary); }
+.row-action-labeled { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.row-action-labeled>span { font-size:9px; line-height:1; letter-spacing:.03em; color:var(--muted-foreground); }
 .delivery-pagination { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-top:1px solid var(--border); gap:12px; color:var(--muted-foreground); font-size:10px; }
 .delivery-pagination-controls { display:flex; align-items:center; gap:6px; }
 .delivery-pagination-controls select { border:1px solid var(--border); border-radius:4px; padding:6px; background:var(--card); color:var(--foreground); margin:0 6px; }
