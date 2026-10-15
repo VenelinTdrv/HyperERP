@@ -33,7 +33,7 @@ function pageHtml(o: Order, page: number, pages: number) {
 
 function blankHtml(orders: Order[]) {
   const pages = orders.map((o, i) => pageHtml(o, i + 1, orders.length)).join('');
-  const title = orders.length === 1 ? `Бланка ${esc(orders[0].id)}` : `Бланки (${orders.length} поръчки)`;
+  const title = orders.length === 1 ? `Бланка ${esc(orders[0]!.id)}` : `Бланки (${orders.length} поръчки)`;
   return `<!doctype html><html lang="bg"><head><meta charset="utf-8"><title>${title}</title><style>
     @page { size: A4; margin: 14mm; }
     * { box-sizing: border-box; }
