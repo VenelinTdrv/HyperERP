@@ -25,7 +25,7 @@ async function barcodeImage(value: string): Promise<BarcodeImage | undefined> {
     const mod = (await import('jsbarcode')) as unknown as { default?: BarcodeFn } & BarcodeFn;
     const draw = mod.default ?? mod;
     const canvas = document.createElement('canvas');
-    draw(canvas, value, { format: 'CODE128', height: 56, width: 2, margin: 2, fontSize: 18, displayValue: true, lineColor: '#1c2430', background: '#ffffff' });
+    draw(canvas, value, { format: 'CODE128', height: 56, width: 2, margin: 20, fontSize: 20, textMargin: 8, displayValue: true, lineColor: '#1c2430', background: '#ffffff' });
     return { dataUrl: canvas.toDataURL('image/png'), w: canvas.width, h: canvas.height };
   } catch {
     return undefined;
