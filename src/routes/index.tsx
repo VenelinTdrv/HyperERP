@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Ban, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, FileSpreadsheet, FileText, MoreVertical, Pencil, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { Ban, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, FileSpreadsheet, FileText, MoreVertical, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { WorkspaceShell } from '@/components/workspace-shell';
