@@ -221,7 +221,7 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
       doc.setFontSize(9); doc.setTextColor(28, 36, 48);
       doc.text(item[1], x + 42, cy, { maxWidth: half - 46, lineHeightFactor: 1.15 });
     });
-    const maxLines = Math.max(...pair.filter(Boolean).map(it => doc.splitTextToSize(it[1], half - 46).length));
+    const maxLines = Math.max(1, ...pair.filter((it): it is [string, string] => Boolean(it)).map(it => doc.splitTextToSize(it[1]!, half - 46).length));
     y += Math.max(5.5, maxLines * 4.6);
   }
   y += 12;
