@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Plus, Save, ShieldCheck, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Save, ShieldCheck, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
-import { CATALOG, ORDER_STATUSES, type Order, type OrderStatus, saveOrder, subtotal, total, useOrders } from '@/lib/orders-store';
+import { CATALOG, ORDER_STATUSES, PAYMENT_METHODS, type Order, type OrderStatus, type PaymentMethod, saveOrder, subtotal, total, useOrders } from '@/lib/orders-store';
+import { openOrderBlank } from '@/lib/order-blank';
 
 export const Route = createFileRoute('/orders_/$id')({
   head: ({ params }) => ({ meta: [
@@ -57,6 +58,7 @@ function OrderScreen() {
     <div className="page-heading"><div><Link to="/orders" className="text-xs text-muted-foreground inline-flex items-center gap-1"><ArrowLeft size={13} />Поръчки</Link><h1>Поръчка {draft.id}</h1><p>Създадена на {new Date(`${draft.created}T12:00:00`).toLocaleDateString('bg-BG')} · <span className={`delivery-status ${statusClass[original.status]}`}><span />{original.status}</span></p></div>
       <div className="flex gap-2 flex-wrap items-end">
         <div className="field"><label htmlFor="o-status">Статус</label><select id="o-status" value={draft.status} disabled={locked} onChange={e => set('status', e.target.value as OrderStatus)}>{ORDER_STATUSES.map(s => <option key={s}>{s}</option>)}</select></div>
+        <Button variant="outline" onClick={() => openOrderBlank(draft)} aria-label="Експорт на бланката в PDF"><FileText />Бланка (PDF)</Button>
         <Button variant="outline" asChild><Link to="/orders">Отказ</Link></Button>
         <Button onClick={save} disabled={locked}><Save />Запази</Button>
       </div></div>
@@ -64,6 +66,7 @@ function OrderScreen() {
     <section className="delivery-list p-5 mb-5" aria-label="Клиент и доставка"><h2 className="font-semibold mb-4">Клиент и доставка</h2><div className="delivery-editor-grid">
       {field('customer', 'Клиент')}{field('phone', 'Телефон')}{field('city', 'Населено място')}{field('address', 'Адрес / офис')}
       <div className="field"><label htmlFor="o-courier">Куриер</label><select id="o-courier" disabled={locked} value={draft.courier} onChange={e => set('courier', e.target.value)}><option>Еконт</option><option>Спиди</option></select></div>
+      <div className="field"><label htmlFor="o-payment">Метод на плащане</label><select id="o-payment" disabled={locked} value={draft.payment} onChange={e => set('payment', e.target.value as PaymentMethod)}>{PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}</select></div>
       <div className="field"><label htmlFor="o-note">Бележка</label><input id="o-note" disabled={locked} value={draft.note} onChange={e => set('note', e.target.value)} placeholder="Вътрешна бележка…" /></div>
     </div></section>
     <section className="delivery-list" aria-label="Продукти"><div className="delivery-list-heading"><h2>Продукти <span>{draft.items.length}</span></h2><Button variant="outline" size="sm" disabled={locked || draft.items.length >= CATALOG.length} onClick={addItem}><Plus />Добави продукт</Button></div>
