@@ -182,7 +182,8 @@
 .delivery-row-actions { display:flex; justify-content:flex-end; gap:2px; min-width:104px; }
 .delivery-row-actions button { width:32px; height:32px; color:var(--muted-foreground); }
 .delivery-row-actions button:last-child:not(:first-child) { color:var(--primary); }
-.orders-table .delivery-row-actions { min-width:auto; }
+.orders-table .delivery-row-actions { min-width:auto; justify-content:center; }
+.orders-table .delivery-head-center { text-align:center; }
 .delivery-pagination { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-top:1px solid var(--border); gap:12px; color:var(--muted-foreground); font-size:10px; }
 .delivery-pagination-controls { display:flex; align-items:center; gap:6px; }
 .delivery-pagination-controls select { border:1px solid var(--border); border-radius:4px; padding:6px; background:var(--card); color:var(--foreground); margin:0 6px; }
