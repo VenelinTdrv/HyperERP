@@ -6,6 +6,17 @@ const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;
 
 const deliveryMethod = (o: Order) => o.address.toLowerCase().startsWith('офис') ? `До офис на ${o.courier}` : `До адрес с ${o.courier}`;
 
+// Изпращач в товарителницата
+const SENDER = [
+  '"ГЕОРГИ ЖЕЛЕВ 2009" ЕАД',
+  'гр. Ямбол, ул. "Индустриална" №1',
+  'ЕИК 206878658',
+  'тел. 0893 292 323',
+];
+const SENDER_HTML = SENDER.map(esc).join('<br>');
+
+
+
 function pageHtml(o: Order, page: number, pages: number) {
   const rows = o.items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name)}</td><td>${esc(it.sku)}</td><td class="num">${it.quantity}</td><td class="num">${money(it.price)}</td><td class="num">${money(it.quantity * it.price)}</td></tr>`).join('');
   return `<section class="page">
@@ -29,7 +40,7 @@ function pageHtml(o: Order, page: number, pages: number) {
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
     <h2>Товарителница</h2>
     <div class="grid">
-      <div class="row"><dt>Изпращач</dt><dd>hyperERP — Козметика ЕООД</dd></div>
+      <div class="row wide"><dt>Изпращач</dt><dd>${SENDER_HTML}</dd></div>
       <div class="row"><dt>Куриер</dt><dd>${esc(o.courier)}</dd></div>
       <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
       <div class="row"><dt>Адрес</dt><dd>${esc(o.city)}, ${esc(o.address)}</dd></div>
@@ -66,6 +77,7 @@ function blankHtml(orders: Order[]) {
     .row { display: flex; gap: 8px; padding: 3px 0; }
     .row dt { min-width: 130px; color: #5b6675; }
     .row dd { margin: 0; font-weight: 600; }
+    .row.wide { grid-column: 1 / -1; }
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #c9d2dd; padding: 6px 8px; text-align: left; }
     th { background: #f0f4f8; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
