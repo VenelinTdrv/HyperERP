@@ -9,7 +9,7 @@ import perfume from '@/assets/perfume.jpg';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { type Order, useOrders, setOrderStatus, total, itemCount } from '@/lib/orders-store';
-import { openOrderBlank } from '@/lib/order-blank';
+import { openOrderBlank, downloadOrderBlankPdf } from '@/lib/order-blank';
 
 export const Route = createFileRoute('/orders')({
  head: () => ({ meta: [
@@ -60,8 +60,9 @@ function Orders() {
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
  const activeFilters = Object.values(filters).filter(Boolean).length;
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='porachki.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
- const exportPdf=()=>{ if (selection.length > 0) { const orders = selection.map(id=>rows.find(r=>r.id===id)).filter((o): o is NonNullable<typeof o> => !!o); if (orders.length) return openOrderBlank(orders); toast.error('Избраните поръчки вече не са в списъка.'); return; } toast.error('Изберете поръчки с чекбокса, за да отворите бланките им в PDF.'); };
- const exportPrint=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Поръчки</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Поръчки</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
+ const selectedOrders=()=>{ const orders = selection.map(id=>rows.find(r=>r.id===id)).filter((o): o is NonNullable<typeof o> => !!o); if (orders.length) return orders; toast.error(selection.length ? 'Избраните поръчки вече не са в списъка.' : 'Изберете поръчки с чекбокса.'); return null; };
+ const exportPdf=()=>{ const orders = selectedOrders(); if (orders) downloadOrderBlankPdf(orders); };
+ const exportPrint=()=>{ const orders = selectedOrders(); if (orders) openOrderBlank(orders); };
   return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content">
   <div className="page-heading"><div><h1>Поръчки</h1><p>Необработени поръчки</p></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
