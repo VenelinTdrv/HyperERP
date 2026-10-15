@@ -41,8 +41,8 @@ function pageHtml(o: Order, page: number, pages: number) {
     <h2>Товарителница</h2>
     <div class="grid">
       <div class="row wide"><dt>Изпращач</dt><dd>${SENDER_HTML}</dd></div>
-      <div class="row"><dt>Куриер</dt><dd>${esc(o.courier)}</dd></div>
       <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
+      <div class="row"><dt>Куриер</dt><dd>${esc(o.courier)}</dd></div>
       <div class="row"><dt>Адрес</dt><dd>${esc(o.city)}, ${esc(o.address)}</dd></div>
       <div class="row"><dt>Плащане на транспорта</dt><dd>${esc(o.payment)}</dd></div>
       <div class="row"><dt>Съдържание</dt><dd>Козметика · ${o.items.reduce((s, it) => s + it.quantity, 0)} бр.</dd></div>
@@ -212,7 +212,6 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
   doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
   const wb: [string, string][] = [
-    ['Изпращач', 'hyperERP — Козметика ЕООД'],
     ['Получател', `${o.customer}, ${o.phone}`],
     ['Куриер', o.courier],
     ['Адрес', `${o.city}, ${o.address}`],
@@ -222,6 +221,11 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
     ['Тегло (кг)', '__________'],
   ];
   const half = W / 2;
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('Изпращач', L, y);
+  doc.setFontSize(9); doc.setTextColor(28, 36, 48);
+  doc.text(SENDER, L + 42, y, { maxWidth: W - 46, lineHeightFactor: 1.15 });
+  y += Math.max(5.5, SENDER.length * 4.6);
   for (let i = 0; i < wb.length; i += 2) {
     const pair = [wb[i], wb[i + 1]];
     const cy = y;
@@ -231,9 +235,9 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
       doc.setFontSize(8); doc.setTextColor(91, 102, 117);
       doc.text(item[0], x, cy);
       doc.setFontSize(9); doc.setTextColor(28, 36, 48);
-      doc.text(item[1], x + 42, cy, { maxWidth: half - 46, lineHeightFactor: 1.15 });
+      doc.text(doc.splitTextToSize(item[1], half - 46), x + 42, cy, { maxWidth: half - 46, lineHeightFactor: 1.15 });
     });
-    const maxLines = Math.max(1, ...pair.filter((it): it is [string, string] => Boolean(it)).map(it => doc.splitTextToSize(it[1]!, half - 46).length));
+    const maxLines = Math.max(1, ...pair.filter((it): it is [string, string] => Boolean(it)).map(it => doc.splitTextToSize(it[1], half - 46).length));
     y += Math.max(5.5, maxLines * 4.6);
   }
   y += 12;
