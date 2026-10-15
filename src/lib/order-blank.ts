@@ -15,9 +15,41 @@ const SENDER = [
 ];
 const SENDER_HTML = SENDER.map(esc).join('<br>');
 
+// Баркод за товарителницата (Code 128, векторни ивици)
+type Barcode = { markup: string; bars: { x: number; y: number; w: number; h: number }[]; left: number; right: number; top: number; bottom: number; value: string };
+type BarcodeFn = typeof import('jsbarcode');
+
+async function barcode(value: string): Promise<Barcode | undefined> {
+  if (typeof document === 'undefined') return undefined;
+  try {
+    const mod = (await import('jsbarcode')) as unknown as { default?: BarcodeFn } & BarcodeFn;
+    const draw = mod.default ?? mod;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    draw(svg, value, { format: 'CODE128', height: 60, width: 2, margin: 12, displayValue: false, lineColor: '#1c2430', background: 'none' });
+    const bars = Array.from(svg.querySelectorAll('rect'))
+      .map(r => ({ x: Number(r.getAttribute('x') ?? 0), y: Number(r.getAttribute('y') ?? 0), w: Number(r.getAttribute('width') ?? 0), h: Number(r.getAttribute('height') ?? 0) }))
+      .filter(r => r.w > 0 && r.h > 0 && r.w < 10);
+    if (bars.length === 0) return undefined;
+    const left = Math.min(...bars.map(b => b.x));
+    const right = Math.max(...bars.map(b => b.x + b.w));
+    const top = Math.min(...bars.map(b => b.y));
+    const bottom = Math.max(...bars.map(b => b.y + b.h));
+    const W = right + 12;
+    const H = bottom + 22;
+    return {
+      value, bars, left, right, top, bottom,
+      markup: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Баркод ${esc(value)}">`
+        + bars.map(b => `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="#1c2430"/>`).join('')
+        + `<text x="${(left + right) / 2}" y="${bottom + 16}" font-family="'Segoe UI', Arial, sans-serif" font-size="15" text-anchor="middle" fill="#1c2430">${esc(value)}</text></svg>`,
+    };
+  } catch {
+    return undefined;
+  }
+}
 
 
-function pageHtml(o: Order, page: number, pages: number) {
+
+function pageHtml(o: Order, page: number, pages: number, code?: Barcode) {
   const rows = o.items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name)}</td><td>${esc(it.sku)}</td><td class="num">${it.quantity}</td><td class="num">${money(it.price)}</td><td class="num">${money(it.quantity * it.price)}</td></tr>`).join('');
   return `<section class="page">
     <div class="head"><div class="brand">hyperERP<small>Еcommerce &amp; складова система</small></div>
@@ -38,7 +70,7 @@ function pageHtml(o: Order, page: number, pages: number) {
       <div class="row grand"><span>Общо с ДДС</span><span>${money(total(o))}</span></div>
     </div>
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
-    <h2>Товарителница</h2>
+    <div class="wbhead"><h2>Товарителница</h2>${code ? `<div class="barcode">${code.markup}</div>` : ''}</div>
     <div class="grid">
       <div class="row wide"><dt>Изпращач</dt><dd>${SENDER_HTML}</dd></div>
       <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
@@ -57,8 +89,8 @@ function pageHtml(o: Order, page: number, pages: number) {
   </section>`;
 }
 
-function blankHtml(orders: Order[]) {
-  const pages = orders.map((o, i) => pageHtml(o, i + 1, orders.length)).join('');
+function blankHtml(orders: Order[], codes: (Barcode | undefined)[]) {
+  const pages = orders.map((o, i) => pageHtml(o, i + 1, orders.length, codes[i])).join('');
   const title = orders.length === 1 ? `Бланка ${esc(orders[0]!.id)}` : `Бланки (${orders.length} поръчки)`;
   return `<!doctype html><html lang="bg"><head><meta charset="utf-8"><title>${title}</title><style>
     @page { size: A4; margin: 14mm; }
@@ -78,6 +110,9 @@ function blankHtml(orders: Order[]) {
     .row dt { min-width: 130px; color: #5b6675; }
     .row dd { margin: 0; font-weight: 600; }
     .row.wide { grid-column: 1 / -1; }
+    .wbhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; border-top: 1.5px solid #1c2430; padding-top: 12px; margin-top: 18px; }
+    .wbhead h2 { margin: 0; }
+    .barcode svg { display: block; height: 46px; width: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #c9d2dd; padding: 6px 8px; text-align: left; }
     th { background: #f0f4f8; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
@@ -95,12 +130,13 @@ function blankHtml(orders: Order[]) {
   </body></html>`;
 }
 
-export function openOrderBlank(orders: Order | Order[]) {
+export async function openOrderBlank(orders: Order | Order[]) {
   const list = Array.isArray(orders) ? orders : [orders];
   if (list.length === 0) return;
   const w = window.open('', '_blank');
   if (!w) return;
-  w.document.write(blankHtml(list));
+  const codes = await Promise.all(list.map(o => barcode(o.id)));
+  w.document.write(blankHtml(list, codes));
   w.document.close();
 }
 
@@ -110,17 +146,17 @@ import { jsPDF } from 'jspdf';
 import fontDataUri from '@/assets/DejaVuSans.ttf?inline';
 
 const FONT = 'DejaVuSans';
-let fontReady = false;
+const fontDocs = new WeakSet<jsPDF>();
 
 function ensureFont(doc: jsPDF) {
-  if (fontReady) return;
+  if (fontDocs.has(doc)) return;
   const base64 = fontDataUri.slice(fontDataUri.indexOf(',') + 1);
   doc.addFileToVFS('DejaVuSans.ttf', base64);
   doc.addFont('DejaVuSans.ttf', FONT, 'normal');
-  fontReady = true;
+  fontDocs.add(doc);
 }
 
-function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
+function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?: Barcode) {
   const L = 14, R = 196, W = R - L;
   let y = 18;
   doc.setFont(FONT, 'normal');
@@ -208,9 +244,24 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
   }
 
   // Товарителница (waybill)
-  y += 6;
+  y += 9;
+  doc.setDrawColor(28, 36, 48); doc.setLineWidth(0.5);
+  doc.line(L, y - 4, R, y - 4);
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
   doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
+  let barcodeBottom = y;
+  if (code) {
+    const bh = 12;
+    const scale = bh / (code.bottom - code.top);
+    const bw = (code.right - code.left) * scale;
+    const bx = R - 3 - bw;
+    const by = y + 1;
+    doc.setFillColor(28, 36, 48);
+    code.bars.forEach(b => doc.rect(bx + (b.x - code.left) * scale, by + (b.y - code.top) * scale, b.w * scale, b.h * scale, 'F'));
+    doc.setFontSize(7.5); doc.setTextColor(28, 36, 48);
+    doc.text(code.value, bx + bw / 2, by + bh + 3.4, { align: 'center' });
+    barcodeBottom = by + bh + 3.4;
+  }
   const wb: [string, string][] = [
     ['Получател', `${o.customer}, ${o.phone}`],
     ['Куриер', o.courier],
@@ -225,7 +276,7 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
   doc.text('Изпращач', L, y);
   doc.setFontSize(9); doc.setTextColor(28, 36, 48);
   doc.text(SENDER, L + 42, y, { maxWidth: W - 46, lineHeightFactor: 1.15 });
-  y += Math.max(5.5, SENDER.length * 4.6);
+  y = Math.max(y + Math.max(5.5, SENDER.length * 4.6), barcodeBottom) + 4;
   for (let i = 0; i < wb.length; i += 2) {
     const pair = [wb[i], wb[i + 1]];
     const cy = y;
@@ -256,14 +307,15 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
   doc.text(`Страница ${page} от ${pages}`, R, 285, { align: 'right' });
 }
 
-export function downloadOrderBlankPdf(orders: Order | Order[]) {
+export async function downloadOrderBlankPdf(orders: Order | Order[]) {
   const list = Array.isArray(orders) ? orders : [orders];
   if (list.length === 0) return;
+  const codes = await Promise.all(list.map(o => barcode(o.id)));
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   ensureFont(doc);
   list.forEach((o, i) => {
     if (i > 0) doc.addPage();
-    drawBlankPage(doc, o, i + 1, list.length);
+    drawBlankPage(doc, o, i + 1, list.length, codes[i]);
   });
   const name = list.length === 1 ? `blanka-${list[0]!.id}.pdf` : `blanki-${list.length}-porachki.pdf`;
   doc.save(name);
