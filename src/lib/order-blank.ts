@@ -209,7 +209,6 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
     ['Брой колети', '__________'],
     ['Тегло (кг)', '__________'],
   ];
-  wb.forEach(() => undefined);
   const half = W / 2;
   for (let i = 0; i < wb.length; i += 2) {
     const pair = [wb[i], wb[i + 1]];
