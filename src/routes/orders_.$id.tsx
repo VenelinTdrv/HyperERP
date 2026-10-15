@@ -27,7 +27,7 @@ function OrderScreen() {
   const orders = useOrders();
   const original = orders.find(o => o.id === id);
   const [draft, setDraft] = useState<Order | null>(original ?? null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<'customer'|'phone'|'city'|'address'|'items'|'shipping', string>>>({});
   useEffect(() => { setDraft(original ?? null); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!original || !draft) return <WorkspaceShell active="Поръчки"><div className="page-content"><h1>Поръчката не е намерена</h1><Button asChild variant="outline" className="mt-4"><Link to="/orders"><ArrowLeft />Към поръчките</Link></Button></div></WorkspaceShell>;
@@ -37,7 +37,7 @@ function OrderScreen() {
   const setItem = (i: number, patch: Partial<Order['items'][number]>) => set('items', draft.items.map((it, n) => n === i ? { ...it, ...patch } : it));
   const addItem = () => { const free = CATALOG.find(c => !draft.items.some(i => i.sku === c.sku)); if (free) set('items', [...draft.items, { ...free, quantity: 1 }]); };
   const save = () => {
-    const e: Record<string, string> = {};
+    const e: typeof errors = {};
     if (!draft.customer.trim()) e.customer = 'Въведете клиент.';
     if (!/^[0-9 +]{6,}$/.test(draft.phone.trim())) e.phone = 'Въведете валиден телефон.';
     if (!draft.city.trim()) e.city = 'Въведете населено място.';

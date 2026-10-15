@@ -11,7 +11,7 @@ export const CATALOG: Omit<OrderItem, 'quantity'>[] = [
   { sku: 'PRF-PURE-30', name: 'Pure Essence', price: 35 },
   { sku: 'CRM-HYDR-50', name: 'Hydra Cream', price: 29 },
 ];
-const item = (i: number, quantity: number): OrderItem => ({ ...CATALOG[i], quantity });
+const item = (i: number, quantity: number): OrderItem => ({ ...CATALOG[i]!, quantity });
 
 let orders: Order[] = [
   { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', items:[item(0,2)], shipping:4.9, note:'' },
