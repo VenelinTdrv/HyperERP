@@ -27,6 +27,21 @@ function pageHtml(o: Order, page: number, pages: number) {
       <div class="row grand"><span>Общо с ДДС</span><span>${money(total(o))}</span></div>
     </div>
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
+    <h2>Товарителница</h2>
+    <div class="grid">
+      <div class="row"><dt>Изпращач</dt><dd>hyperERP — Козметика ЕООД</dd></div>
+      <div class="row"><dt>Куриер</dt><dd>${esc(o.courier)}</dd></div>
+      <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
+      <div class="row"><dt>Адрес</dt><dd>${esc(o.city)}, ${esc(o.address)}</dd></div>
+      <div class="row"><dt>Плащане на транспорта</dt><dd>${esc(o.payment)}</dd></div>
+      <div class="row"><dt>Съдържание</dt><dd>Козметика · ${o.items.reduce((s, it) => s + it.quantity, 0)} бр.</dd></div>
+      <div class="row"><dt>Брой колети</dt><dd>__________</dd></div>
+      <div class="row"><dt>Тегло (кг)</dt><dd>__________</dd></div>
+    </div>
+    <div class="signatures">
+      <div><span>Изпратил (подпис)</span></div>
+      <div><span>Получил (подпис и дата)</span></div>
+    </div>
     <div class="foot"><span>Генерирано от hyperERP · демонстрационен документ</span><span>Страница ${page} от ${pages}</span></div>
   </section>`;
 }
@@ -59,6 +74,8 @@ function blankHtml(orders: Order[]) {
     .totals .row { justify-content: space-between; border-bottom: 1px dashed #c9d2dd; }
     .totals .row.grand { font-size: 14px; font-weight: 800; border-bottom: 2px solid #1c2430; }
     .note { margin-top: 16px; padding: 8px 10px; background: #f0f4f8; border-radius: 4px; }
+    .signatures { display: flex; gap: 40px; margin-top: 26px; }
+    .signatures > div { flex: 1; border-top: 1px solid #1c2430; padding-top: 4px; text-align: center; color: #5b6675; font-size: 10px; }
     .foot { margin-top: 28px; display: flex; justify-content: space-between; color: #5b6675; font-size: 10px; }
   </style></head><body>
     ${pages}
@@ -177,6 +194,45 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
     doc.text(`Бележка: ${o.note}`, L + 2, y + 1);
     y += 10;
   }
+
+  // Товарителница (waybill)
+  y += 6;
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
+  const wb: [string, string][] = [
+    ['Изпращач', 'hyperERP — Козметика ЕООД'],
+    ['Получател', `${o.customer}, ${o.phone}`],
+    ['Куриер', o.courier],
+    ['Адрес', `${o.city}, ${o.address}`],
+    ['Плащане на транспорта', o.payment],
+    ['Съдържание', `Козметика · ${o.items.reduce((s, it) => s + it.quantity, 0)} бр.`],
+    ['Брой колети', '__________'],
+    ['Тегло (кг)', '__________'],
+  ];
+  const half = W / 2;
+  for (let i = 0; i < wb.length; i += 2) {
+    const pair = [wb[i], wb[i + 1]];
+    const cy = y;
+    pair.forEach((item, col) => {
+      if (!item) return;
+      const x = L + col * half;
+      doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+      doc.text(item[0], x, cy);
+      doc.setFontSize(9); doc.setTextColor(28, 36, 48);
+      doc.text(item[1], x + 42, cy, { maxWidth: half - 46, lineHeightFactor: 1.15 });
+    });
+    const maxLines = Math.max(1, ...pair.filter((it): it is [string, string] => Boolean(it)).map(it => doc.splitTextToSize(it[1]!, half - 46).length));
+    y += Math.max(5.5, maxLines * 4.6);
+  }
+  y += 12;
+  doc.setDrawColor(28, 36, 48); doc.setLineWidth(0.4);
+  doc.line(L, y, L + 70, y);
+  doc.line(R - 70, y, R, y);
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('Изпратил (подпис)', L + 35, y + 4, { align: 'center' });
+  doc.text('Получил (подпис и дата)', R - 35, y + 4, { align: 'center' });
+
+
 
   // Footer
   doc.setFontSize(7.5); doc.setTextColor(91, 102, 117);
