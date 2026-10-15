@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Plus, Save, ShieldCheck, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Save, ShieldCheck, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
-import { CATALOG, ORDER_STATUSES, type Order, type OrderStatus, saveOrder, subtotal, total, useOrders } from '@/lib/orders-store';
+import { CATALOG, ORDER_STATUSES, PAYMENT_METHODS, type Order, type OrderStatus, type PaymentMethod, saveOrder, subtotal, total, useOrders } from '@/lib/orders-store';
+import { openOrderBlank } from '@/lib/order-blank';
 
 export const Route = createFileRoute('/orders_/$id')({
   head: ({ params }) => ({ meta: [
