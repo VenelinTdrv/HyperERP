@@ -1,7 +1,7 @@
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { ArrowLeft, ArrowRight, Bell, Boxes, Check, CheckCheck, ChevronDown, ChevronRight, CircleHelp, ClipboardList, CreditCard, FileText, Globe2, LayoutGrid, ListFilter, LogOut, Menu, Minus, Package, Plus, RotateCcw, Search, Settings2, ShieldCheck, ShoppingBag, Sparkles, Trash2, Truck, UserRound, UserRoundPlus, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Bell, Boxes, Check, CheckCheck, ChevronDown, ChevronRight, CircleHelp, ClipboardList, CreditCard, FileText, Globe2, LayoutGrid, ListFilter, LogOut, Menu, Minus, Package, Plus, RotateCcw, Search, Settings2, ShieldCheck, ShoppingBag, Sparkles, Trash2, Truck, UserCog, UserRound, UserRoundPlus, Users, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import perfume from '@/assets/perfume.jpg';
