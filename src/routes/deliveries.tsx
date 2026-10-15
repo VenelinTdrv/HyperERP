@@ -64,6 +64,7 @@ function Deliveries() {
  const activeFilters=Object.values(filters).filter(Boolean).length;
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='dostavki.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Доставки</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Доставки</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
+ const exportPrint = exportPdf;
  const filter=(key:keyof typeof filters,value:string)=>{setFilters(prev=>({...prev,[key]:value}));setPage(1);};
  const startNew=()=>{setEditing(null);setForm(emptyForm);setError('');setEditor(true);};
  const startEdit=(row:Delivery)=>{setEditing(row.id);setForm({supplier:row.supplier,warehouse:row.warehouse,expected:row.expected,product:row.product,quantity:String(row.quantity),note:row.note,status:row.status});setError('');setSelected(null);setEditor(true);};
