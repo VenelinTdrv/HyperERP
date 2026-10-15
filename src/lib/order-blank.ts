@@ -110,8 +110,8 @@ function blankHtml(orders: Order[], codes: (Barcode | undefined)[]) {
     .row dt { min-width: 130px; color: #5b6675; }
     .row dd { margin: 0; font-weight: 600; }
     .row.wide { grid-column: 1 / -1; }
-    .wbhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
-    .wbhead h2 { margin-bottom: 0; }
+    .wbhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; border-top: 1.5px solid #1c2430; padding-top: 12px; margin-top: 18px; }
+    .wbhead h2 { margin: 0; }
     .barcode svg { display: block; height: 46px; width: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #c9d2dd; padding: 6px 8px; text-align: left; }
@@ -146,14 +146,14 @@ import { jsPDF } from 'jspdf';
 import fontDataUri from '@/assets/DejaVuSans.ttf?inline';
 
 const FONT = 'DejaVuSans';
-let fontReady = false;
+const fontDocs = new WeakSet<jsPDF>();
 
 function ensureFont(doc: jsPDF) {
-  if (fontReady) return;
+  if (fontDocs.has(doc)) return;
   const base64 = fontDataUri.slice(fontDataUri.indexOf(',') + 1);
   doc.addFileToVFS('DejaVuSans.ttf', base64);
   doc.addFont('DejaVuSans.ttf', FONT, 'normal');
-  fontReady = true;
+  fontDocs.add(doc);
 }
 
 function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?: Barcode) {
@@ -244,19 +244,23 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
   }
 
   // Товарителница (waybill)
-  y += 6;
+  y += 9;
+  doc.setDrawColor(28, 36, 48); doc.setLineWidth(0.5);
+  doc.line(L, y - 4, R, y - 4);
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
   doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
+  let barcodeBottom = y;
   if (code) {
     const bh = 12;
     const scale = bh / (code.bottom - code.top);
     const bw = (code.right - code.left) * scale;
     const bx = R - 3 - bw;
-    const by = y + 1.5;
+    const by = y + 1;
     doc.setFillColor(28, 36, 48);
     code.bars.forEach(b => doc.rect(bx + (b.x - code.left) * scale, by + (b.y - code.top) * scale, b.w * scale, b.h * scale, 'F'));
     doc.setFontSize(7.5); doc.setTextColor(28, 36, 48);
     doc.text(code.value, bx + bw / 2, by + bh + 3.4, { align: 'center' });
+    barcodeBottom = by + bh + 3.4;
   }
   const wb: [string, string][] = [
     ['Получател', `${o.customer}, ${o.phone}`],
@@ -272,7 +276,7 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
   doc.text('Изпращач', L, y);
   doc.setFontSize(9); doc.setTextColor(28, 36, 48);
   doc.text(SENDER, L + 42, y, { maxWidth: W - 46, lineHeightFactor: 1.15 });
-  y += Math.max(5.5, SENDER.length * 4.6);
+  y = Math.max(y + Math.max(5.5, SENDER.length * 4.6), barcodeBottom) + 4;
   for (let i = 0; i < wb.length; i += 2) {
     const pair = [wb[i], wb[i + 1]];
     const cy = y;
