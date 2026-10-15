@@ -6,6 +6,17 @@ const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;
 
 const deliveryMethod = (o: Order) => o.address.toLowerCase().startsWith('офис') ? `До офис на ${o.courier}` : `До адрес с ${o.courier}`;
 
+// Изпращач в товарителницата
+const SENDER = [
+  '"ГЕОРГИ ЖЕЛЕВ 2009" ЕАД',
+  'гр. Ямбол, ул. "Индустриална" №1',
+  'ЕИК 206878658',
+  'тел. 0893 292 323',
+];
+const SENDER_HTML = SENDER.map(esc).join('<br>');
+
+
+
 function pageHtml(o: Order, page: number, pages: number) {
   const rows = o.items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name)}</td><td>${esc(it.sku)}</td><td class="num">${it.quantity}</td><td class="num">${money(it.price)}</td><td class="num">${money(it.quantity * it.price)}</td></tr>`).join('');
   return `<section class="page">
@@ -29,9 +40,9 @@ function pageHtml(o: Order, page: number, pages: number) {
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
     <h2>Товарителница</h2>
     <div class="grid">
-      <div class="row"><dt>Изпращач</dt><dd>hyperERP — Козметика ЕООД</dd></div>
-      <div class="row"><dt>Куриер</dt><dd>${esc(o.courier)}</dd></div>
+      <div class="row wide"><dt>Изпращач</dt><dd>${SENDER_HTML}</dd></div>
       <div class="row"><dt>Получател</dt><dd>${esc(o.customer)}, ${esc(o.phone)}</dd></div>
+      <div class="row"><dt>Куриер</dt><dd>${esc(o.courier)}</dd></div>
       <div class="row"><dt>Адрес</dt><dd>${esc(o.city)}, ${esc(o.address)}</dd></div>
       <div class="row"><dt>Плащане на транспорта</dt><dd>${esc(o.payment)}</dd></div>
       <div class="row"><dt>Съдържание</dt><dd>Козметика · ${o.items.reduce((s, it) => s + it.quantity, 0)} бр.</dd></div>
@@ -66,6 +77,7 @@ function blankHtml(orders: Order[]) {
     .row { display: flex; gap: 8px; padding: 3px 0; }
     .row dt { min-width: 130px; color: #5b6675; }
     .row dd { margin: 0; font-weight: 600; }
+    .row.wide { grid-column: 1 / -1; }
     table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     th, td { border: 1px solid #c9d2dd; padding: 6px 8px; text-align: left; }
     th { background: #f0f4f8; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
@@ -200,7 +212,6 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
   doc.text('ТОВАРИТЕЛНИЦА', L, y); y += 5;
   const wb: [string, string][] = [
-    ['Изпращач', 'hyperERP — Козметика ЕООД'],
     ['Получател', `${o.customer}, ${o.phone}`],
     ['Куриер', o.courier],
     ['Адрес', `${o.city}, ${o.address}`],
@@ -210,6 +221,11 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
     ['Тегло (кг)', '__________'],
   ];
   const half = W / 2;
+  doc.setFontSize(8); doc.setTextColor(91, 102, 117);
+  doc.text('Изпращач', L, y);
+  doc.setFontSize(9); doc.setTextColor(28, 36, 48);
+  doc.text(SENDER, L + 42, y, { maxWidth: W - 46, lineHeightFactor: 1.15 });
+  y += Math.max(5.5, SENDER.length * 4.6);
   for (let i = 0; i < wb.length; i += 2) {
     const pair = [wb[i], wb[i + 1]];
     const cy = y;
@@ -219,9 +235,9 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number) {
       doc.setFontSize(8); doc.setTextColor(91, 102, 117);
       doc.text(item[0], x, cy);
       doc.setFontSize(9); doc.setTextColor(28, 36, 48);
-      doc.text(item[1], x + 42, cy, { maxWidth: half - 46, lineHeightFactor: 1.15 });
+      doc.text(doc.splitTextToSize(item[1], half - 46), x + 42, cy, { maxWidth: half - 46, lineHeightFactor: 1.15 });
     });
-    const maxLines = Math.max(1, ...pair.filter((it): it is [string, string] => Boolean(it)).map(it => doc.splitTextToSize(it[1]!, half - 46).length));
+    const maxLines = Math.max(1, ...pair.filter((it): it is [string, string] => Boolean(it)).map(it => doc.splitTextToSize(it[1], half - 46).length));
     y += Math.max(5.5, maxLines * 4.6);
   }
   y += 12;
