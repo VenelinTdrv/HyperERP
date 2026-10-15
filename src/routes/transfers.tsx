@@ -104,21 +104,20 @@ function Transfers(){
   </div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с трансфери"><div className="delivery-list-heading"><h2>Всички трансфери <span>{filtered.length}</span></h2></div>
-   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th className="row-select-cell"><Checkbox aria-label="Избери всички на страницата" checked={allSelected?true:someSelected?'indeterminate':false} onCheckedChange={c=>toggleAll(Boolean(c))}/></th><th>Документ номер</th><th>Дата на създаване</th><th>От склад</th><th>Към склад</th><th>Артикули</th><th>Статус</th><th>Създаден от</th><th className="text-right">Действия</th></tr></thead><tbody>{shown.map(r=><tr key={r.id} data-selected={selection.includes(r.id)}>
+   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table orders-table"><thead><tr><th className="row-select-cell"><Checkbox aria-label="Избери всички на страницата" checked={allSelected?true:someSelected?'indeterminate':false} onCheckedChange={c=>toggleAll(Boolean(c))}/></th><th>Документ номер</th><th>Дата на създаване</th><th>От склад</th><th>Към склад</th><th>Артикули</th><th>Статус</th><th>Създаден от</th><th className="delivery-head-center">Действия</th><th className="delivery-head-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id} data-selected={selection.includes(r.id)}>
     <td className="row-select-cell"><Checkbox aria-label={`Избери ${r.doc}`} checked={selection.includes(r.id)} onCheckedChange={c=>toggleRow(r.id,Boolean(c))}/></td>
     <td><Button variant="ghost" className="client-name" onClick={()=>setSelected(r)}>{r.doc}</Button></td>
     <td>{fmt(r.created)}</td><td>{r.from}</td><td>{r.to}</td>
     <td>{r.items.reduce((s,i)=>s+i.quantity,0)} бр.</td>
     <td><span className={`delivery-status ${cls[r.status]}`}>{r.status}</span></td>
     <td>{r.createdBy}</td>
-    <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.doc}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end">
-     <DropdownMenuItem onSelect={()=>setSelected(r)}><Eye/>Детайли</DropdownMenuItem>
+    <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.doc}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end">
      {editable(r)&&<DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem>}
      {r.status==='Необработен'&&<DropdownMenuItem onSelect={()=>changeStatus(r,'Потвърден')}><Check/>Потвърди</DropdownMenuItem>}
      {r.status==='Потвърден'&&<DropdownMenuItem onSelect={()=>changeStatus(r,'Завършен')}><ArrowLeftRight/>Завърши</DropdownMenuItem>}
      {(r.status==='Необработен'||r.status==='Потвърден')&&<DropdownMenuItem onSelect={()=>changeStatus(r,'Отказан')}><X/>Откажи</DropdownMenuItem>}
      {editable(r)&&<><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></>}
-    </DropdownMenuContent></DropdownMenu></td>
+    </DropdownMenuContent></DropdownMenu></div></td><td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${r.doc}`} title="Преглед" onClick={()=>setSelected(r)}><Eye/></Button></div></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><ArrowLeftRight size={32}/><h3>Няма намерени трансфери</h3>{anyFilter&&<Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button>}</div>}
    {selection.length>0&&<div className="article-selection"><span>{selection.length} {selection.length===1?'избран трансфер':'избрани трансфера'}</span><Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
    <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
