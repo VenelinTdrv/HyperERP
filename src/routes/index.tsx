@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, FileSpreadsheet, FileText, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { Ban, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, FileSpreadsheet, FileText, MoreVertical, Pencil, Plus, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -22,7 +24,7 @@ export const Route = createFileRoute('/')({
 type Status = 'Необработена'|'Обработена'|'Изпратена'|'Доставена'|'Отказана';
 const statuses: Status[] = ['Необработена','Обработена','Изпратена','Доставена','Отказана'];
 type Order = { id: string; status: Status; customer: string; phone: string; city: string; address: string; courier: string; created: string; product: string; quantity: number; price: number; shipping: number };
-const rows: Order[] = [
+const initialRows: Order[] = [
  { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', product:'Rose Élixir', quantity:2, price:49, shipping:4.9 },
  { id:'ORD-0023', status:'Обработена', customer:'Елена Петрова', phone:'0888 234 567', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-14', product:'Velvet Bloom', quantity:1, price:69, shipping:4.9 },
  { id:'ORD-0022', status:'Изпратена', customer:'Иван Георгиев', phone:'0888 345 678', city:'Варна', address:'Офис · Център', courier:'Еконт', created:'2026-10-13', product:'Pure Essence', quantity:3, price:35, shipping:4.9 },
@@ -47,7 +49,9 @@ function Sales() {
  const [sort, setSort] = useState('newest');
  const [page, setPage] = useState(1);
  const [pageSize, setPageSize] = useState(10);
- const [selected, setSelected] = useState<Order|null>(null);
+  const [selected, setSelected] = useState<Order|null>(null);
+  const navigate = useNavigate();
+  const [rows, setRows] = useState(initialRows);
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
  const clear = () => { setFilters(emptyFilters); setPage(1); };
@@ -81,7 +85,7 @@ function Sales() {
   </div>}{activeFilters>0&&<div className="delivery-filter-state"><span>{filtered.length} намерени поръчки</span><Button variant="ghost" size="sm" onClick={clear}><X/>Изчисти филтрите</Button></div>}</div>
   <section className="delivery-list" aria-label="Списък с продажби"><div className="delivery-list-heading"><h2>Списък с продажби <span>{filtered.length}</span></h2><div className="field"><label className="sr-only" htmlFor="orders-sort">Подреждане</label><select id="orders-sort" value={sort} onChange={e=>{setSort(e.target.value);setPage(1);}}><option value="newest">Най-новите първо</option><option value="oldest">Най-старите първо</option></select></div></div>
    <div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th className="row-select-cell"><Checkbox aria-label="Избери всички поръчки на страницата" checked={allSelected?true:someSelected?'indeterminate':false} onCheckedChange={()=>toggleAll()}/></th><th>Поръчка</th><th>Статус</th><th>Клиент</th><th>Доставка</th><th>Общо с ДДС</th><th>Създадена</th><th className="text-right">Действия</th></tr></thead><tbody>{visible.map(row=><tr key={row.id} data-selected={selection.includes(row.id)}>
-    <td className="row-select-cell"><Checkbox aria-label={`Избери поръчка ${row.id}`} checked={selection.includes(row.id)} onCheckedChange={()=>toggleRow(row.id)}/></td><td><Button variant="link" className="delivery-id" onClick={()=>setSelected(row)}>{row.id}</Button><span className="delivery-cell-sub">{row.quantity} бр. · {row.product}</span></td><td><OrderStatus status={row.status}/></td><td><strong className="delivery-supplier">{row.customer}</strong><span className="delivery-cell-sub">{row.phone}</span></td><td>{row.city}<span className="delivery-cell-sub">{row.courier} · {row.address}</span></td><td className="font-semibold">{money(row.quantity*row.price+row.shipping)}</td><td>{date(row.created)}<span className="delivery-cell-sub">Венелин Тодоров</span></td><td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${row.id}`} title="Преглед на поръчката" onClick={()=>setSelected(row)}><Eye/></Button></div></td>
+    <td className="row-select-cell"><Checkbox aria-label={`Избери поръчка ${row.id}`} checked={selection.includes(row.id)} onCheckedChange={()=>toggleRow(row.id)}/></td><td><Button variant="link" className="delivery-id" onClick={()=>setSelected(row)}>{row.id}</Button><span className="delivery-cell-sub">{row.quantity} бр. · {row.product}</span></td><td><OrderStatus status={row.status}/></td><td><strong className="delivery-supplier">{row.customer}</strong><span className="delivery-cell-sub">{row.phone}</span></td><td>{row.city}<span className="delivery-cell-sub">{row.courier} · {row.address}</span></td><td className="font-semibold">{money(row.quantity*row.price+row.shipping)}</td><td>{date(row.created)}<span className="delivery-cell-sub">Венелин Тодоров</span></td><td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${row.id}`} title="Преглед на поръчката" onClick={()=>setSelected(row)}><Eye/></Button><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Операции ${row.id}`} title="Операции"><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>navigate({to:'/orders/$id',params:{id:row.id}})}><Pencil/>Отвори и редактирай</DropdownMenuItem><DropdownMenuItem onSelect={()=>{setRows(prev=>prev.map(r=>r.id===row.id?{...r,status:'Обработена' as Status}:r));toast.success(`${row.id} е маркирана като обработена (демо).`);}}><CheckCircle2/>Маркирай като обработена</DropdownMenuItem><DropdownMenuItem className="text-destructive" onSelect={()=>{setRows(prev=>prev.map(r=>r.id===row.id?{...r,status:'Отказана' as Status}:r));toast.success(`${row.id} е анулирана (демо).`);}}><Ban/>Анулирай</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
    </tr>)}</tbody></table></div>
    {visible.length===0&&<div className="delivery-empty"><ClipboardList size={32}/><h3>Няма намерени поръчки</h3><p>Няма необработени поръчки за избраните филтри.</p><Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button></div>}
    {selection.length>0&&<div className="article-selection"><span>{selection.length} {selection.length===1?'избрана поръчка':'избрани поръчки'}</span><Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
