@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, Globe2, Lock, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Eye, Globe2, Info, Lock, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/countries')({
   head:()=>({meta:[{title:'HyperERP · Държави'},{name:'description',content:'Управление на държави — код, име и име на местния език в HyperERP.'},{property:'og:title',content:'HyperERP · Държави'},{property:'og:description',content:'Списък с държави, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -20,8 +21,13 @@ const initial:Country[]=[
  {id:3,code:'RO',name:'Romania',localName:'România'},
  {id:4,code:'GR',name:'Greece',localName:'Ελλάδα'},
  {id:5,code:'TR',name:'Turkey',localName:'Türkiye'},
+ {id:6,code:'RS',name:'Serbia',localName:'Србија'},
+ {id:7,code:'MK',name:'North Macedonia',localName:'Северна Македонија'},
+ {id:8,code:'MD',name:'Moldova',localName:'Republica Moldova'},
+ {id:9,code:'HU',name:'Hungary',localName:'Magyarország'},
+ {id:10,code:'AT',name:'Austria',localName:'Österreich'},
 ];
-const PAGE=5;
+const PAGE=10;
 
 function Countries(){
  const [rows,setRows]=useState(initial);
@@ -52,9 +58,9 @@ function Countries(){
  };
  const remove=()=>{if(!deleting)return;setRows(p=>p.filter(r=>r.id!==deleting.id));setAnnouncement(`${deleting.name} · Държавата е изтрита само в демонстрацията.`);setDeleting(null);};
  const f=(k:keyof Form,label:string,o:{req?:boolean;ph?:string;max?:number;wide?:boolean;hint?:string}={})=><div className={`field ${o.wide?'col-span-2':''}`}><label htmlFor={`ctr-${k}`}>{label}{o.req&&<span className="required">*</span>}</label><input id={`ctr-${k}`} type="text" placeholder={o.ph} maxLength={o.max??100} value={form[k]} aria-invalid={Boolean(errors[k])} aria-describedby={errors[k]?`ctr-${k}-error`:o.hint?`ctr-${k}-hint`:undefined} onChange={ev=>set(k,ev.target.value)}/>{errors[k]?<p id={`ctr-${k}-error`} className="text-xs text-destructive" role="alert">{errors[k]}</p>:o.hint?<p id={`ctr-${k}-hint`} className="text-xs text-muted-foreground">{o.hint}</p>:null}</div>;
- return <WorkspaceShell active="Държави"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Държави</h1><p>Номенклатура за адреси на клиенти и доставчици</p></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави държава</Button></div>
-  <div className="suppliers-filters"><div className="search-box" style={{maxWidth:'11rem'}}><input className="search-input" aria-label="Код" placeholder="Код…" value={code} onChange={ev=>{setCode(ev.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" aria-label="Име на държава" placeholder="Име на държава…" value={nameQ} onChange={ev=>{setNameQ(ev.target.value);setPage(1);}}/></div><Button variant="outline" disabled={!code&&!nameQ} onClick={clear}><X/>Изчисти</Button></div>
+ return <WorkspaceShell active="Държави"><div className="page-content deliveries-content orders-content">
+  <div className="page-heading"><div><h1>Държави<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Номенклатура за адреси на клиенти и доставчици. Търси по код или име и отвори държава за детайли.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави държава</Button></div>
+  <div className="suppliers-filters transfers-filters"><div className="search-box"><input className="search-input" aria-label="Код" placeholder="Код…" value={code} onChange={ev=>{setCode(ev.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" aria-label="Име на държава" placeholder="Име на държава…" value={nameQ} onChange={ev=>{setNameQ(ev.target.value);setPage(1);}}/></div><Button variant="outline" disabled={!code&&!nameQ} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с държави"><div className="delivery-list-heading"><h2>Всички държави <span>{filtered.length}</span></h2></div>
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>ID</th><th>Код</th><th>Име на държава</th><th>Име на местния език</th><th className="text-right">Действия</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
