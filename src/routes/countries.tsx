@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, Globe2, Lock, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Eye, Globe2, Info, Lock, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/countries')({
   head:()=>({meta:[{title:'HyperERP · Държави'},{name:'description',content:'Управление на държави — код, име и име на местния език в HyperERP.'},{property:'og:title',content:'HyperERP · Държави'},{property:'og:description',content:'Списък с държави, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -20,8 +21,13 @@ const initial:Country[]=[
  {id:3,code:'RO',name:'Romania',localName:'România'},
  {id:4,code:'GR',name:'Greece',localName:'Ελλάδα'},
  {id:5,code:'TR',name:'Turkey',localName:'Türkiye'},
+ {id:6,code:'RS',name:'Serbia',localName:'Србија'},
+ {id:7,code:'MK',name:'North Macedonia',localName:'Северна Македонија'},
+ {id:8,code:'MD',name:'Moldova',localName:'Republica Moldova'},
+ {id:9,code:'HU',name:'Hungary',localName:'Magyarország'},
+ {id:10,code:'AT',name:'Austria',localName:'Österreich'},
 ];
-const PAGE=5;
+const PAGE=10;
 
 function Countries(){
  const [rows,setRows]=useState(initial);
