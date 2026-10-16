@@ -48,11 +48,11 @@ function build(seller: string): Row[] {
 }
 
 const money = (v: number) => `${v.toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
-const ordersCfg = { paid: { label: 'Платени', color: 'var(--chart-2)' }, returned: { label: 'Върнати', color: 'var(--chart-5)' }, orders: { label: 'Всички', color: 'var(--chart-1)' } } satisfies ChartConfig;
-const salesCfg = { paid: { label: 'Продажби (платени)', color: 'var(--chart-2)' } } satisfies ChartConfig;
-const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--chart-3)' } } satisfies ChartConfig;
-const priceCfg = { avgPrice: { label: 'Ср. цена', color: 'var(--chart-4)' } } satisfies ChartConfig;
-const returnCfg = { returnPct: { label: '% върнати', color: 'var(--chart-5)' } } satisfies ChartConfig;
+const ordersCfg = { paid: { label: 'Платени', color: 'var(--primary)' }, returned: { label: 'Върнати', color: 'var(--destructive)' }, orders: { label: 'Всички', color: 'var(--info)' } } satisfies ChartConfig;
+const salesCfg = { paid: { label: 'Продажби (платени)', color: 'var(--primary)' } } satisfies ChartConfig;
+const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--info)' } } satisfies ChartConfig;
+const priceCfg = { avgPrice: { label: 'Ср. цена', color: 'var(--warning)' } } satisfies ChartConfig;
+const returnCfg = { returnPct: { label: '% върнати', color: 'var(--destructive)' } } satisfies ChartConfig;
 
 function Statistics() {
   const [type, setType] = useState('');
