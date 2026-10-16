@@ -26,7 +26,7 @@ export const Route = createFileRoute('/orders')({
 const emptyFilters = { search:'', city:'', courier:'', from:'', to:'' };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG');
-function OrderStatus({status='Необработена'}:{status?:string}) { const cls = status==='Обработена'?'done':status==='Анулирана'?'cancelled':'pending'; return <span className={`delivery-status ${cls}`}><span/>{status}</span>; }
+function OrderStatus({status='Необработена'}:{status?:string}) { const cls = status==='Обработена'?'received':status==='Анулирана'?'cancelled':'pending'; return <span className={`delivery-status ${cls}`}><span/>{status}</span>; }
 const esc=(s:string)=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]??c));
 function tableHtml(list:Order[]){
  const head=['Поръчка','Статус','Клиент','Телефон','Доставка','Общо с ДДС','Създадена'];
