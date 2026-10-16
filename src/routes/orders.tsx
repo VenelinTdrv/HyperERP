@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CheckCircle2, ClipboardList, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CheckCircle2, ClipboardList, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 import perfume from '@/assets/perfume.jpg';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -64,8 +65,8 @@ function Orders() {
  const selectedOrders=()=>{ const orders = selection.map(id=>rows.find(r=>r.id===id)).filter((o): o is NonNullable<typeof o> => !!o); if (orders.length) return orders; toast.error(selection.length ? 'Избраните поръчки вече не са в списъка.' : 'Изберете поръчки с чекбокса.'); return null; };
  const exportPdf=()=>{ const orders = selectedOrders(); if (orders) downloadOrderBlankPdf(orders); };
  const exportPrint=()=>{ const orders = selectedOrders(); if (orders) openOrderBlank(orders); };
-  return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Поръчки</h1><p>Необработени поръчки</p></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
+  return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content orders-content">
+  <div className="page-heading"><div><h1>Поръчки<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Списъкът показва само необработени поръчки"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва само поръчки в статус „Необработена" — обработените и анулираните се виждат от филтъра за статус.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setPage(1);}}><option>Необработена</option><option>Обработена</option><option>Анулирана</option></select></div>
