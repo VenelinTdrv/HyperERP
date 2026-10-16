@@ -75,7 +75,7 @@
 .sidebar-bottom { margin-top:auto; padding:15px 17px; border-top:1px solid var(--border); }
 .user-avatar { background:var(--secondary); color:var(--primary); width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:700; flex-shrink:0; }
 .page-shell { grid-column:2; min-width:0; }
-.topbar { background:var(--card); border-bottom:1px solid var(--border); height:66px; display:flex; align-items:center; justify-content:space-between; padding:0 32px; gap:16px; }
+.topbar { background:var(--card); border-bottom:1px solid var(--border); height:66px; display:flex; align-items:center; justify-content:space-between; padding:0 calc(32px + max(0px, (100% - 1500px) / 2)); gap:16px; }
 .crumb { color:var(--muted-foreground); display:flex; align-items:center; gap:10px; font-size:11px; }
 .crumb strong { color:var(--foreground); font-weight:500; }
 .menubar { display:flex; align-items:center; gap:2px; min-width:0; }
