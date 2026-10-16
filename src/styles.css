@@ -336,6 +336,8 @@
 @media(max-width:700px) { .suppliers-filters, .supplier-grid { grid-template-columns:1fr; } .supplier-grid>.col-span-2 { grid-column:auto; } .supplier-grid-4 { grid-template-columns:1fr 1fr; } .suppliers-filters>button { min-height:44px; } }
 .client-chip { display:flex; align-items:center; gap:9px; background:var(--muted); border:1px solid var(--border); border-radius:6px; padding:10px 14px; font-size:12px; }
 .client-chip > svg { color:var(--muted-foreground); flex-shrink:0; }
+.delivery-placeholder { display:flex; align-items:center; gap:9px; border:1px dashed var(--border); border-radius:8px; padding:12px 14px; margin-top:18px; font-size:12px; color:var(--muted-foreground); background:var(--muted); }
+.delivery-placeholder > svg { color:var(--muted-foreground); flex-shrink:0; }
 .price-field { position:relative; width:96px; }
 .price-field input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:5px; min-height:38px; padding:8px 24px 8px 10px; font-size:11px; color:var(--foreground); }
 .price-field > span { position:absolute; right:10px; top:11px; color:var(--muted-foreground); font-size:11px; }
