@@ -222,7 +222,7 @@ function Statistics() {
         </PopoverTrigger>
         <PopoverContent align="start" className="w-auto p-0">
           <div className="period-presets">
-            {PRESETS.map(p => <button key={p.id} type="button" onClick={() => applyPreset(p.id)} className={presetRange(p.id).from.getTime() === +from && presetRange(p.id).to.getTime() === +to ? 'is-active' : ''}>{p.label}</button>)}
+            {PRESETS.map(p => <button key={p.id} type="button" onClick={() => applyPreset(p.id)} className={p.id === activePreset ? 'is-active' : ''}>{p.label}</button>)}
           </div>
           <Calendar
             mode="range"
