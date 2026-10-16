@@ -74,7 +74,7 @@ const maxD = (a: Date, b: Date) => (+a >= +b ? a : b);
 // Demo history stops at 31.10.2026, so presets are anchored there once real time passes it.
 const TODAY = +new Date() > +DEMO_TO ? DEMO_TO : new Date();
 
-function presetRange(id: string): Required<DateRange> {
+function presetRange(id: string): { from: Date; to: Date } {
   const to = minD(endOfMonth(TODAY), DEMO_TO);
   if (id === 'last') { const p = subMonths(TODAY, 1); return { from: maxD(startOfMonth(p), DEMO_FROM), to: minD(endOfMonth(p), DEMO_TO) }; }
   if (id === '3') return { from: maxD(startOfMonth(subMonths(TODAY, 2)), DEMO_FROM), to };
@@ -205,9 +205,10 @@ function Statistics() {
   const axis = <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={10} />;
 
   const pick = (r: DateRange | undefined) => {
-    if (!r?.from) return;
-    setFrom(startOfDay(r.from));
-    setTo(startOfDay(r.to ?? r.from));
+    const f = r?.from, t = r?.to;
+    if (!f) return;
+    setFrom(startOfDay(f));
+    setTo(startOfDay(t ?? f));
   };
   const applyPreset = (id: string) => { const r = presetRange(id); setFrom(r.from); setTo(r.to); };
 
@@ -227,7 +228,7 @@ function Statistics() {
           <Calendar
             mode="range"
             numberOfMonths={2}
-            captionLayout="dropdown-buttons"
+            captionLayout="dropdown"
             startMonth={DEMO_FROM}
             endMonth={DEMO_TO}
             defaultMonth={startOfMonth(subMonths(to, 1))}
