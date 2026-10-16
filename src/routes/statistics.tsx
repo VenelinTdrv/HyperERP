@@ -43,14 +43,21 @@ const SETTLEMENTS = [
 
 type Row = { month: string; orders: number; paid: number; returned: number; returnPct: number; items: number; avgItems: number; avgPrice: number; revenue: number };
 
+type Seller = (typeof SELLERS)[number];
+
+// Deterministic demo orders for one seller, month index and settlement
+function sellerOrders(s: Seller, i: number, st: { weight: number } | null | undefined, k: number) {
+  const sf = st ? st.weight * (0.92 + ((i * 7 + k * 3) % 5) * 0.04) : 1;
+  return Math.round(BASE[i]! * s.weight * sf * (s.type === 'Търговец на едро' ? 0.5 : 1));
+}
+
 function build(seller: string, settlement: string): Row[] {
   const sellers = seller ? SELLERS.filter(s => s.id === seller) : SELLERS;
   const st = settlement ? SETTLEMENTS.find(x => x.id === settlement) : null;
   return MONTHS.map((month, i) => {
     let orders = 0, returned = 0, items = 0, revenue = 0, paid = 0;
     sellers.forEach((s, k) => {
-      const sf = st ? st.weight * (0.92 + ((i * 7 + k * 3) % 5) * 0.04) : 1;
-      const o = Math.round(BASE[i]! * s.weight * sf * (s.type === 'Търговец на едро' ? 0.5 : 1));
+      const o = sellerOrders(s, i, st, k);
       const r = Math.round(o * (0.04 + ((i + k) % 5) * 0.012));
       const unp = Math.round(o * 0.06);
       const per = s.type === 'Търговец на едро' ? 6.5 + (i % 3) * 0.4 : 1.6 + ((i + k) % 4) * 0.15;
@@ -85,6 +92,13 @@ function Statistics() {
   }, [type, seller, settlement]);
   const cur = data[data.length - 1]!;
   const paidPct = cur.orders ? (cur.paid / cur.orders * 100).toFixed(1) : '0';
+  const settlementStats = useMemo(() => {
+    const sellers: Seller[] = seller ? SELLERS.filter(s => s.id === seller) : type ? SELLERS.filter(s => s.type === type) : [...SELLERS];
+    const i = MONTHS.length - 1;
+    const rows = SETTLEMENTS.map(st => ({ id: st.id, orders: sellers.reduce((a, s, k) => a + sellerOrders(s, i, st, k), 0) }));
+    const total = rows.reduce((a, r) => a + r.orders, 0);
+    return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
+  }, [type, seller]);
 
   const kpis = [
     { icon: ShoppingBag, label: 'Брой поръчки', value: cur.orders.toString(), sub: `${cur.paid} платени · ${cur.returned} върнати (${cur.returnPct}%)` },
@@ -95,12 +109,12 @@ function Statistics() {
   const axis = <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={10} />;
 
   return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
-    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Показатели за текущия месец и графики за последните 12 месеца. Филтрирай по тип, инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
+    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Показатели за текущия месец и графики за последните 12 месеца. Филтрирай по тип, инфлуенсър или търговец и по населено място. До всяко населено място се показват брой поръчки и % от всички за текущия месец.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
     <div className="suppliers-filters transfers-filters">
       <div className="search-box"><CalendarDays /><input className="search-input" aria-label="Период" readOnly value="01.10.2026 – 31.10.2026" /></div>
       <div className="search-box"><select className="search-input" aria-label="Тип" value={type} onChange={e => { setType(e.target.value); setSeller(''); }}><option value="">Всички типове</option><option>Инфлуенсър</option><option>Търговец на едро</option></select></div>
       <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{options.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type}</option>)}</select></div>
-      <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id}</option>)}</select></div>
+      <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
     </div>
 
     <section aria-label="Текущ месец" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-4">
