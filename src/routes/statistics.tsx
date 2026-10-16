@@ -43,14 +43,21 @@ const SETTLEMENTS = [
 
 type Row = { month: string; orders: number; paid: number; returned: number; returnPct: number; items: number; avgItems: number; avgPrice: number; revenue: number };
 
+type Seller = (typeof SELLERS)[number];
+
+// Deterministic demo orders for one seller, month index and settlement
+function sellerOrders(s: Seller, i: number, st: { weight: number } | null, k: number) {
+  const sf = st ? st.weight * (0.92 + ((i * 7 + k * 3) % 5) * 0.04) : 1;
+  return Math.round(BASE[i]! * s.weight * sf * (s.type === 'Търговец на едро' ? 0.5 : 1));
+}
+
 function build(seller: string, settlement: string): Row[] {
   const sellers = seller ? SELLERS.filter(s => s.id === seller) : SELLERS;
   const st = settlement ? SETTLEMENTS.find(x => x.id === settlement) : null;
   return MONTHS.map((month, i) => {
     let orders = 0, returned = 0, items = 0, revenue = 0, paid = 0;
     sellers.forEach((s, k) => {
-      const sf = st ? st.weight * (0.92 + ((i * 7 + k * 3) % 5) * 0.04) : 1;
-      const o = Math.round(BASE[i]! * s.weight * sf * (s.type === 'Търговец на едро' ? 0.5 : 1));
+      const o = sellerOrders(s, i, st, k);
       const r = Math.round(o * (0.04 + ((i + k) % 5) * 0.012));
       const unp = Math.round(o * 0.06);
       const per = s.type === 'Търговец на едро' ? 6.5 + (i % 3) * 0.4 : 1.6 + ((i + k) % 4) * 0.15;
