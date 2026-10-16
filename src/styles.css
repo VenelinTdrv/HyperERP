@@ -42,14 +42,14 @@
 .brand { display:flex; align-items:center; gap:8px; height:85px; padding:0 12px; flex-shrink:0; }
 .brand-mark, .sidebar-toggle { flex-shrink:0; }
 .sidebar-toggle { width:32px; height:36px; }
-.sidebar nav { overflow-y:auto; min-height:0; }
+.sidebar nav { overflow-y:auto; min-height:0; padding-top:20px; }
 @media (min-width:701px) {
  .erp-shell.sidebar-collapsed { grid-template-columns:72px minmax(0,1fr); }
  .sidebar-collapsed .sidebar { width:72px; }
  .sidebar-collapsed .brand { justify-content:center; padding:0; }
  .sidebar-collapsed .brand-mark, .sidebar-collapsed .brand-name,
  .sidebar-collapsed .nav-label, .sidebar-collapsed .nav-item span,
- .sidebar-collapsed .workspace-switch, .sidebar-collapsed .profile-label,
+ .sidebar-collapsed .profile-label,
  .sidebar-collapsed .user-avatar, .sidebar-collapsed .help-arrow { display:none; }
  .sidebar-collapsed .nav-group { padding:0 12px; margin-bottom:14px; }
  .sidebar-collapsed .nav-group + .nav-group { padding-top:14px; border-top:1px solid var(--border); }
@@ -67,8 +67,6 @@
 .brand-mark { display:grid; place-items:center; width:34px; height:37px; background:var(--primary); color:var(--primary-foreground); border-radius:8px; font-size:23px; font-weight:800; }
 .brand-name { font-size:23px; font-weight:800; }
 .brand-name span { font-weight:400; }
-.workspace-switch { margin:5px 17px 23px; padding:12px; border:1px solid var(--border); border-radius:6px; display:flex; align-items:center; gap:10px; }
-.workspace-icon { width:32px; height:32px; border-radius:6px; background:var(--muted); display:grid; place-items:center; }
 .nav-group { padding:0 14px; margin-bottom:23px; }
 .nav-label { color:var(--muted-foreground); font-size:10px; font-weight:700; text-transform:uppercase; padding:0 12px; margin:0 0 8px; }
 .nav-item { width:100%; justify-content:flex-start; gap:12px; height:42px; color:var(--muted-foreground); font-size:12px; margin:2px 0; padding:0 12px; }
