@@ -21,6 +21,10 @@ type Payment=Form&{id:string};
 const blank:Form={orderId:'',saleId:'',client:'',amount:'',method:'Наложен платеж',source:'Еконт',status:'Очаквано',date:'2026-10-16',reference:'',note:''};
 const p=(n:number,o:string,c:string,a:number,m:string,s:string,st:string,d:string,r:string):Payment=>({id:`PAY-${String(n).padStart(5,'0')}`,orderId:o,saleId:o.replace('ORD','SAL'),client:c,amount:a.toFixed(2),method:m,source:s,status:st,date:d,reference:r,note:''});
 const initial:Payment[]=[
+ p(23,'ORD-0024','Мария Иванова',73.9,'Банков превод','Pigeon','Получено','2026-10-16','PG-77166'),
+ p(22,'ORD-0022','Иван Георгиев',88.9,'Наложен платеж','Еконт','Получено','2026-10-16','EC-1048941'),
+ p(21,'ORD-0019','Анна Стоянова',56.9,'Наложен платеж','Pigeon','Очаквано','2026-10-16','PG-77163'),
+ p(20,'ORD-0017','Румяна Дончева',112.9,'Банков превод','Pigeon','Частично','2026-10-16','PG-77161'),
  p(19,'ORD-0024','Мария Иванова',48.9,'Наложен платеж','Еконт','Получено','2026-10-16','EC-1048933'),
  p(18,'ORD-0023','Елена Петрова',118.9,'Банков превод','Pigeon','Очаквано','2026-10-16','PG-77160'),
  p(17,'ORD-0022','Иван Георгиев',65.5,'Наложен платеж','Еконт','Частично','2026-10-16','EC-1048927'),
