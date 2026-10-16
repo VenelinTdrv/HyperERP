@@ -107,12 +107,18 @@ function buildDays(s: Seller, k: number, st: { weight: number } | null): DayRow[
         sum += v;
       }
       const sf = st ? st.weight * (0.92 + ((m * 7 + k * 3) % 5) * 0.04) : 1;
-      const total = monthTotal(y, m) * s.weight * sf * (wholesale ? 0.5 : 1);
+      const monthOrders = Math.round(monthTotal(y, m) * s.weight * sf * (wholesale ? 0.5 : 1));
+      // Spread the month over days with largest-remainder apportionment, so the daily rows still add up to it
+      const raw = f.map(x => (monthOrders * x) / sum);
+      const perDay = raw.map(x => Math.floor(x));
+      const left = monthOrders - perDay.reduce((a, b) => a + b, 0);
+      const byRemainder = raw.map((x, i) => i).sort((a, b) => (raw[b]! - perDay[b]!) - (raw[a]! - perDay[a]!));
+      for (let j = 0; j < left; j++) perDay[byRemainder[j % dim]!] += 1;
       const per = wholesale ? 6.5 + (m % 3) * 0.4 : 1.6 + ((m + k) % 4) * 0.15;
       const retRate = 0.04 + ((m + k) % 5) * 0.012;
       const price = 44 + ((m * 3 + k) % 6) * 2.5;
       for (let d = 1; d <= dim; d++) {
-        const o = Math.round((total * f[d - 1]!) / sum);
+        const o = perDay[d - 1]!;
         const r = Math.round(o * retRate);
         const unp = Math.round(o * 0.06);
         out.push({ d: new Date(y, m, d), orders: o, paid: Math.max(0, o - r - unp), returned: r, items: Math.round(o * per), revenue: Math.round(o * per * price) });
