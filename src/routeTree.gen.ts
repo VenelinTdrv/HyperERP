@@ -17,6 +17,7 @@ import { Route as CombosRouteImport } from './routes/combos'
 import { Route as CountriesRouteImport } from './routes/countries'
 import { Route as DeliveriesRouteImport } from './routes/deliveries'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as PaymentsRouteImport } from './routes/payments'
 import { Route as SettlementsRouteImport } from './routes/settlements'
 import { Route as StatisticsRouteImport } from './routes/statistics'
 import { Route as SuppliersRouteImport } from './routes/suppliers'
@@ -64,6 +65,11 @@ const DeliveriesRoute = DeliveriesRouteImport.update({
 const OrdersRoute = OrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentsRoute = PaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettlementsRoute = SettlementsRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/countries': typeof CountriesRoute
   '/deliveries': typeof DeliveriesRoute
   '/orders': typeof OrdersRoute
+  '/payments': typeof PaymentsRoute
   '/settlements': typeof SettlementsRoute
   '/statistics': typeof StatisticsRoute
   '/suppliers': typeof SuppliersRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/countries': typeof CountriesRoute
   '/deliveries': typeof DeliveriesRoute
   '/orders': typeof OrdersRoute
+  '/payments': typeof PaymentsRoute
   '/settlements': typeof SettlementsRoute
   '/statistics': typeof StatisticsRoute
   '/suppliers': typeof SuppliersRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/countries': typeof CountriesRoute
   '/deliveries': typeof DeliveriesRoute
   '/orders': typeof OrdersRoute
+  '/payments': typeof PaymentsRoute
   '/settlements': typeof SettlementsRoute
   '/statistics': typeof StatisticsRoute
   '/suppliers': typeof SuppliersRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/countries'
     | '/deliveries'
     | '/orders'
+    | '/payments'
     | '/settlements'
     | '/statistics'
     | '/suppliers'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/countries'
     | '/deliveries'
     | '/orders'
+    | '/payments'
     | '/settlements'
     | '/statistics'
     | '/suppliers'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/countries'
     | '/deliveries'
     | '/orders'
+    | '/payments'
     | '/settlements'
     | '/statistics'
     | '/suppliers'
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   CountriesRoute: typeof CountriesRoute
   DeliveriesRoute: typeof DeliveriesRoute
   OrdersRoute: typeof OrdersRoute
+  PaymentsRoute: typeof PaymentsRoute
   SettlementsRoute: typeof SettlementsRoute
   StatisticsRoute: typeof StatisticsRoute
   SuppliersRoute: typeof SuppliersRoute
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payments': {
+      id: '/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof PaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settlements': {
@@ -364,6 +384,7 @@ const rootRouteChildren: RootRouteChildren = {
   CountriesRoute: CountriesRoute,
   DeliveriesRoute: DeliveriesRoute,
   OrdersRoute: OrdersRoute,
+  PaymentsRoute: PaymentsRoute,
   SettlementsRoute: SettlementsRoute,
   StatisticsRoute: StatisticsRoute,
   SuppliersRoute: SuppliersRoute,
