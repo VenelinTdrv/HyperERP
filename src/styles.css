@@ -361,3 +361,14 @@
 .transfers-filters .field input[type="date"] { width:145px; }
 .transfers-filters .field select { width:auto; min-width:160px; }
 @media (max-width:700px) { .transfers-filters { flex-direction:column; align-items:stretch; } .transfers-filters .search-box { min-width:0; } .transfers-filters .field input[type="date"], .transfers-filters .field select { width:100%; } }
+.deliveries-heading { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+.deliveries-heading .heading-title { flex:0 0 auto; }
+.deliveries-heading .delivery-overview { display:flex; align-items:center; gap:8px; flex:1 1 auto; justify-content:center; border:0; padding:0; margin:0; min-width:0; }
+.deliveries-heading .delivery-metric { height:38px; padding:0 11px; gap:8px; border-radius:999px; background:var(--card); flex:0 0 auto; }
+.deliveries-heading .metric-icon { width:24px; height:24px; border-radius:5px; }
+.deliveries-heading .metric-copy { flex-direction:row; align-items:baseline; gap:5px; }
+.deliveries-heading .metric-copy>span { font-size:10px; white-space:nowrap; }
+.deliveries-heading .metric-copy strong { font-size:14px; line-height:1; }
+.deliveries-heading .delivery-add { height:38px; }
+@media (max-width:1200px) { .deliveries-heading .delivery-overview { order:3; flex:1 0 100%; justify-content:flex-start; overflow-x:auto; } }
+@media (max-width:700px) { .deliveries-heading { gap:10px; } .deliveries-heading .delivery-metric { height:36px; padding:0 9px; } }
