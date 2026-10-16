@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
 import { ArrowLeftRight, ArrowRight, Bell, Boxes, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShoppingBag, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
