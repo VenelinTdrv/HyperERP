@@ -46,7 +46,7 @@ type Row = { month: string; orders: number; paid: number; returned: number; retu
 type Seller = (typeof SELLERS)[number];
 
 // Deterministic demo orders for one seller, month index and settlement
-function sellerOrders(s: Seller, i: number, st: { weight: number } | null, k: number) {
+function sellerOrders(s: Seller, i: number, st: { weight: number } | null | undefined, k: number) {
   const sf = st ? st.weight * (0.92 + ((i * 7 + k * 3) % 5) * 0.04) : 1;
   return Math.round(BASE[i]! * s.weight * sf * (s.type === 'Търговец на едро' ? 0.5 : 1));
 }
