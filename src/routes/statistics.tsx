@@ -27,15 +27,30 @@ const SELLERS = [
 const MONTHS = ['Ное 25', 'Дек 25', 'Яну 26', 'Фев 26', 'Мар 26', 'Апр 26', 'Май 26', 'Юни 26', 'Юли 26', 'Авг 26', 'Сеп 26', 'Окт 26'];
 // Deterministic demo base totals per month (all sellers)
 const BASE = [182, 264, 151, 176, 205, 219, 240, 228, 211, 233, 248, 196];
+// Demo settlement weights, matching the nomenclature on /settlements
+const SETTLEMENTS = [
+  { id: 'Ямбол', weight: 0.22 },
+  { id: 'София', weight: 0.18 },
+  { id: 'Пловдив', weight: 0.13 },
+  { id: 'Варна', weight: 0.12 },
+  { id: 'Бургас', weight: 0.09 },
+  { id: 'Ловеч', weight: 0.07 },
+  { id: 'Шумен', weight: 0.06 },
+  { id: 'Стралджа', weight: 0.05 },
+  { id: 'Казанлък', weight: 0.04 },
+  { id: 'Велинград', weight: 0.04 },
+] as const;
 
 type Row = { month: string; orders: number; paid: number; returned: number; returnPct: number; items: number; avgItems: number; avgPrice: number; revenue: number };
 
-function build(seller: string): Row[] {
+function build(seller: string, settlement: string): Row[] {
   const sellers = seller ? SELLERS.filter(s => s.id === seller) : SELLERS;
+  const st = settlement ? SETTLEMENTS.find(x => x.id === settlement) : null;
   return MONTHS.map((month, i) => {
     let orders = 0, returned = 0, items = 0, revenue = 0, paid = 0;
     sellers.forEach((s, k) => {
-      const o = Math.round(BASE[i]! * s.weight * (s.type === 'Търговец на едро' ? 0.5 : 1));
+      const sf = st ? st.weight * (0.92 + ((i * 7 + k * 3) % 5) * 0.04) : 1;
+      const o = Math.round(BASE[i]! * s.weight * sf * (s.type === 'Търговец на едро' ? 0.5 : 1));
       const r = Math.round(o * (0.04 + ((i + k) % 5) * 0.012));
       const unp = Math.round(o * 0.06);
       const per = s.type === 'Търговец на едро' ? 6.5 + (i % 3) * 0.4 : 1.6 + ((i + k) % 4) * 0.15;
@@ -57,16 +72,17 @@ const returnCfg = { returnPct: { label: '% върнати', color: 'var(--destru
 function Statistics() {
   const [type, setType] = useState('');
   const [seller, setSeller] = useState('');
+  const [settlement, setSettlement] = useState('');
   const options = SELLERS.filter(s => !type || s.type === type);
   const data = useMemo(() => {
     const ids = seller ? [seller] : type ? SELLERS.filter(s => s.type === type).map(s => s.id) : [''];
-    const parts = ids.map(id => build(id));
+    const parts = ids.map(id => build(id, settlement));
     return MONTHS.map((month, i) => {
       const rs = parts.map(p => p[i]!);
       const orders = rs.reduce((a, r) => a + r.orders, 0), returned = rs.reduce((a, r) => a + r.returned, 0), items = rs.reduce((a, r) => a + r.items, 0), revenue = rs.reduce((a, r) => a + r.revenue, 0), paid = rs.reduce((a, r) => a + r.paid, 0);
       return { month, orders, paid, returned, returnPct: orders ? +(returned / orders * 100).toFixed(1) : 0, items, avgItems: orders ? +(items / orders).toFixed(2) : 0, avgPrice: orders ? +(revenue / orders).toFixed(2) : 0, revenue };
     });
-  }, [type, seller]);
+  }, [type, seller, settlement]);
   const cur = data[data.length - 1]!;
   const paidPct = cur.orders ? (cur.paid / cur.orders * 100).toFixed(1) : '0';
 
@@ -79,11 +95,12 @@ function Statistics() {
   const axis = <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={10} />;
 
   return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
-    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Показатели за текущия месец и графики за последните 12 месеца. Филтрирай по тип и конкретен инфлуенсър или търговец.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
+    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Показатели за текущия месец и графики за последните 12 месеца. Филтрирай по тип, инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
     <div className="suppliers-filters transfers-filters">
       <div className="search-box"><CalendarDays /><input className="search-input" aria-label="Период" readOnly value="01.10.2026 – 31.10.2026" /></div>
       <div className="search-box"><select className="search-input" aria-label="Тип" value={type} onChange={e => { setType(e.target.value); setSeller(''); }}><option value="">Всички типове</option><option>Инфлуенсър</option><option>Търговец на едро</option></select></div>
       <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{options.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type}</option>)}</select></div>
+      <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id}</option>)}</select></div>
     </div>
 
     <section aria-label="Текущ месец" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-4">
