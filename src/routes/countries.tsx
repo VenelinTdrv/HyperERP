@@ -26,6 +26,11 @@ const initial:Country[]=[
  {id:8,code:'MD',name:'Moldova',localName:'Republica Moldova'},
  {id:9,code:'HU',name:'Hungary',localName:'Magyarország'},
  {id:10,code:'AT',name:'Austria',localName:'Österreich'},
+ {id:11,code:'HR',name:'Croatia',localName:'Hrvatska'},
+ {id:12,code:'SI',name:'Slovenia',localName:'Slovenija'},
+ {id:13,code:'IT',name:'Italy',localName:'Italia'},
+ {id:14,code:'ES',name:'Spain',localName:'España'},
+ {id:15,code:'PL',name:'Poland',localName:'Polska'},
 ];
 const PAGE=10;
 
