@@ -35,6 +35,7 @@ const initial:Payment[]=[
 const PAGE=10;
 const money=(v:string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'pending','Отказано':'danger','Върнато':'danger'};
+const todayISO=()=>new Date().toLocaleDateString('en-CA');
 
 function Payments(){
  const orders=useOrders();
