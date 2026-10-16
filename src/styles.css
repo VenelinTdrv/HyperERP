@@ -334,3 +334,5 @@
 .supplier-active { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
 .supplier-active input { width:16px; height:16px; accent-color:var(--primary); }
 @media(max-width:700px) { .suppliers-filters, .supplier-grid { grid-template-columns:1fr; } .supplier-grid>.col-span-2 { grid-column:auto; } .supplier-grid-4 { grid-template-columns:1fr 1fr; } .suppliers-filters>button { min-height:44px; } }
+.client-chip { display:flex; align-items:center; gap:9px; background:var(--muted); border:1px solid var(--border); border-radius:6px; padding:10px 14px; font-size:12px; }
+.client-chip > svg { color:var(--muted-foreground); flex-shrink:0; }
