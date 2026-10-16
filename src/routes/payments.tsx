@@ -35,22 +35,25 @@ const initial:Payment[]=[
 const PAGE=10;
 const money=(v:string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'pending','Отказано':'danger','Върнато':'danger'};
+const todayISO=()=>new Date().toLocaleDateString('en-CA');
 
 function Payments(){
  const orders=useOrders();
  const [rows,setRows]=useState(initial);
  const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');
+ const [from,setFrom]=useState(todayISO());const [to,setTo]=useState(todayISO());
  const [page,setPage]=useState(1);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Payment|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const s=q.trim().toLocaleLowerCase('bg-BG');
- const filtered=rows.filter(r=>(!s||[r.id,r.orderId,r.saleId,r.client,r.reference].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!method||r.method===method)&&(!source||r.source===source)&&(!status||r.status===status));
+ const filtered=rows.filter(r=>(!s||[r.id,r.orderId,r.saleId,r.client,r.reference].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!method||r.method===method)&&(!source||r.source===source)&&(!status||r.status===status)&&(!from||r.date>=from)&&(!to||r.date<=to));
  const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
  const sum=filtered.filter(r=>r.status==='Получено').reduce((a,r)=>a+Number(r.amount),0);
- const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setPage(1);};
+ const datesChanged=from!==todayISO()||to!==todayISO();
+ const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setFrom(todayISO());setTo(todayISO());setPage(1);};
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(e=>{const n={...e};delete n[k];return n;});};
  const pickOrder=(id:string)=>{const o=orders.find(x=>x.id===id);setForm(f=>({...f,orderId:id,saleId:id?id.replace('ORD','SAL'):'',client:o?.customer??f.client,amount:o?total(o).toFixed(2):f.amount,method:o?.payment==='Банков превод'?'Банков превод':o?'Наложен платеж':f.method,source:o?(o.courier==='Еконт'?'Еконт':'Pigeon'):f.source}));setErrors({});};
@@ -75,12 +78,14 @@ function Payments(){
  const input=(k:keyof Form,label:string,o:{req?:boolean;ph?:string;type?:string}={})=><div className="field"><label htmlFor={`pay-${k}`}>{label}{o.req&&<span className="required">*</span>}</label><input id={`pay-${k}`} type={o.type??'text'} placeholder={o.ph} value={form[k]} aria-invalid={Boolean(errors[k])} aria-describedby={errors[k]?`pay-${k}-error`:undefined} onChange={ev=>set(k,ev.target.value)}/>{err(k)}</div>;
  const sel=(k:keyof Form,label:string,opts:readonly string[])=><div className="field"><label htmlFor={`pay-${k}`}>{label}</label><select id={`pay-${k}`} value={form[k]} onChange={ev=>set(k,ev.target.value)}>{opts.map(x=><option key={x} value={x}>{x}</option>)}</select></div>;
  return <WorkspaceShell active="Плащания"><div className="page-content deliveries-content orders-content">
-  <div className="page-heading"><div><h1>Плащания<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Плащания по продажбите, получени от Еконт и Pigeon — наложен платеж или банков превод. Статусът се сменя директно от реда.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Ново плащане</Button></div>
+  <div className="page-heading"><div><h1>Плащания<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Плащания по продажбите, получени от Еконт и Pigeon — наложен платеж или банков превод. По подразбиране се показват само плащанията за настоящия ден — променете периода „От/До дата“, за да видите повече. Статусът се сменя директно от реда.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Ново плащане</Button></div>
   <div className="suppliers-filters transfers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Търсене" placeholder="Плащане, поръчка, клиент…" value={q} onChange={ev=>{setQ(ev.target.value);setPage(1);}}/></div>
    <div className="field"><select aria-label="Вид плащане" value={method} onChange={ev=>{setMethod(ev.target.value);setPage(1);}}><option value="">Всички видове</option>{METHODS.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Източник" value={source} onChange={ev=>{setSource(ev.target.value);setPage(1);}}><option value="">Всички източници</option>{SOURCES.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Статус" value={status} onChange={ev=>{setStatus(ev.target.value);setPage(1);}}><option value="">Всички статуси</option>{STATUSES.map(x=><option key={x}>{x}</option>)}</select></div>
-   <Button variant="outline" disabled={!q&&!method&&!source&&!status} onClick={clear}><X/>Изчисти</Button></div>
+   <div className="field"><input id="pay-from" type="date" aria-label="От дата" value={from} onChange={ev=>{setFrom(ev.target.value);setPage(1);}}/></div>
+   <div className="field"><input id="pay-to" type="date" aria-label="До дата" value={to} onChange={ev=>{setTo(ev.target.value);setPage(1);}}/></div>
+   <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!datesChanged} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с плащания"><div className="delivery-list-heading"><h2>Всички плащания <span>{filtered.length}</span></h2><span className="text-xs text-muted-foreground">Получени: <strong className="text-foreground">{money(String(sum))}</strong></span></div>
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Плащане</th><th>Поръчка / Продажба</th><th>Клиент</th><th>Вид</th><th>Източник</th><th className="text-right">Сума</th><th>Дата</th><th>Статус</th><th className="text-center">Действия</th><th className="text-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
