@@ -26,7 +26,7 @@ export const Route = createFileRoute('/orders')({
 const emptyFilters = { search:'', city:'', courier:'', from:'', to:'' };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG');
-function OrderStatus() { return <span className="delivery-status pending"><span/>Необработена</span>; }
+function OrderStatus({status='Необработена'}:{status?:string}) { const cls = status==='Обработена'?'done':status==='Анулирана'?'cancelled':'pending'; return <span className={`delivery-status ${cls}`}><span/>{status}</span>; }
 const esc=(s:string)=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]??c));
 function tableHtml(list:Order[]){
  const head=['Поръчка','Статус','Клиент','Телефон','Доставка','Общо с ДДС','Създадена'];
@@ -68,7 +68,7 @@ function Orders() {
   <div className="page-heading"><div><h1>Поръчки</h1><p>Необработени поръчки</p></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
-   <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><input id="orders-status" value="Необработена" readOnly/></div>
+   <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setPage(1);}}><option>Необработена</option><option>Обработена</option><option>Анулирана</option></select></div>
    <div className="field"><label htmlFor="orders-courier" className="sr-only">Куриер</label><select id="orders-courier" value={filters.courier} onChange={e=>filter('courier',e.target.value)}><option value="">Всички куриери</option><option>Еконт</option><option>Спиди</option></select></div>
    <Button variant={advanced?'secondary':'outline'} aria-expanded={advanced} aria-controls="orders-filters" onClick={()=>setAdvanced(!advanced)}><SlidersHorizontal/>Филтри{activeFilters>0&&<span className="filter-count">{activeFilters}</span>}</Button>
   </div>{advanced&&<div className="delivery-filter-advanced" id="orders-filters">
