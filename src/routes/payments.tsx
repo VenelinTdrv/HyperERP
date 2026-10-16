@@ -83,7 +83,9 @@ function Payments(){
    <div className="field"><select aria-label="Вид плащане" value={method} onChange={ev=>{setMethod(ev.target.value);setPage(1);}}><option value="">Всички видове</option>{METHODS.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Източник" value={source} onChange={ev=>{setSource(ev.target.value);setPage(1);}}><option value="">Всички източници</option>{SOURCES.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Статус" value={status} onChange={ev=>{setStatus(ev.target.value);setPage(1);}}><option value="">Всички статуси</option>{STATUSES.map(x=><option key={x}>{x}</option>)}</select></div>
-   <Button variant="outline" disabled={!q&&!method&&!source&&!status} onClick={clear}><X/>Изчисти</Button></div>
+   <div className="field"><input id="pay-from" type="date" aria-label="От дата" value={from} onChange={ev=>{setFrom(ev.target.value);setPage(1);}}/></div>
+   <div className="field"><input id="pay-to" type="date" aria-label="До дата" value={to} onChange={ev=>{setTo(ev.target.value);setPage(1);}}/></div>
+   <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!datesChanged} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с плащания"><div className="delivery-list-heading"><h2>Всички плащания <span>{filtered.length}</span></h2><span className="text-xs text-muted-foreground">Получени: <strong className="text-foreground">{money(String(sum))}</strong></span></div>
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Плащане</th><th>Поръчка / Продажба</th><th>Клиент</th><th>Вид</th><th>Източник</th><th className="text-right">Сума</th><th>Дата</th><th>Статус</th><th className="text-center">Действия</th><th className="text-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
