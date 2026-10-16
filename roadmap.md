@@ -51,3 +51,6 @@
 - [x] Use the firm data ("Георги Желев 2009" ЕАД, Ямбол, ЕИК, телефон) as Изпращач in the waybill.
 - [x] Add a Code 128 barcode of the order number to the waybill in the printable blank and the downloaded PDF.
 - [x] Verify the barcode decodes on every page and the Cyrillic text layer stays correct across downloads.
+
+## New order screen
+- [x] Клиент и доставка: данните за доставка се показват чак след избор на клиент; преди това стои подсказка.
