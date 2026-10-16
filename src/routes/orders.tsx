@@ -37,6 +37,7 @@ function Orders() {
  const rows = useOrders();
  const navigate = useNavigate();
  const [filters, setFilters] = useState(emptyFilters);
+ const [statusFilter, setStatusFilter] = useState('Необработена');
  const [advanced, setAdvanced] = useState(false);
  const [sort, setSort] = useState('newest');
  const [page, setPage] = useState(1);
@@ -45,7 +46,7 @@ function Orders() {
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
  const clear = () => { setFilters(emptyFilters); setPage(1); };
- const filtered = rows.filter(row => row.status === 'Необработена'
+ const filtered = rows.filter(row => row.status === statusFilter
   && `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.items.map(i=>i.name).join(' ')}`.toLowerCase().includes(filters.search.trim().toLowerCase())
   && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
   && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to))
