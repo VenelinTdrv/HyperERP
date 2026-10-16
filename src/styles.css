@@ -381,3 +381,4 @@
 .orders-content .combo-table .combo-description { line-height:1.45; max-width:190px; }
 .orders-content .combo-table .combo-product-line { line-height:1.35; margin-bottom:2px; }
 .orders-content .combo-table .combo-products-cell { min-width:150px; }
+.orders-content .combo-table th,.orders-content .combo-table td { padding:8px 16px; }
