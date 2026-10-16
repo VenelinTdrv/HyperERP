@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/settlements')({
   head:()=>({meta:[{title:'HyperERP · Населени места'},{name:'description',content:'Управление на населени места — държава, име, област и пощенски код в HyperERP.'},{property:'og:title',content:'HyperERP · Населени места'},{property:'og:description',content:'Списък с населени места, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -22,8 +23,12 @@ const initial:Settlement[]=[
  {id:4,country:'България',name:'Варна',region:'Варна',postalCode:'9000'},
  {id:5,country:'България',name:'Бургас',region:'Бургас',postalCode:'8000'},
  {id:6,country:'България',name:'Стралджа',region:'Ямбол',postalCode:'8680'},
+ {id:7,country:'България',name:'Ловеч',region:'Ловеч',postalCode:'5500'},
+ {id:8,country:'България',name:'Шумен',region:'Шумен',postalCode:'9700'},
+ {id:9,country:'България',name:'Казанлък',region:'Стара Загора',postalCode:'6100'},
+ {id:10,country:'България',name:'Велинград',region:'Пазарджик',postalCode:'4600'},
 ];
-const PAGE=5;
+const PAGE=10;
 
 function Settlements(){
  const [rows,setRows]=useState(initial);
@@ -57,9 +62,9 @@ function Settlements(){
  };
  const remove=()=>{if(!deleting)return;setRows(p=>p.filter(r=>r.id!==deleting.id));setAnnouncement(`${deleting.name} · Населеното място е изтрито само в демонстрацията.`);setDeleting(null);};
  const f=(k:'name'|'region'|'postalCode',label:string,o:{req?:boolean;ph?:string;max?:number;hint?:string}={})=><div className="field"><label htmlFor={`stl-${k}`}>{label}{o.req&&<span className="required">*</span>}</label><input id={`stl-${k}`} type="text" placeholder={o.ph} maxLength={o.max??100} value={form[k]} aria-invalid={Boolean(errors[k])} aria-describedby={errors[k]?`stl-${k}-error`:o.hint?`stl-${k}-hint`:undefined} onChange={ev=>set(k,ev.target.value)}/>{errors[k]?<p id={`stl-${k}-error`} className="text-xs text-destructive" role="alert">{errors[k]}</p>:o.hint?<p id={`stl-${k}-hint`} className="text-xs text-muted-foreground">{o.hint}</p>:null}</div>;
- return <WorkspaceShell active="Населени места"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Населени места</h1><p>Номенклатура за адреси на клиенти, доставчици и доставки</p></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави населено място</Button></div>
-  <div className="suppliers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Населено място" placeholder="Населено място…" value={nameQ} onChange={ev=>{setNameQ(ev.target.value);setPage(1);}}/></div><div className="field" style={{minWidth:'12rem'}}><select aria-label="Област" value={regionQ} onChange={ev=>{setRegionQ(ev.target.value);setPage(1);}}><option value="">Всички области</option>{regions.map(r=><option key={r} value={r}>{r}</option>)}</select></div><Button variant="outline" disabled={!nameQ&&!regionQ} onClick={clear}><X/>Изчисти</Button></div>
+ return <WorkspaceShell active="Населени места"><div className="page-content deliveries-content orders-content">
+  <div className="page-heading"><div><h1>Населени места<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Населени места с област и пощенски код за адресите на клиенти, доставчици и доставки. Търси по име и филтрирай по област.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави населено място</Button></div>
+  <div className="suppliers-filters transfers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Населено място" placeholder="Населено място…" value={nameQ} onChange={ev=>{setNameQ(ev.target.value);setPage(1);}}/></div><div className="field"><select aria-label="Област" value={regionQ} onChange={ev=>{setRegionQ(ev.target.value);setPage(1);}}><option value="">Всички области</option>{regions.map(r=><option key={r} value={r}>{r}</option>)}</select></div><Button variant="outline" disabled={!nameQ&&!regionQ} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с населени места"><div className="delivery-list-heading"><h2>Всички населени места <span>{filtered.length}</span></h2></div>
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>ID</th><th>Населено място</th><th>Област</th><th>Пощенски код</th><th>Държава</th><th className="text-right">Действия</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
