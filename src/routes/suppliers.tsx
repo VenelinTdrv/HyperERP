@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Truck, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Eye, Info, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Truck, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/suppliers')({
  head:()=>({meta:[{title:'HyperERP · Доставчици'},{name:'description',content:'Управление на доставчици, ЕИК, ДДС номер, адрес и лице за контакт в HyperERP.'},{property:'og:title',content:'HyperERP · Доставчици'},{property:'og:description',content:'Списък с доставчици, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -19,9 +20,16 @@ const initial:Supplier[]=[
  {id:1,...blank,name:'Доставчик 1',description:'тест',eik:'204567891',vat:'BG204567891',city:'София',street:'бул. Витоша 15',postcode:'1000',phone:'029876543',iban:'BG80BNBG96611020345678',contactName:'Петър Димитров',contactEmail:'petar@dostavchik1.bg',contactPhone:'0888111222'},
  {id:2,...blank,name:'Арома Дистрибуция ООД',description:'Парфюми и аромати',eik:'131234567',vat:'BG131234567',city:'Пловдив',street:'ул. Иван Вазов 8',block:'12',entrance:'Б',floor:'3',apartment:'9',postcode:'4000',phone:'032654321',iban:'BG18RZBB91550123456789',contactName:'Николина Стоянова',contactEmail:'n.stoyanova@aroma.bg',contactPhone:'0899333444'},
  {id:3,...blank,name:'Beauty Import SRL',description:'Козметика за грижа',active:false,eik:'40123456',vat:'RO40123456',country:'Румъния',city:'Букурещ',street:'Str. Lipscani 22',postcode:'030031',phone:'+40212345678',iban:'RO49AAAA1B31007593840000',contactName:'Andrei Popescu',contactEmail:'andrei@beautyimport.ro',contactPhone:'+40722111333'},
+ {id:4,...blank,name:'Елеганс Козметикс ЕООД',description:'Вносни parfюми и грижа',eik:'205123456',vat:'BG205123456',city:'София',street:'бул. Цариградско шосе 115',block:'7',entrance:'А',floor:'4',apartment:'12',postcode:'1784',phone:'029711223',iban:'BG12STSA9300001234567',contactName:'Димитър Колев',contactEmail:'d.kolev@elegans.bg',contactPhone:'0898445566'},
+ {id:5,...blank,name:'Aroma Hellas SA',description:'Масла и суровини за аромати',eik:'094567812',vat:'EL094567812',country:'Гърция',city:'Атина',street:'Leof. Kifisias 42',postcode:'11523',phone:'+302107234567',iban:'GR1601101250000000012300695',contactName:'Eleni Papadopoulou',contactEmail:'e.papadopoulou@aromahellas.gr',contactPhone:'+306944112233'},
+ {id:6,...blank,name:'İstanbul Kozmetik Ltd. Şti.',description:'Грим и аксесоари',eik:'6123456789',vat:'TR6123456789',country:'Турция',city:'İstanbul',street:'Bağdat Cad. 214',block:'B',postcode:'34728',phone:'+902164455667',iban:'TR330006100519786457841326',contactName:'Emre Yılmaz',contactEmail:'emre@istanbulkozmetik.tr',contactPhone:'+905321112233'},
+ {id:7,...blank,name:'Nordwind Beauty GmbH',description:'Натурална козметика',eik:'912345678',vat:'DE912345678',country:'Германия',city:'Берлин',street:'Schönhauser Allee 8',postcode:'10119',phone:'+493012345678',iban:'DE89370400440532013000',contactName:'Lena Hoffmann',contactEmail:'lena@nordwind-beauty.de',contactPhone:'+491701234567'},
+ {id:8,...blank,name:'Bella Cosmesi SRL',description:'Парфюмерия и сапуни',eik:'02123456789',vat:'IT02123456789',country:'Италия',city:'Милано',street:'Via Montenapoleone 3',postcode:'20121',phone:'+39027654321',iban:'IT60X0542811101000000123456',contactName:'Giulia Rossi',contactEmail:'g.rossi@bellacosmesi.it',contactPhone:'+393331234567'},
+ {id:9,...blank,name:'Luxe Parfum SARL',description:'Нишови аромати',active:false,eik:'552123456',vat:'FR55552123456',country:'Франция',city:'Париж',street:'Rue Saint-Honoré 18',postcode:'75001',phone:'+33142654321',iban:'FR1420041010050500013M02606',contactName:'Camille Laurent',contactEmail:'camille@luxeparfum.fr',contactPhone:'+33612345678'},
+ {id:10,...blank,name:'Polena Beauty Sp. z o.o.',description:'Грижа за кожата и косата',eik:'7010056789',vat:'PL7010056789',country:'Полша',city:'Варшава',street:'ul. Marszałkowska 27',block:'5',entrance:'C',floor:'2',apartment:'8',postcode:'00-638',phone:'+48221234567',iban:'PL61109010140000071219812874',contactName:'Anna Kowalska',contactEmail:'anna@polena-beauty.pl',contactPhone:'+48501123456'},
 ];
 const addr=(s:Form)=>[s.street,s.block&&`бл. ${s.block}`,s.entrance&&`вх. ${s.entrance}`,s.floor&&`ет. ${s.floor}`,s.apartment&&`ап. ${s.apartment}`].filter(Boolean).join(', ');
-const PAGE=5;
+const PAGE=10;
 
 function Suppliers(){
  const [rows,setRows]=useState(initial);
@@ -62,8 +70,8 @@ function Suppliers(){
  };
  const f=(k:keyof Form,label:string,o:{req?:boolean;ph?:string;type?:string;max?:number;wide?:boolean}={})=><div className={`field ${o.wide?'col-span-2':''}`}><label htmlFor={`sup-${k}`}>{label}{o.req&&<span className="required">*</span>}</label><input id={`sup-${k}`} type={o.type??'text'} placeholder={o.ph} maxLength={o.max??100} value={String(form[k])} aria-invalid={Boolean(errors[k])} aria-describedby={errors[k]?`sup-${k}-error`:undefined} onChange={ev=>set(k,ev.target.value)}/>{errors[k]&&<p id={`sup-${k}-error`} className="text-xs text-destructive" role="alert">{errors[k]}</p>}</div>;
  const badge=(a:boolean)=><span className={`delivery-status ${a?'received':'cancelled'}`}><span/>{a?'Активен':'Неактивен'}</span>;
- return <WorkspaceShell active="Доставчици"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Доставчици</h1><p>Фирми, данни за фактуриране и лица за контакт</p></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави доставчик</Button></div>
+ return <WorkspaceShell active="Доставчици"><div className="page-content deliveries-content orders-content">
+  <div className="page-heading"><div><h1>Доставчици<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Фирми-доставчици с данни за фактуриране и лица за контакт. Търси по име или ЕИК и филтрирай по статус.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави доставчик</Button></div>
   <div className="suppliers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Име на доставчик" placeholder="Име…" value={name} onChange={ev=>{setName(ev.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" inputMode="numeric" aria-label="ЕИК" placeholder="ЕИК…" value={eik} onChange={ev=>{setEik(ev.target.value);setPage(1);}}/></div><select className="filter-select" aria-label="Статус" value={status} onChange={ev=>{setStatus(ev.target.value);setPage(1);}}><option value="">Всички статуси</option><option value="active">Активен</option><option value="inactive">Неактивен</option></select><Button variant="outline" disabled={!name&&!eik&&!status} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с доставчици"><div className="delivery-list-heading"><h2>Всички доставчици <span>{filtered.length}</span></h2></div>
