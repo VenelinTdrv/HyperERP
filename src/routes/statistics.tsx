@@ -109,7 +109,7 @@ function Statistics() {
   const axis = <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={10} />;
 
   return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
-    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Показатели за текущия месец и графики за последните 12 месеца. Филтрирай по тип, инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
+    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Показатели за текущия месец и графики за последните 12 месеца. Филтрирай по тип, инфлуенсър или търговец и по населено място. До всяко населено място се показват брой поръчки и % от всички за текущия месец.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
     <div className="suppliers-filters transfers-filters">
       <div className="search-box"><CalendarDays /><input className="search-input" aria-label="Период" readOnly value="01.10.2026 – 31.10.2026" /></div>
       <div className="search-box"><select className="search-input" aria-label="Тип" value={type} onChange={e => { setType(e.target.value); setSeller(''); }}><option value="">Всички типове</option><option>Инфлуенсър</option><option>Търговец на едро</option></select></div>
