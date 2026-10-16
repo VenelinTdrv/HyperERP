@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, Eye, FileSpreadsheet, FileText, Minus, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, Eye, FileSpreadsheet, FileText, Info, Minus, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { comboProducts } from '@/lib/combo-data';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/transfers')({
   head:()=>({meta:[{title:'HyperERP · Трансфер на стоки'},{name:'description',content:'Трансфери на стока между складове със статуси, артикули, количества и експорт в PDF и XLS.'},{property:'og:title',content:'HyperERP · Трансфер на стоки'},{property:'og:description',content:'Преместване на стока от един склад в друг в HyperERP.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -22,6 +23,10 @@ type Transfer={id:number;doc:string;created:string;createdBy:string;from:string;
 type Stock=Record<string,Record<number,number>>;
 const initialStock:Stock=Object.fromEntries(warehouses.map((w,wi)=>[w,Object.fromEntries(comboProducts.map(p=>[p.id,wi<3?40-wi*10+p.id:5+p.id]))]));
 const initial:Transfer[]=[
+ {id:10,doc:'TR-0000010',created:'2026-10-16T09:10',createdBy:'Елена Петрова',from:'Склад Главен',to:'Склад Варна',status:'Необработен',description:'Презареждане на варненския склад.',items:[{productId:2,quantity:8}]},
+ {id:9,doc:'TR-0000009',created:'2026-10-15T15:45',createdBy:'Виктория Григорова',from:'Склад София',to:'Виртуален — Ема',status:'Потвърден',description:'Подаръци за кампания.',items:[{productId:1,quantity:3},{productId:5,quantity:4}]},
+ {id:8,doc:'TR-0000008',created:'2026-10-15T11:25',createdBy:'Венелин Тодоров',from:'Склад Варна',to:'Виртуален — Връщания',status:'Завършен',description:'Връщане на непродадена стока.',items:[{productId:4,quantity:5}]},
+ {id:7,doc:'TR-0000007',created:'2026-10-14T18:05',createdBy:'Елена Петрова',from:'Склад Главен',to:'Склад София',status:'Отказан',description:'Отменено зареждане.',items:[{productId:9,quantity:2}]},
  {id:1,doc:'TR-0000006',created:'2026-10-14T10:20',createdBy:'Венелин Тодоров',from:'Склад Главен',to:'Склад София',status:'Необработен',description:'Зареждане на столичния склад.',items:[{productId:1,quantity:5},{productId:4,quantity:10}]},
  {id:2,doc:'TR-0000005',created:'2026-10-13T16:05',createdBy:'Виктория Григорова',from:'Склад Главен',to:'Виртуален — Виктория',status:'Потвърден',description:'Мостри за кампания.',items:[{productId:2,quantity:3}]},
  {id:3,doc:'TR-0000004',created:'2026-10-12T09:40',createdBy:'Венелин Тодоров',from:'Склад София',to:'Склад Варна',status:'Завършен',description:'',items:[{productId:7,quantity:2},{productId:8,quantity:1}]},
@@ -29,7 +34,7 @@ const initial:Transfer[]=[
  {id:5,doc:'TR-0000002',created:'2026-10-08T11:00',createdBy:'Венелин Тодоров',from:'Склад Варна',to:'Склад Главен',status:'Завършен',description:'Връщане на излишък.',items:[{productId:5,quantity:6}]},
  {id:6,doc:'TR-0000001',created:'2026-10-05T08:30',createdBy:'Виктория Григорова',from:'Склад Главен',to:'Склад Варна',status:'Завършен',description:'',items:[{productId:6,quantity:4},{productId:9,quantity:2}]},
 ];
-const PAGE=5;
+const PAGE=10;
 const fmt=(v:string)=>new Date(v).toLocaleString('bg-BG',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 const cls:Record<Status,string>={'Необработен':'','Потвърден':'neutral','Завършен':'received','Отказан':'cancelled'};
 const product=(id:number)=>comboProducts.find(p=>p.id===id);
@@ -92,9 +97,9 @@ function Transfers(){
  const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Трансфер на стоки</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Трансфер на стоки</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  const plist=comboProducts.filter(p=>{const s=pq.trim().toLocaleLowerCase('bg-BG');return !s||p.name.toLocaleLowerCase('bg-BG').includes(s)||p.sku.includes(s);});
  const editable=(t:Transfer)=>t.status==='Необработен';
- return <WorkspaceShell active="Трансфер на стоки"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Трансфер на стоки</h1><p>Преместване на стока между складове — изпращащият склад се намалява, приемащият се заприходява при „Завършен“</p></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Нов трансфер</Button></div></div>
-  <div className="suppliers-filters">
+ return <WorkspaceShell active="Трансфер на стоки"><div className="page-content deliveries-content orders-content">
+  <div className="page-heading"><div><h1>Трансфер на стоки<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Информация за списъка"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва всички трансфери — необработени, потвърдени, завършени и отказани.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Нов трансфер</Button></div></div>
+  <div className="suppliers-filters transfers-filters">
    <div className="search-box"><Search/><input className="search-input" aria-label="Документ номер" placeholder="Документ номер…" value={docQ} onChange={e=>{setDocQ(e.target.value);setPage(1);}}/></div>
    <div className="field"><input type="date" aria-label="Създаден от дата" title="От дата" value={dateFrom} onChange={e=>{setDateFrom(e.target.value);setPage(1);}}/></div>
    <div className="field"><input type="date" aria-label="Създаден до дата" title="До дата" value={dateTo} onChange={e=>{setDateTo(e.target.value);setPage(1);}}/></div>
