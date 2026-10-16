@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/settlements')({
   head:()=>({meta:[{title:'HyperERP · Населени места'},{name:'description',content:'Управление на населени места — държава, име, област и пощенски код в HyperERP.'},{property:'og:title',content:'HyperERP · Населени места'},{property:'og:description',content:'Списък с населени места, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -22,8 +23,12 @@ const initial:Settlement[]=[
  {id:4,country:'България',name:'Варна',region:'Варна',postalCode:'9000'},
  {id:5,country:'България',name:'Бургас',region:'Бургас',postalCode:'8000'},
  {id:6,country:'България',name:'Стралджа',region:'Ямбол',postalCode:'8680'},
+ {id:7,country:'България',name:'Ловеч',region:'Ловеч',postalCode:'5500'},
+ {id:8,country:'България',name:'Шумен',region:'Шумен',postalCode:'9700'},
+ {id:9,country:'България',name:'Казанлък',region:'Стара Загора',postalCode:'6100'},
+ {id:10,country:'България',name:'Велинград',region:'Пазарджик',postalCode:'4600'},
 ];
-const PAGE=5;
+const PAGE=10;
 
 function Settlements(){
  const [rows,setRows]=useState(initial);
