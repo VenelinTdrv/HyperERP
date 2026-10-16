@@ -100,7 +100,7 @@ function Statistics() {
       <div className="search-box"><CalendarDays /><input className="search-input" aria-label="Период" readOnly value="01.10.2026 – 31.10.2026" /></div>
       <div className="search-box"><select className="search-input" aria-label="Тип" value={type} onChange={e => { setType(e.target.value); setSeller(''); }}><option value="">Всички типове</option><option>Инфлуенсър</option><option>Търговец на едро</option></select></div>
       <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{options.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type}</option>)}</select></div>
-      <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id}</option>)}</select></div>
+      <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
     </div>
 
     <section aria-label="Текущ месец" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-4">
