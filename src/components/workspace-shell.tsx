@@ -1,6 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
-import { ArrowLeftRight, ArrowRight, Bell, Boxes, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShoppingBag, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeftRight, ArrowRight, Bell, Boxes, ChevronDown, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShoppingBag, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -14,6 +14,7 @@ const groups = [
 export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Трансфер на стоки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'|'Категории'|'Клиенти'|'Доставчици'|'Държави'|'Населени места'|'Складове'|'Потребители'; children:ReactNode }) {
  const [mobileOpen,setMobileOpen] = useState(false);
  const [collapsed,setCollapsed] = useState(false);
+ const [menuOpen,setMenuOpen] = useState<string|null>(null);
  const [notice,setNotice] = useState<string|null>(null);
  const pathname = useLocation({ select: (location) => location.pathname });
  return <div className={`erp-shell ${collapsed?'sidebar-collapsed':''}`}>
