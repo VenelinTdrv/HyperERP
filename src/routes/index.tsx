@@ -32,6 +32,10 @@ const initialRows: Order[] = [
  { id:'ORD-0021', status:'Доставена', customer:'Десислава Николова', phone:'0888 456 789', city:'София', address:'ул. „Искър“ 18', courier:'Спиди', created:'2026-10-13', product:'Rose Élixir', quantity:1, price:49, shipping:4.9 },
  { id:'ORD-0020', status:'Отказана', customer:'Петър Димитров', phone:'0888 567 890', city:'Бургас', address:'Офис · Център', courier:'Еконт', created:'2026-10-12', product:'Velvet Bloom', quantity:2, price:69, shipping:4.9 },
  { id:'ORD-0019', status:'Доставена', customer:'Анна Стоянова', phone:'0888 678 901', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-12', product:'Pure Essence', quantity:1, price:35, shipping:4.9 },
+ { id:'ORD-0018', status:'Обработена', customer:'Стефан Колев', phone:'0888 789 012', city:'София', address:'Офис · Младост 4', courier:'Еконт', created:'2026-10-11', product:'Hydra Cream', quantity:2, price:29, shipping:4.9 },
+ { id:'ORD-0017', status:'Изпратена', customer:'Румяна Дончева', phone:'0888 890 123', city:'Варна', address:'ул. „Чаталджа“ 7', courier:'Спиди', created:'2026-10-11', product:'Rose Élixir', quantity:1, price:49, shipping:4.9 },
+ { id:'ORD-0016', status:'Доставена', customer:'Кирил Атанасов', phone:'0888 901 234', city:'Русе', address:'Офис · Център', courier:'Еконт', created:'2026-10-10', product:'Velvet Bloom', quantity:3, price:69, shipping:4.9 },
+ { id:'ORD-0015', status:'Отказана', customer:'Ирина Георгиева', phone:'0888 012 345', city:'София', address:'ул. „Христо Ботев“ 31', courier:'Спиди', created:'2026-10-10', product:'Pure Essence', quantity:2, price:35, shipping:4.9 },
 ];
 const emptyFilters = { search:'', status:'', city:'', courier:'', from:'', to:'' };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
