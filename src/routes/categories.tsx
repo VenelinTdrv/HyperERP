@@ -1,10 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, Eye, Folder, FolderOpen, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, Eye, Folder, FolderOpen, Info, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/categories')({
  head:()=>({meta:[{title:'HyperERP · Категории'},{name:'description',content:'Управление на категории и подкатегории в каталога на HyperERP.'},{property:'og:title',content:'HyperERP · Категории'},{property:'og:description',content:'Йерархичен каталог със създаване, преглед и редакция на категории.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -15,6 +16,8 @@ const initialCategories:Category[] = [
  {id:1,name:'LEGO',parentId:null}, {id:2,name:'Козметика',parentId:null},
  {id:3,name:'Дезодоранти',parentId:2}, {id:4,name:'Парфюми',parentId:2},
  {id:5,name:'Техника',parentId:null}, {id:6,name:'Телевизори',parentId:5},
+ {id:7,name:'Дамски парфюми',parentId:4}, {id:8,name:'Мъжки парфюми',parentId:4},
+ {id:9,name:'Креми',parentId:2}, {id:10,name:'Монитори',parentId:5},
 ];
 function descendantIds(rows:Category[], id:number):number[] {
  return rows.filter(row=>row.parentId===id).flatMap(row=>[row.id,...descendantIds(rows,row.id)]);
@@ -26,7 +29,7 @@ function categoryPath(rows:Category[], id:number):string {
 }
 function Categories() {
  const [rows,setRows]=useState(initialCategories);
- const [expanded,setExpanded]=useState<number[]>([2,5]);
+ const [expanded,setExpanded]=useState<number[]>([2,4,5]);
  const [search,setSearch]=useState('');
  const [editor,setEditor]=useState(false);
  const [editing,setEditing]=useState<Category|null>(null);
@@ -72,8 +75,8 @@ function Categories() {
   })}</ul>;
  };
  const deleteChildren=deleting?rows.filter(row=>row.parentId===deleting.id):[];
- return <WorkspaceShell active="Категории"><div className="page-content deliveries-content">
-  <div className="page-heading"><div><h1>Категории</h1><p>Категории и подкатегории на каталога</p></div><Button className="delivery-add" onClick={()=>startNew()}><Plus/>Добави категория</Button></div>
+ return <WorkspaceShell active="Категории"><div className="page-content deliveries-content orders-content">
+  <div className="page-heading"><div><h1>Категории<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Йерархия на каталога с категории и подкатегории. Разгъни и свий клоните или търси по име.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>startNew()}><Plus/>Добави категория</Button></div>
   <div className="categories-search"><div className="search-box"><Search/><input className="search-input" aria-label="Търси категория" placeholder="Търсене по име…" value={search} onChange={e=>setSearch(e.target.value)}/></div><Button variant="outline" size="icon" aria-label="Изчисти търсенето" title="Изчисти търсенето" disabled={!search} onClick={()=>setSearch('')}><X/></Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="category-tree" aria-label="Списък с категории"><div className="category-tree-toolbar"><h2>Всички категории <span>{rows.length}</span></h2><div><Button variant="ghost" size="sm" disabled={Boolean(query)||!rows.some(row=>row.parentId!==null)} onClick={()=>setExpanded(rows.map(row=>row.id))}><ChevronsUpDown/>Разгъни всички</Button><Button variant="ghost" size="sm" disabled={Boolean(query)||!expanded.length} onClick={()=>setExpanded([])}><ChevronsDownUp/>Свий всички</Button></div></div>

@@ -386,3 +386,10 @@
 .orders-content .page-heading.combos-heading { margin-bottom:10px; }
 .orders-content .combo-table th,.orders-content .combo-table td { padding:7px 16px; }
 .orders-content .combo-table .combo-product-line { line-height:1.3; margin-bottom:1px; }
+.orders-content .categories-search { margin-bottom:10px; }
+.orders-content .category-tree-toolbar { padding:8px 0; }
+.orders-content .category-tree-row { min-height:40px; gap:6px; }
+.orders-content .category-tree-toggle,.orders-content .category-tree-spacer { height:30px; }
+.orders-content .category-tree-icon { width:16px; height:16px; }
+.orders-content .category-tree-name { min-height:30px; padding:4px; }
+.orders-content .category-tree-footer { padding:9px 0; }
