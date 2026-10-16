@@ -394,3 +394,6 @@
 .orders-content .category-tree-name { min-height:30px; padding:4px; }
 .orders-content .category-tree-footer { padding:9px 0; }
 .orders-content .clients-filters { margin-bottom:10px; }
+.orders-content .suppliers-filters { margin-bottom:10px; gap:10px; }
+.orders-content .suppliers-filters>button, .orders-content .suppliers-filters>select { height:38px; }
+.orders-content .delivery-table .client-name { font-size:13px; }
