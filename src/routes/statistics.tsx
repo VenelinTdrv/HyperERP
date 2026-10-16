@@ -85,6 +85,13 @@ function Statistics() {
   }, [type, seller, settlement]);
   const cur = data[data.length - 1]!;
   const paidPct = cur.orders ? (cur.paid / cur.orders * 100).toFixed(1) : '0';
+  const settlementStats = useMemo(() => {
+    const sellers: Seller[] = seller ? SELLERS.filter(s => s.id === seller) : type ? SELLERS.filter(s => s.type === type) : [...SELLERS];
+    const i = MONTHS.length - 1;
+    const rows = SETTLEMENTS.map(st => ({ id: st.id, orders: sellers.reduce((a, s, k) => a + sellerOrders(s, i, st, k), 0) }));
+    const total = rows.reduce((a, r) => a + r.orders, 0);
+    return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
+  }, [type, seller]);
 
   const kpis = [
     { icon: ShoppingBag, label: 'Брой поръчки', value: cur.orders.toString(), sub: `${cur.paid} платени · ${cur.returned} върнати (${cur.returnPct}%)` },
