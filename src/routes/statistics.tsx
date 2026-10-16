@@ -113,7 +113,7 @@ function buildDays(s: Seller, k: number, st: { weight: number } | null): DayRow[
       const perDay = raw.map(x => Math.floor(x));
       const left = monthOrders - perDay.reduce((a, b) => a + b, 0);
       const byRemainder = raw.map((x, i) => i).sort((a, b) => (raw[b]! - perDay[b]!) - (raw[a]! - perDay[a]!));
-      for (let j = 0; j < left; j++) perDay[byRemainder[j % dim]!] += 1;
+      for (let j = 0; j < left; j++) { const i = byRemainder[j % dim]!; perDay[i] = (perDay[i] ?? 0) + 1; }
       const per = wholesale ? 6.5 + (m % 3) * 0.4 : 1.6 + ((m + k) % 4) * 0.15;
       const retRate = 0.04 + ((m + k) % 5) * 0.012;
       const price = 44 + ((m * 3 + k) % 6) * 2.5;
