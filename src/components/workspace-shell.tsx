@@ -1,17 +1,17 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
-import { ArrowLeftRight, ArrowRight, Bell, Boxes, ChevronDown, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShoppingBag, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, ArrowRight, Bell, Boxes, ChevronDown, CircleHelp, ClipboardList, Globe2, LayoutGrid, Menu, Package, Settings2, ShoppingBag, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const groups = [
- { name:'Операции', items:[{name:'Поръчки',icon:ClipboardList,to:'/orders' as const}, {name:'Продажби',icon:ShoppingBag,to:'/' as const}, {name:'Трансфер на стоки',icon:ArrowLeftRight,to:'/transfers' as const}, {name:'Доставки',icon:Truck,to:'/deliveries' as const}] },
+ { name:'Операции', items:[{name:'Поръчки',icon:ClipboardList,to:'/orders' as const}, {name:'Продажби',icon:ShoppingBag,to:'/' as const}, {name:'Трансфер на стоки',icon:ArrowLeftRight,to:'/transfers' as const}, {name:'Доставки',icon:Truck,to:'/deliveries' as const}, {name:'Статистика',icon:BarChart3,to:'/statistics' as const}] },
  { name:'Каталог', items:[{name:'Артикули',icon:Package,to:'/articles' as const}, {name:'Комбота',icon:Boxes,to:'/combos' as const}, {name:'Категории',icon:LayoutGrid,to:'/categories' as const}] },
  { name:'Контакти и логистика', items:[{name:'Клиенти',icon:Users,to:'/clients' as const}, {name:'Доставчици',icon:Truck,to:'/suppliers' as const}, {name:'Държави',icon:Globe2,to:'/countries' as const}, {name:'Населени места',icon:Warehouse,to:'/settlements' as const}, {name:'Складове',icon:Warehouse,to:'/warehouses' as const}] },
  { name:'Администрация', items:[{name:'Потребители',icon:UserCog,to:'/users' as const}] },
 ];
 
-export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Трансфер на стоки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'|'Категории'|'Клиенти'|'Доставчици'|'Държави'|'Населени места'|'Складове'|'Потребители'; children:ReactNode }) {
+export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Трансфер на стоки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'|'Категории'|'Клиенти'|'Доставчици'|'Държави'|'Населени места'|'Складове'|'Потребители'|'Статистика'; children:ReactNode }) {
  const [mobileOpen,setMobileOpen] = useState(false);
  const [collapsed,setCollapsed] = useState(false);
  const [menuOpen,setMenuOpen] = useState<string|null>(null);
