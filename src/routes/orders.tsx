@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CheckCircle2, ClipboardList, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CheckCircle2, ClipboardList, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 import perfume from '@/assets/perfume.jpg';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
