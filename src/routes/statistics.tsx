@@ -194,6 +194,7 @@ function Statistics() {
   }, [type, seller, from, to]);
 
   const paidPct = period.orders ? (period.paid / period.orders * 100).toFixed(1) : '0';
+  const activePreset = PRESETS.find(p => { const r = presetRange(p.id); return +r.from === +from && +r.to === +to; })?.id;
   const windowLabel = data.length ? `${data[0]!.month} – ${data[data.length - 1]!.month}` : '';
   const kpis = [
     { icon: ShoppingBag, label: 'Брой поръчки', value: period.orders.toString(), sub: `${period.paid} платени · ${period.returned} върнати (${period.returnPct}%)` },
