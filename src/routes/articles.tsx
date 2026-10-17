@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, type FormEvent } from 'react';
-import { Check, ChevronDown, ChevronRight, Eye, FileSpreadsheet, FileText, Folder, FolderInput, Info, MoreVertical, Package, Pencil, Plus, Printer, Search, ShieldCheck, X } from 'lucide-react';
+import { useState, useRef, type FormEvent } from 'react';
+import { Check, ChevronDown, ChevronRight, Eye, FileSpreadsheet, FileText, Folder, FolderInput, Info, MoreVertical, Package, Pencil, Plus, Printer, Search, ShieldCheck, Upload, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -59,6 +59,33 @@ function Articles() {
  const visible = filtered.slice((current-1)*pageSize,current*pageSize);
  const exportXls = ()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='artikuli.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const exportPdf = ()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Артикули</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Артикули</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
+ const fileInput = useRef<HTMLInputElement|null>(null);
+ const importFile = async (file:File)=>{
+  const text = await file.text();
+  const timestamp = new Date().toISOString();
+  let imported = 0;
+  let skipped = 0;
+  setRows(prev=>{
+   const existing = new Set(prev.map(row=>row.sku.toLowerCase()));
+   const additions:Article[] = [];
+   const lines = text.split(/\r?\n/);
+   if(lines[0]&&/^sku\b/i.test(lines[0]))lines.shift();
+   for(const line of lines){
+    const columns = line.split(/[;,\t]/).map(column=>column.trim());
+    if(columns.length<2)continue;
+    const [sku,name,category] = columns;
+    if(!sku||!name||!category||existing.has(sku.toLowerCase())){if(line.trim())skipped++;continue;}
+    const matched = categories.find(item=>item===category||item.startsWith(category));
+    if(!matched){skipped++;continue;}
+    existing.add(sku.toLowerCase());
+    additions.push({id:Math.max(0,...prev.map(row=>row.id),...additions.map(row=>row.id))+1,name,sku,category:matched,stock:0,created:timestamp,createdBy:'Венелин Тодоров (импорт)',edited:'',editedBy:''});
+    imported++;
+   }
+   return additions.length?[...additions,...prev]:prev;
+  });
+  if(imported)setAnnouncement(`Импортирани ${imported} артикула от ${file.name} само в демонстрацията${skipped?` · пропуснати ${skipped} реда`:''}.`);
+  else setAnnouncement(`Няма импортирани артикули от ${file.name} — очаква се CSV с колони SKU, Име, Категория.`);
+ };
  const exportPrint = exportPdf;
  const allSelected = visible.length>0&&visible.every(row=>selection.includes(row.id));
  const someSelected = visible.some(row=>selection.includes(row.id));
@@ -82,7 +109,7 @@ function Articles() {
  };
  const categoryButton = (label:string,value:string,child=false)=><Button key={value} variant="ghost" className={`category-item ${child?'category-child':''}`} aria-pressed={category===value} onClick={()=>chooseCategory(value)}>{!child&&<Folder size={14}/>}<span>{label}</span><span>{rows.filter(row=>!value||row.category===value||(value==='Козметика'&&row.category.startsWith(value))).length}</span></Button>;
   return <WorkspaceShell active="Артикули"><div className="page-content deliveries-content orders-content">
-  <div className="page-heading articles-heading"><div><h1>Артикули<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Каталог на артикули по SKU и категории. Филтрирай по категория отляво или търси по име и SKU.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="articles-actions"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button variant="outline" disabled={selection.length===0} onClick={()=>{setBulkCategory('');setBulkOpen(true);}}><FolderInput/>Смени категорията</Button><Button onClick={startNew}><Plus/>Добави артикул</Button></div></div>
+  <div className="page-heading articles-heading"><div><h1>Артикули<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Каталог на артикули по SKU и категории. Филтрирай по категория отляво или търси по име и SKU.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="articles-actions"><Button variant="outline" size="icon" aria-label="Импорт от файл" title="Импорт от файл" onClick={()=>fileInput.current?.click()}><Upload/></Button><input ref={fileInput} type="file" accept=".csv,.txt,text/csv,text/plain" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={e=>{const file=e.target.files?.[0];if(file)importFile(file);e.target.value='';}}/><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button variant="outline" disabled={selection.length===0} onClick={()=>{setBulkCategory('');setBulkOpen(true);}}><FolderInput/>Смени категорията</Button><Button onClick={startNew}><Plus/>Добави артикул</Button></div></div>
   <div className="articles-filters"><div className="search-box"><Search/><input aria-label="Търси по име" className="search-input" placeholder="Търсене по име…" value={name} onChange={e=>{setName(e.target.value);setPage(1);setSelection([]);}}/></div><div className="field"><label className="sr-only" htmlFor="article-sku-search">Търси по SKU</label><input id="article-sku-search" placeholder="SKU" value={sku} onChange={e=>{setSku(e.target.value);setPage(1);setSelection([]);}}/></div><Button variant="outline" size="icon" aria-label="Изчисти филтрите" title="Изчисти филтрите" disabled={!name&&!sku&&!category} onClick={clear}><X/></Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <div className="articles-layout"><aside className="article-categories" aria-label="Категории артикули"><h2>Категории</h2><nav>{categoryButton('Всички категории','')}{categoryButton('LEGO','LEGO')}<div className="category-branch"><Button variant="ghost" size="icon" aria-label={expanded?'Скрий подкатегориите на Козметика':'Покажи подкатегориите на Козметика'} aria-expanded={expanded} aria-controls="cosmetics-categories" onClick={()=>setExpanded(!expanded)}>{expanded?<ChevronDown size={14}/>:<ChevronRight size={14}/>}</Button>{categoryButton('Козметика','Козметика')}</div>{expanded&&<div id="cosmetics-categories">{categoryButton('Парфюми',categories[0],true)}{categoryButton('Дезодоранти',categories[1],true)}</div>}{categoryButton('Техника','Техника')}</nav></aside>
