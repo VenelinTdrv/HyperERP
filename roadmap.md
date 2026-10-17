@@ -53,7 +53,7 @@
 - [x] Verify the barcode decodes on every page and the Cyrillic text layer stays correct across downloads.
 
 ## New order screen
-- [ ] Add validated new orders to the shared demonstration orders list and verify save-to-list flow.
+- [x] Add validated new orders to the shared demonstration orders list and verify save-to-list flow.
 - [x] Клиент и доставка: данните за доставка се показват чак след избор на клиент; преди това стои подсказка.
 
 ## Продажби списък

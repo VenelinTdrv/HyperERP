@@ -7,8 +7,10 @@ describe('New orders in the orders list', () => {
   const data = { customer: 'Тестов клиент', phone: '0888123456', city: 'Варна', address: 'ул. Морска 5', courier: 'Спиди', shipping: 0, note: 'Бележка', payment: 'Наложен платеж' as const, influencer: 'Елена Петрова', deliveryType: 'address' as const, items: [{ sku: 'PRF-001', name: 'Rose Élixir', quantity: 2, price: 15.5 }, { sku: 'CRM-001', name: 'Hydra Cream', quantity: 1, price: 0 }] };
   const order = createOrder(data);
   const { result, unmount } = renderHook(() => useOrders());
-  expect(result.current[0]).toEqual({ ...data, id: order.id, status: 'Необработена', created: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Sofia' }).format(new Date()) });
-  expect(total(result.current[0])).toBe(31);
+  const saved = result.current[0];
+  if (!saved) throw new Error('Created order missing from orders list');
+  expect(saved).toEqual({ ...data, id: order.id, status: 'Необработена', created: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Sofia' }).format(new Date()) });
+  expect(total(saved)).toBe(31);
   unmount();
  });
 
