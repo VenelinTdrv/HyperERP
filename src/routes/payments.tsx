@@ -83,6 +83,7 @@ function Payments(){
  const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const base=rows.filter(r=>paymentMatches(r,{q,method,source,status:'',agent,from,to}));
+ const share=sellerShare(rows,{q,method,source,status:'',agent:'',from,to});
  const filtered=base.filter(r=>!status||r.status===status);
  const tiles=[{label:'Всички',Icon:Wallet,value:base.length,status:'',tone:'info'},...STATUSES.map(st=>({label:st,Icon:TILE_ICONS[st],value:base.filter(r=>r.status===st).length,status:st,tone:TILE_TONE[st]}))];
  const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
