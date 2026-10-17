@@ -30,7 +30,7 @@ function Warehouses(){
  const [rows,setRows]=useState(initial);
  const [nameQ,setNameQ]=useState('');const [cityQ,setCityQ]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<WarehouseRow|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<WarehouseRow|null>(null);const [deleting,setDeleting]=useState<WarehouseRow|null>(null);

@@ -52,7 +52,7 @@ function Transfers(){
  const [rows,setRows]=useState(initial);const [stock,setStock]=useState(initialStock);
  const [docQ,setDocQ]=useState('');const [dateFrom,setDateFrom]=useState(todayIso);const [dateTo,setDateTo]=useState(todayIso);const [statusQ,setStatusQ]=useState('');const [userQ,setUserQ]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Transfer|null>(null);
  const [form,setForm]=useState({from:'',to:'',description:'',items:[] as Item[]});const [errors,setErrors]=useState<Record<string,string>>({});
  const [picker,setPicker]=useState(false);const [pq,setPq]=useState('');

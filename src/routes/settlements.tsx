@@ -34,7 +34,7 @@ function Settlements(){
  const [rows,setRows]=useState(initial);
  const [nameQ,setNameQ]=useState('');const [regionQ,setRegionQ]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Settlement|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Settlement|null>(null);const [deleting,setDeleting]=useState<Settlement|null>(null);
