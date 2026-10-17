@@ -45,7 +45,7 @@ describe('Payments filter by influencer or merchant', () => {
   const todays = initial.filter(r => paymentMatches(r, { ...empty, from: today, to: today }));
   const { result, unmount } = renderHook(() => useOrders());
   const shipping = Object.fromEntries(result.current.map(o => [o.id, o.shipping]));
-  expect(paymentTotals(todays, shipping)).toEqual({ total: 811.6, cash: 416, shipping: 49 });
+  expect(paymentTotals(todays, shipping)).toEqual({ total: 811.6, cash: 416, shipping: 49, margin: 762.6 });
   unmount();
  });
 });
