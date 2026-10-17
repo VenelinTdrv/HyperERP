@@ -1,5 +1,5 @@
 # HyperERP redesign
-- [ ] Add and verify print, PDF and XLS controls in the order detail heading.
+- [x] Add and verify print, PDF and XLS controls in the order detail heading.
 - [x] Establish Bulgarian ERP design system and order layout.
 - [x] Implement customer, delivery, product, and order-summary interactions.
 - [x] Verify order flow and smaller-screen layout.
