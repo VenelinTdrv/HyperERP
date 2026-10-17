@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Star, Trash2, Users, X } from 'lucide-react';
+import { useState } from 'react';
+import { Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Users, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ClientEditorDialog, type ClientFormData } from '@/components/client-editor';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -29,8 +30,6 @@ const initial:Client[]=[
 ];
 const addrText=(a?:Address)=>!a?'—':a.kind==='street'?`ул. ${a.street} ${a.number}`:a.place;
 const now=()=>'14.10.2026, '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'});
-const blankAddr=(id:number):Address=>({id,city:'',kind:'street',street:'',number:'',place:''});
-type Form={first:string;last:string;phone:string;notes:string;addresses:Address[];primary:number};
 const PAGE=10;
 
 function Clients(){
@@ -38,16 +37,13 @@ function Clients(){
  const [name,setName]=useState('');const [phone,setPhone]=useState('');
  const [page,setPage]=useState(1);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Client|null>(null);
- const [form,setForm]=useState<Form>({first:'',last:'',phone:'',notes:'',addresses:[blankAddr(1)],primary:1});
- const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Client|null>(null);const [deleting,setDeleting]=useState<Client|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const p=phone.replace(/\D/g,'');
  const filtered=rows.filter(r=>(!q||`${r.first} ${r.last}`.toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p)));
  const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
- const open=(c:Client|null)=>{setSelected(null);setEditing(c);setErrors({});setForm(c?{first:c.first,last:c.last,phone:c.phone,notes:c.notes,addresses:c.addresses.map(a=>({...a})),primary:c.primary}:{first:'',last:'',phone:'',notes:'',addresses:[blankAddr(1)],primary:1});setEditor(true);};
- const setA=(id:number,patch:Partial<Address>)=>{setForm(f=>({...f,addresses:f.addresses.map(a=>a.id===id?{...a,...patch}:a)}));setErrors({});};
+ const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
  const save=(e:FormEvent)=>{
   e.preventDefault();const er:Record<string,string>={};
   if(!form.first.trim())er['first']='Въведете име';
@@ -86,22 +82,7 @@ function Clients(){
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни клиенти · без реално записване</div>
  </div>
 
- <Dialog open={editor} onOpenChange={setEditor}><DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto"><DialogHeader><DialogTitle className="article-dialog-title">{editing?'Редактиране на клиент':'Добавяне на клиент'}</DialogTitle><DialogDescription>Примерни данни · без реално записване</DialogDescription></DialogHeader>
-  <form className="delivery-editor" onSubmit={save} noValidate>
-   <div className="delivery-editor-grid"><div className="field"><label htmlFor="client-first">Име<span className="required">*</span></label><input id="client-first" autoComplete="given-name" maxLength={60} value={form.first} {...inv('first')} onChange={e=>{setForm(f=>({...f,first:e.target.value}));setErrors({});}}/>{err('first')}</div>
-   <div className="field"><label htmlFor="client-last">Фамилия<span className="required">*</span></label><input id="client-last" autoComplete="family-name" maxLength={60} value={form.last} {...inv('last')} onChange={e=>{setForm(f=>({...f,last:e.target.value}));setErrors({});}}/>{err('last')}</div></div>
-   <div className="field"><label htmlFor="client-phone">Телефон<span className="required">*</span></label><input id="client-phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0888 123 456" value={form.phone} {...inv('phone')} onChange={e=>{setForm(f=>({...f,phone:e.target.value}));setErrors({});}}/>{err('phone')}</div>
-   <div className="field"><label htmlFor="client-notes">Бележки <span className="text-muted-foreground font-normal">({form.notes.length}/500)</span></label><textarea id="client-notes" rows={2} maxLength={500} value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}/></div>
-   <fieldset className="client-addresses"><legend>Адреси</legend>{form.addresses.map((a,i)=><div key={a.id} className="client-address">
-    <div className="client-address-head"><label className="client-primary"><input type="radio" name="primary" checked={form.primary===a.id} onChange={()=>setForm(f=>({...f,primary:a.id}))}/>{form.primary===a.id?<><Star size={13}/>Основен адрес</>:`Адрес ${i+1} · направи основен`}</label><Button type="button" variant="ghost" size="icon" aria-label={`Премахни адрес ${i+1}`} disabled={form.addresses.length===1} title={form.addresses.length===1?'Клиентът трябва да има поне един адрес':undefined} onClick={()=>setForm(f=>{const list=f.addresses.filter(x=>x.id!==a.id);return {...f,addresses:list,primary:f.primary===a.id?list[0]!.id:f.primary};})}><Trash2/></Button></div>
-    <div className="field"><label htmlFor={`client-city-${a.id}`}>Населено място<span className="required">*</span></label><select id={`client-city-${a.id}`} value={a.city} {...inv(`city-${a.id}`)} onChange={e=>setA(a.id,{city:e.target.value})}><option value="">Изберете населено място</option>{cities.map(c=><option key={c}>{c}</option>)}</select>{err(`city-${a.id}`)}</div>
-    <div className="segmented" role="group" aria-label="Вид адрес"><Button type="button" variant="ghost" className="segment" aria-pressed={a.kind==='street'} onClick={()=>setA(a.id,{kind:'street'})}>{a.kind==='street'&&<Check size={13}/>}Улица и номер</Button><Button type="button" variant="ghost" className="segment" aria-pressed={a.kind==='place'} onClick={()=>setA(a.id,{kind:'place'})}>{a.kind==='place'&&<Check size={13}/>}Местоназначение</Button></div>
-    {a.kind==='street'?<div className="client-street"><div className="field"><label htmlFor={`client-street-${a.id}`}>Улица<span className="required">*</span></label><input id={`client-street-${a.id}`} value={a.street} {...inv(`street-${a.id}`)} onChange={e=>setA(a.id,{street:e.target.value})}/>{err(`street-${a.id}`)}</div><div className="field"><label htmlFor={`client-number-${a.id}`}>Номер<span className="required">*</span></label><input id={`client-number-${a.id}`} value={a.number} {...inv(`number-${a.id}`)} onChange={e=>setA(a.id,{number:e.target.value})}/>{err(`number-${a.id}`)}</div></div>
-    :<div className="field"><label htmlFor={`client-place-${a.id}`}>Местоназначение<span className="required">*</span></label><input id={`client-place-${a.id}`} placeholder="Жк, квартал, бизнес сграда…" value={a.place} {...inv(`place-${a.id}`)} onChange={e=>setA(a.id,{place:e.target.value})}/>{err(`place-${a.id}`)}</div>}
-   </div>)}
-   <Button type="button" variant="ghost" className="self-start text-primary" disabled={form.addresses.length>=5} onClick={()=>setForm(f=>({...f,addresses:[...f.addresses,blankAddr(Math.max(...f.addresses.map(x=>x.id))+1)]}))}><Plus/>Добави адрес</Button></fieldset>
-   <div className="flex justify-end gap-2 pt-2"><Button variant="outline" type="button" onClick={()=>setEditor(false)}>Отказ</Button><Button type="submit"><Check/>Запази</Button></div>
-  </form></DialogContent></Dialog>
+ <ClientEditorDialog open={editor} onOpenChange={setEditor} editing={editing?{first:editing.first,last:editing.last,phone:editing.phone,notes:editing.notes,addresses:editing.addresses,primary:editing.primary}:null} phones={rows.filter(r=>r.id!==editing?.id).map(r=>r.phone)} onSave={saveClient}/>
 
  <Dialog open={selected!==null} onOpenChange={o=>{if(!o)setSelected(null);}}><DialogContent className="max-h-[90dvh] overflow-y-auto"><DialogHeader><DialogTitle className="article-dialog-title">{selected?.first} {selected?.last}</DialogTitle><DialogDescription>Детайли за клиента · примерни данни</DialogDescription></DialogHeader>{selected&&<><dl className="delivery-details"><div><dt>Телефон</dt><dd>{selected.phone}</dd></div><div><dt>ID</dt><dd>#{selected.id}</dd></div><div className="col-span-2"><dt>Бележки</dt><dd>{selected.notes||'—'}</dd></div><div><dt>Създаден от</dt><dd>{selected.createdBy}<br/><span className="delivery-cell-sub">{selected.createdAt}</span></dd></div><div><dt>Редактиран от</dt><dd>{selected.editedBy||'—'}{selected.editedAt&&<><br/><span className="delivery-cell-sub">{selected.editedAt}</span></>}</dd></div><div className="col-span-2"><dt>Адреси</dt><dd><ul className="client-address-list">{selected.addresses.map(a=><li key={a.id}><MapPin size={14}/><span>{a.city}, {addrText(a)}</span>{a.id===selected.primary&&<span className="client-badge">Основен</span>}</li>)}</ul></dd></div></dl><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button onClick={()=>open(selected)}><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog>
 
