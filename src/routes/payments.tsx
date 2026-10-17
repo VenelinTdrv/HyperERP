@@ -71,7 +71,7 @@ const TILE_TONE:Record<(typeof STATUSES)[number],string>={'Очаквано':'pe
 function Payments(){
  const orders=useOrders();
  const [rows,setRows]=useState(initial);
- const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');const const [agent,setAgent]=useState('');
+ const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');const [agent,setAgent]=useState('');
  const [from,setFrom]=useState(todayISO());const [to,setTo]=useState(todayISO());
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(25);
