@@ -263,7 +263,7 @@ function Statistics() {
           </div>
         </PopoverContent>
       </Popover>
-      <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type}</option>)}</select></div>
+      <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type} · {sellerStats[s.id]!.orders} поръчки · {sellerStats[s.id]!.pct}%</option>)}</select></div>
       <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
     </div>
 
