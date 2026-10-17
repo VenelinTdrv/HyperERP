@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { createOrder, total, useOrders } from '@/lib/orders-store';
+import { createOrder, saveOrder, total, useOrders } from '@/lib/orders-store';
 
 describe('New orders in the orders list', () => {
  it('adds the entered order to the shared list as unprocessed', () => {
@@ -20,5 +20,16 @@ describe('New orders in the orders list', () => {
   const second = createOrder(data);
   expect(second.id).not.toBe(first.id);
   expect(Number(second.id.slice(4))).toBe(Number(first.id.slice(4)) + 1);
+ });
+
+ it('records the edit timestamp and editor when an order is saved', () => {
+  const data = { customer: 'Клиент', phone: '0888123456', city: 'София', address: 'Адрес', courier: 'Еконт', shipping: 0, note: '', payment: 'Наложен платеж' as const, items: [{ sku: 'PRF-001', name: 'Rose Élixir', quantity: 1, price: 0 }] };
+  const order = createOrder(data);
+  saveOrder({ ...order, note: 'Променена бележка' });
+  const { result, unmount } = renderHook(() => useOrders());
+  const edited = result.current.find(o => o.id === order.id);
+  if (!edited) throw new Error('Edited order missing from orders list');
+  expect(edited.edited).toBeTruthy();
+  expect(new Date(edited.edited as string).getTime()).not.toBeNaN();
  });
 });
