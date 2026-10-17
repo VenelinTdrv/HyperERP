@@ -54,7 +54,7 @@ function OrderScreen() {
   };
   const field = (k: 'customer' | 'phone' | 'city' | 'address', label: string) => <div className="field"><label htmlFor={`o-${k}`}>{label}</label><input id={`o-${k}`} disabled={locked} value={draft[k]} aria-invalid={!!errors[k]} onChange={e => set(k, e.target.value)} />{errors[k] && <span className="text-destructive text-xs">{errors[k]}</span>}</div>;
 
-  return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content">
+  return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content order-detail">
     <div className="page-heading"><div><Link to="/orders" className="text-xs text-muted-foreground inline-flex items-center gap-1"><ArrowLeft size={13} />Поръчки</Link><h1>Поръчка {draft.id}</h1><p>Създадена на {new Date(`${draft.created}T12:00:00`).toLocaleDateString('bg-BG')} · <span className={`delivery-status ${statusClass[original.status]}`}><span />{original.status}</span></p></div>
       <div className="flex gap-2 flex-wrap items-end">
         <div className="field"><label htmlFor="o-status">Статус</label><select id="o-status" value={draft.status} disabled={locked} onChange={e => set('status', e.target.value as OrderStatus)}>{ORDER_STATUSES.map(s => <option key={s}>{s}</option>)}</select></div>
@@ -63,11 +63,11 @@ function OrderScreen() {
         <Button onClick={save} disabled={locked}><Save />Запази</Button>
       </div></div>
     {locked && <p className="text-sm text-muted-foreground mb-4">Анулираните поръчки не могат да се редактират.</p>}
-    <section className="delivery-list p-5 mb-5" aria-label="Клиент и доставка"><h2 className="font-semibold mb-4">Клиент и доставка</h2><div className="delivery-editor-grid">
+    <section className="delivery-list order-detail-client" aria-label="Клиент и доставка"><h2 className="font-semibold">Клиент и доставка</h2><div className="delivery-editor-grid">
       {field('customer', 'Клиент')}{field('phone', 'Телефон')}{field('city', 'Населено място')}{field('address', 'Адрес / офис')}
       <div className="field"><label htmlFor="o-courier">Куриер</label><select id="o-courier" disabled={locked} value={draft.courier} onChange={e => set('courier', e.target.value)}><option>Еконт</option><option>Спиди</option></select></div>
       <div className="field"><label htmlFor="o-payment">Метод на плащане</label><select id="o-payment" disabled={locked} value={draft.payment} onChange={e => set('payment', e.target.value as PaymentMethod)}>{PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}</select></div>
-      <div className="field"><label htmlFor="o-note">Бележка</label><input id="o-note" disabled={locked} value={draft.note} onChange={e => set('note', e.target.value)} placeholder="Вътрешна бележка…" /></div>
+      <div className="field order-detail-note"><label htmlFor="o-note">Бележка</label><input id="o-note" disabled={locked} value={draft.note} onChange={e => set('note', e.target.value)} placeholder="Вътрешна бележка…" /></div>
     </div></section>
     <section className="delivery-list" aria-label="Продукти"><div className="delivery-list-heading"><h2>Продукти <span>{draft.items.length}</span></h2><Button variant="outline" size="sm" disabled={locked || draft.items.length >= CATALOG.length} onClick={addItem}><Plus />Добави продукт</Button></div>
       <div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Продукт</th><th>SKU</th><th>Количество</th><th>Ед. цена (€)</th><th className="text-right">Сума</th><th /></tr></thead><tbody>
@@ -81,7 +81,7 @@ function OrderScreen() {
         </tr>)}
       </tbody></table></div>
       {errors.items && <p className="text-destructive text-xs px-5 py-2">{errors.items}</p>}
-      <dl className="delivery-details p-5"><div><dt>Междинна сума</dt><dd>{money(subtotal(draft))}</dd></div>
+      <dl className="delivery-details order-detail-totals"><div><dt>Междинна сума</dt><dd>{money(subtotal(draft))}</dd></div>
         <div><dt><label htmlFor="o-ship">Доставка (€)</label></dt><dd><input id="o-ship" type="number" min={0} step="0.01" disabled={locked} className="w-24 border rounded px-2 py-1 bg-card" value={draft.shipping} onChange={e => set('shipping', Number(e.target.value))} />{errors.shipping && <span className="text-destructive text-xs block">{errors.shipping}</span>}</dd></div>
         <div><dt>Общо с ДДС</dt><dd className="text-base">{money(total(draft))}</dd></div></dl>
     </section>

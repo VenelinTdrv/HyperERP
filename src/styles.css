@@ -465,3 +465,42 @@
 .new-order .summary-status { padding:9px 14px; }
 .new-order .order-footer { padding:10px 0; }
 .new-order .demo-caption { padding-bottom:12px; }
+
+/* Compact order details without changing other workspaces. */
+.order-detail.page-content { padding:16px 28px 0; }
+.order-detail .page-heading { gap:12px; margin-bottom:12px; }
+.order-detail .page-heading h1 { font-size:22px; margin:2px 0 4px; }
+.order-detail .page-heading p { display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+.order-detail .field { gap:4px; }
+.order-detail .field input, .order-detail .field select { min-height:34px; padding:6px 10px; }
+.order-detail-client { padding:12px 16px; margin-bottom:12px; }
+.order-detail-client h2 { font-size:13px; margin:0 0 10px; }
+.order-detail .delivery-editor-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px 14px; }
+.order-detail-note { grid-column:span 2; }
+.order-detail .delivery-list-heading { padding:10px 16px; }
+.order-detail .delivery-table th { padding:8px 12px; }
+.order-detail .delivery-table td { padding:7px 12px; }
+.order-detail .delivery-table th:first-child, .order-detail .delivery-table td:first-child { padding-left:16px; }
+.order-detail .delivery-table input, .order-detail .delivery-table select { min-height:32px; }
+.order-detail .delivery-table button { height:32px; width:32px; }
+.order-detail .order-detail-totals { grid-template-columns:repeat(3,minmax(0,1fr)); align-items:center; gap:12px; margin:0; padding:12px 16px; border-top:1px solid var(--border); }
+.order-detail-totals > div { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.order-detail .order-detail-totals dt { margin:0; }
+.order-detail .demo-caption { margin-top:10px; padding-bottom:12px; }
+@media (max-width:1100px) {
+ .order-detail .delivery-editor-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .order-detail .order-detail-totals > div { align-items:flex-start; flex-direction:column; gap:4px; }
+}
+@media (max-width:700px) {
+ .order-detail.page-content { padding:14px 16px 0; }
+ .order-detail .page-heading { grid-template-columns:minmax(0,1fr); }
+ .order-detail .page-heading > div:last-child { gap:8px; }
+ .order-detail .page-heading > div:last-child .field { flex:1 0 100%; }
+ .order-detail .page-heading > div:last-child button { min-height:40px; }
+ .order-detail .delivery-editor-grid { gap:10px; }
+ .order-detail .field input, .order-detail .field select { min-height:40px; }
+ .order-detail .delivery-table td { padding:8px 10px; }
+ .order-detail .delivery-table button { width:40px; height:40px; }
+ .order-detail .order-detail-totals { grid-template-columns:minmax(0,1fr); gap:10px; }
+ .order-detail .order-detail-totals > div { flex-direction:row; align-items:center; }
+}
