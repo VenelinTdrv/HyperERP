@@ -5,7 +5,8 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type OrderItem = { sku: string; name: string; quantity: number; price: number };
 export const PAYMENT_METHODS = ['Наложен платеж', 'Банкова карта', 'Банков превод'] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
-export type Order = { id: string; status: OrderStatus; customer: string; phone: string; city: string; address: string; courier: string; created: string; items: OrderItem[]; shipping: number; note: string; payment: PaymentMethod; influencer?: string; deliveryType?: 'address' | 'office'; edited?: string };
+export const ADMIN = 'Венелин Тодоров';
+export type Order = { id: string; status: OrderStatus; customer: string; phone: string; city: string; address: string; courier: string; created: string; items: OrderItem[]; shipping: number; note: string; payment: PaymentMethod; influencer?: string; deliveryType?: 'address' | 'office'; edited?: string; processed?: string; processedBy?: string };
 
 export const CATALOG: Omit<OrderItem, 'quantity'>[] = [
   { sku: 'PRF-ROSE-50', name: 'Rose Élixir', price: 49 },
