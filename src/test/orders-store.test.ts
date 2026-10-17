@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { createOrder, saveOrder, total, useOrders } from '@/lib/orders-store';
+import { createOrder, saveOrder, setOrderStatus, total, useOrders } from '@/lib/orders-store';
 
 describe('New orders in the orders list', () => {
  it('adds the entered order to the shared list as unprocessed', () => {
@@ -9,7 +9,7 @@ describe('New orders in the orders list', () => {
   const { result, unmount } = renderHook(() => useOrders());
   const saved = result.current[0];
   if (!saved) throw new Error('Created order missing from orders list');
-  expect(saved).toEqual({ ...data, id: order.id, status: 'Необработена', created: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Sofia' }).format(new Date()) });
+  expect(saved).toEqual({ ...data, id: order.id, status: 'Необработена', created: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Sofia' }).format(new Date()), processed: expect.any(String), processedBy: 'Венелин Тодоров' });
   expect(total(saved)).toBe(31);
   unmount();
  });
@@ -31,5 +31,19 @@ describe('New orders in the orders list', () => {
   if (!edited) throw new Error('Edited order missing from orders list');
   expect(edited.edited).toBeTruthy();
   expect(new Date(edited.edited as string).getTime()).not.toBeNaN();
+ });
+
+ it('stamps the processing admin with date and time when an order is marked processed', () => {
+  const data = { customer: 'Клиент', phone: '0888123456', city: 'София', address: 'Адрес', courier: 'Еконт', shipping: 0, note: '', payment: 'Наложен платеж' as const, items: [{ sku: 'PRF-001', name: 'Rose Élixir', quantity: 1, price: 0 }] };
+  const order = createOrder(data);
+  const before = order.processed;
+  setOrderStatus(order.id, 'Обработена');
+  const { result, unmount } = renderHook(() => useOrders());
+  const done = result.current.find(o => o.id === order.id);
+  if (!done) throw new Error('Order missing from orders list');
+  expect(done.status).toBe('Обработена');
+  expect(done.processedBy).toBe('Венелин Тодоров');
+  expect(new Date(done.processed as string).getTime()).toBeGreaterThan(new Date(before as string).getTime() - 1);
+  unmount();
  });
 });
