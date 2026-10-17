@@ -335,6 +335,11 @@
 .client-badge { background:var(--accent); color:var(--accent-foreground); border-radius:4px; padding:2px 7px; font-size:10px; font-weight:700; }
 .client-badge-active { background:transparent; color:var(--muted-foreground); border:1px solid var(--border); }
 .client-badge-black { background:var(--destructive); color:var(--destructive-foreground); }
+.client-status-select { font:inherit; font-size:10px; font-weight:700; line-height:1.4; border-radius:4px; padding:3px 5px; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--muted-foreground); }
+.client-status-select:hover { border-color:var(--muted-foreground); }
+.client-status-select-black { background:var(--destructive); color:var(--destructive-foreground); border-color:var(--destructive); }
+.client-status-select:focus-visible { outline:2px solid var(--ring); outline-offset:1px; }
+.delivery-details .client-status-select { font-size:11px; padding:4px 6px; }
 @media(max-width:700px) { .clients-filters { grid-template-columns:1fr; } .clients-filters>button { min-height:44px; } .client-street { grid-template-columns:1fr 90px; } }
 
 /* Suppliers */
