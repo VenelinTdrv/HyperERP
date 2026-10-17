@@ -429,6 +429,17 @@
 .payments-metric.tone-info .metric-icon { background:var(--info-soft); color:var(--info); }
 .payments-metric.tone-danger .metric-icon { background:var(--destructive-soft); color:var(--destructive); }
 @media (max-width:700px) { .payments-heading .delivery-overview { justify-content:flex-start; } .payments-heading .delivery-metric { min-height:38px; } }
+/* Плащания: всички филтри в един ред, за да остане пагинацията на екрана */
+.payments-content .suppliers-filters { gap:8px; margin-bottom:10px; }
+.payments-content .suppliers-filters .search-box { flex:1 1 180px; min-width:170px; }
+.payments-content .suppliers-filters .field input[type="date"] { width:130px; }
+.payments-content .suppliers-filters .field select { min-width:0; }
+.payments-content .suppliers-filters .field select[aria-label="Тип"] { width:118px; }
+.payments-content .suppliers-filters .field select[aria-label="Инфлуенсър / Търговец"] { width:212px; }
+.payments-content .suppliers-filters .field select[aria-label="Вид плащане"] { width:126px; }
+.payments-content .suppliers-filters .field select[aria-label="Източник"] { width:136px; }
+.payments-content .suppliers-filters .field select[aria-label="Статус"] { width:126px; }
+@media (max-width:700px) { .payments-content .suppliers-filters .field select { width:100%; } }
 
 /* Компактен „Нова поръчка“ — по-плътни отстояния само на този екран */
 .new-order.page-content { padding:16px 28px 0; }
