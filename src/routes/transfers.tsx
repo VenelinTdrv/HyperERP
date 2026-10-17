@@ -26,7 +26,7 @@ type Item={productId:number;quantity:number};
 type Transfer={id:number;doc:string;created:string;createdBy:string;from:string;to:string;status:Status;description:string;items:Item[]};
 type Stock=Record<string,Record<number,number>>;
 const initialStock:Stock=Object.fromEntries(warehouses.map((w,wi)=>[w,Object.fromEntries(comboProducts.map(p=>[p.id,wi<3?40-wi*10+p.id:5+p.id]))]));
-const initial:TransferrebaseDates([]=[
+const initial:Transfer[]=rebaseDates([
  {id:10,doc:'TR-0000010',created:'2026-10-16T09:10',createdBy:'Елена Петрова',from:'Склад Главен',to:'Склад Варна',status:'Необработен',description:'Презареждане на варненския склад.',items:[{productId:2,quantity:8}]},
  {id:9,doc:'TR-0000009',created:'2026-10-15T15:45',createdBy:'Виктория Григорова',from:'Склад София',to:'Виртуален — Ема',status:'Потвърден',description:'Подаръци за кампания.',items:[{productId:1,quantity:3},{productId:5,quantity:4}]},
  {id:8,doc:'TR-0000008',created:'2026-10-15T11:25',createdBy:'Венелин Тодоров',from:'Склад Варна',to:'Виртуален — Връщания',status:'Завършен',description:'Връщане на непродадена стока.',items:[{productId:4,quantity:5}]},

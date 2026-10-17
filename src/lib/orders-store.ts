@@ -21,7 +21,7 @@ const item = (i: number, quantity: number): OrderItem => {
   return { ...product, quantity };
 };
 
-let orders: OrderrebaseDates([] = [
+let orders: Order[] = rebaseDates([
   { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', items:[item(0,2)], shipping:4.9, note:'', payment:'Наложен платеж', edited:'2026-10-15T09:41', processed:'2026-10-14T15:10' },
   { id:'ORD-0023', status:'Необработена', customer:'Елена Петрова', phone:'0888 234 567', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-14', items:[item(1,1)], shipping:4.9, note:'', payment:'Банкова карта', processed:'2026-10-14T16:05' },
   { id:'ORD-0022', status:'Необработена', customer:'Иван Георгиев', phone:'0888 345 678', city:'Варна', address:'Офис · Център', courier:'Еконт', created:'2026-10-13', items:[item(2,3)], shipping:4.9, note:'', payment:'Наложен платеж', edited:'2026-10-14T11:05', processed:'2026-10-13T14:30' },

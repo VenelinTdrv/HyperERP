@@ -23,7 +23,7 @@ const suppliers=['Maison Beauty','Bloom Cosmetics','Essence Lab'] as const;
 const warehouses=['Основен склад · София','Склад · Пловдив'] as const;
 const products=['Rose Élixir','Velvet Bloom','Pure Essence'] as const;
 const statuses:Status[]=['Очаквана','В транзит','Получена','Отказана'];
-const initialRows:DeliveryrebaseDates([]=[
+const initialRows:Delivery[]=rebaseDates([
  {id:'DEL-0018',status:'В транзит',supplier:suppliers[0],warehouse:warehouses[0],expected:'2026-10-15',received:'',created:'2026-10-12',createdBy:'Венелин Тодоров',edited:'2026-10-14',editedBy:'Венелин Тодоров',quantity:48,product:products[0],note:'Доставка до основния склад.'},
  {id:'DEL-0017',status:'Очаквана',supplier:suppliers[1],warehouse:warehouses[0],expected:'2026-10-16',received:'',created:'2026-10-12',createdBy:'Венелин Тодоров',edited:'',editedBy:'',quantity:32,product:products[1],note:''},
  {id:'DEL-0016',status:'Очаквана',supplier:suppliers[2],warehouse:warehouses[1],expected:'2026-10-19',received:'',created:'2026-10-11',createdBy:'Венелин Тодоров',edited:'',editedBy:'',quantity:24,product:products[2],note:''},
