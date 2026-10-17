@@ -1,6 +1,3 @@
-import { DateRangeFilter } from '@/components/date-range-filter';
-import { todayIso } from '@/lib/demo-dates';
-import { rebaseDates } from '@/lib/demo-dates';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
 import { ArrowLeftRight, Check, Eye, FileSpreadsheet, FileText, Info, Minus, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
@@ -26,7 +23,7 @@ type Item={productId:number;quantity:number};
 type Transfer={id:number;doc:string;created:string;createdBy:string;from:string;to:string;status:Status;description:string;items:Item[]};
 type Stock=Record<string,Record<number,number>>;
 const initialStock:Stock=Object.fromEntries(warehouses.map((w,wi)=>[w,Object.fromEntries(comboProducts.map(p=>[p.id,wi<3?40-wi*10+p.id:5+p.id]))]));
-const initial:Transfer[]=rebaseDates([
+const initial:Transfer[]=[
  {id:10,doc:'TR-0000010',created:'2026-10-16T09:10',createdBy:'Елена Петрова',from:'Склад Главен',to:'Склад Варна',status:'Необработен',description:'Презареждане на варненския склад.',items:[{productId:2,quantity:8}]},
  {id:9,doc:'TR-0000009',created:'2026-10-15T15:45',createdBy:'Виктория Григорова',from:'Склад София',to:'Виртуален — Ема',status:'Потвърден',description:'Подаръци за кампания.',items:[{productId:1,quantity:3},{productId:5,quantity:4}]},
  {id:8,doc:'TR-0000008',created:'2026-10-15T11:25',createdBy:'Венелин Тодоров',from:'Склад Варна',to:'Виртуален — Връщания',status:'Завършен',description:'Връщане на непродадена стока.',items:[{productId:4,quantity:5}]},
@@ -37,7 +34,7 @@ const initial:Transfer[]=rebaseDates([
  {id:4,doc:'TR-0000003',created:'2026-10-10T14:12',createdBy:'Елена Петрова',from:'Виртуален — Ема',to:'Виртуален — Връщания',status:'Отказан',description:'Грешно избран склад.',items:[{productId:3,quantity:1}]},
  {id:5,doc:'TR-0000002',created:'2026-10-08T11:00',createdBy:'Венелин Тодоров',from:'Склад Варна',to:'Склад Главен',status:'Завършен',description:'Връщане на излишък.',items:[{productId:5,quantity:6}]},
  {id:6,doc:'TR-0000001',created:'2026-10-05T08:30',createdBy:'Виктория Григорова',from:'Склад Главен',to:'Склад Варна',status:'Завършен',description:'',items:[{productId:6,quantity:4},{productId:9,quantity:2}]},
-], ['created']);
+];
 const fmt=(v:string)=>new Date(v).toLocaleString('bg-BG',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 const cls:Record<Status,string>={'Необработен':'','Потвърден':'neutral','Завършен':'received','Отказан':'cancelled'};
 const product=(id:number)=>comboProducts.find(p=>p.id===id);
@@ -50,9 +47,9 @@ function tableHtml(rows:Transfer[]){
 
 function Transfers(){
  const [rows,setRows]=useState(initial);const [stock,setStock]=useState(initialStock);
- const [docQ,setDocQ]=useState('');const [dateFrom,setDateFrom]=useState(todayIso);const [dateTo,setDateTo]=useState(todayIso);const [statusQ,setStatusQ]=useState('');const [userQ,setUserQ]=useState('');
+ const [docQ,setDocQ]=useState('');const [dateFrom,setDateFrom]=useState('');const [dateTo,setDateTo]=useState('');const [statusQ,setStatusQ]=useState('');const [userQ,setUserQ]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(25);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Transfer|null>(null);
  const [form,setForm]=useState({from:'',to:'',description:'',items:[] as Item[]});const [errors,setErrors]=useState<Record<string,string>>({});
  const [picker,setPicker]=useState(false);const [pq,setPq]=useState('');
@@ -105,7 +102,8 @@ function Transfers(){
   <div className="page-heading"><div><h1>Трансфер на стоки<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Информация за списъка"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва всички трансфери — необработени, потвърдени, завършени и отказани.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Нов трансфер</Button></div></div>
   <div className="suppliers-filters transfers-filters">
    <div className="search-box"><Search/><input className="search-input" aria-label="Документ номер" placeholder="Документ номер…" value={docQ} onChange={e=>{setDocQ(e.target.value);setPage(1);}}/></div>
-   <DateRangeFilter id="transfers-period" from={dateFrom} to={dateTo} onChange={(f,t)=>{setDateFrom(f);setDateTo(t);setPage(1);}}/>
+   <div className="field"><input type="date" aria-label="Създаден от дата" title="От дата" value={dateFrom} onChange={e=>{setDateFrom(e.target.value);setPage(1);}}/></div>
+   <div className="field"><input type="date" aria-label="Създаден до дата" title="До дата" value={dateTo} onChange={e=>{setDateTo(e.target.value);setPage(1);}}/></div>
    <div className="field"><select aria-label="Статус" value={statusQ} onChange={e=>{setStatusQ(e.target.value);setPage(1);}}><option value="">Всички статуси</option>{statuses.map(s=><option key={s}>{s}</option>)}</select></div>
    <div className="field"><select aria-label="Създаден от" value={userQ} onChange={e=>{setUserQ(e.target.value);setPage(1);}}><option value="">Създаден от: всички</option>{users.map(s=><option key={s}>{s}</option>)}</select></div>
    <Button variant="outline" disabled={!anyFilter} onClick={clear}><X/>Изчисти</Button>

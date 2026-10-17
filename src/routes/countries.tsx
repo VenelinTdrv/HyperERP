@@ -38,7 +38,7 @@ function Countries(){
  const [rows,setRows]=useState(initial);
  const [code,setCode]=useState('');const [nameQ,setNameQ]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(25);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Country|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Country|null>(null);const [deleting,setDeleting]=useState<Country|null>(null);

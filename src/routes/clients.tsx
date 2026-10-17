@@ -36,7 +36,7 @@ function Clients(){
  const [rows,setRows]=useState(initial);
  const [name,setName]=useState('');const [phone,setPhone]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(25);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Client|null>(null);
   const [selected,setSelected]=useState<Client|null>(null);const [deleting,setDeleting]=useState<Client|null>(null);
   const [blacklisting,setBlacklisting]=useState<Client|null>(null);

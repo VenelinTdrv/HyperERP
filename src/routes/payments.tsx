@@ -75,7 +75,7 @@ function Payments(){
  const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');const [type,setType]=useState('');const [agent,setAgent]=useState('');
  const [from,setFrom]=useState(todayISO());const [to,setTo]=useState(todayISO());
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(25);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Payment|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);

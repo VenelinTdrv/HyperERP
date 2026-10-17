@@ -35,7 +35,7 @@ function Suppliers(){
  const [rows,setRows]=useState(initial);
  const [name,setName]=useState('');const [eik,setEik]=useState('');const [status,setStatus]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(25);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Supplier|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Supplier|null>(null);const [deleting,setDeleting]=useState<Supplier|null>(null);

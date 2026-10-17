@@ -44,7 +44,7 @@ function Articles() {
  const [expanded,setExpanded] = useState(true);
  const [selection,setSelection] = useState<number[]>([]);
  const [page,setPage] = useState(1);
- const [pageSize,setPageSize]=useState(25);
+ const [pageSize,setPageSize] = useState(10);
  const [editor,setEditor] = useState(false);
  const [editing,setEditing] = useState<number|null>(null);
  const [selected,setSelected] = useState<Article|null>(null);

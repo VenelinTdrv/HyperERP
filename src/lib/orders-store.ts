@@ -1,4 +1,3 @@
-import { rebaseDates } from '@/lib/demo-dates';
 import { useSyncExternalStore } from 'react';
 
 export const ORDER_STATUSES = ['Необработена', 'Обработена', 'Анулирана'] as const;
@@ -21,7 +20,7 @@ const item = (i: number, quantity: number): OrderItem => {
   return { ...product, quantity };
 };
 
-let orders: Order[] = rebaseDates([
+let orders: Order[] = [
   { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', items:[item(0,2)], shipping:4.9, note:'', payment:'Наложен платеж', edited:'2026-10-15T09:41', processed:'2026-10-14T15:10' },
   { id:'ORD-0023', status:'Необработена', customer:'Елена Петрова', phone:'0888 234 567', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-14', items:[item(1,1)], shipping:4.9, note:'', payment:'Банкова карта', processed:'2026-10-14T16:05' },
   { id:'ORD-0022', status:'Необработена', customer:'Иван Георгиев', phone:'0888 345 678', city:'Варна', address:'Офис · Център', courier:'Еконт', created:'2026-10-13', items:[item(2,3)], shipping:4.9, note:'', payment:'Наложен платеж', edited:'2026-10-14T11:05', processed:'2026-10-13T14:30' },
@@ -32,7 +31,7 @@ let orders: Order[] = rebaseDates([
   { id:'ORD-0017', status:'Необработена', customer:'Румяна Дончева', phone:'0888 890 123', city:'Варна', address:'ул. „Чаталджа“ 7', courier:'Спиди', created:'2026-10-11', items:[item(0,1), item(3,1)], shipping:4.9, note:'', payment:'Банков превод', processed:'2026-10-11T12:40' },
   { id:'ORD-0016', status:'Необработена', customer:'Кирил Атанасов', phone:'0888 901 234', city:'Русе', address:'Офис · Център', courier:'Еконт', created:'2026-10-10', items:[item(1,3)], shipping:4.9, note:'', payment:'Наложен платеж', processed:'2026-10-10T09:50' },
   { id:'ORD-0015', status:'Необработена', customer:'Ирина Георгиева', phone:'0888 012 345', city:'София', address:'ул. „Христо Ботев“ 31', courier:'Спиди', created:'2026-10-10', items:[item(2,2), item(0,1)], shipping:4.9, note:'', payment:'Банкова карта', processed:'2026-10-10T15:35' },
-], ['created','processed','edited']);
+];
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach(l => l());
 const subscribe = (l: () => void) => { listeners.add(l); return () => listeners.delete(l); };
