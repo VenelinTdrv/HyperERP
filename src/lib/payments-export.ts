@@ -10,15 +10,18 @@ export type PaymentRow = {
   amount: string | number;
   date: string;
   status: string;
+  edited?: string;
+  editedBy?: string;
 };
 
 const esc = (s: string) => s.replace(/&/g, '&' + 'amp;').replace(/</g, '&' + 'lt;').replace(/>/g, '&' + 'gt;').replace(/"/g, '&' + 'quot;');
 const money = (v: number | string) => `${Number(v).toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 const date = (v: string) => v.split('-').reverse().join('.');
+const dateTime = (v: string) => { const d = new Date(v); return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' })}`; };
 
 export function paymentsTableHtml(list: PaymentRow[]): string {
-  const head = ['Плащане', 'Поръчка', 'Продажба', 'Клиент', 'Инфлуенсър / Търговец', 'Вид', 'Източник', 'Референция', 'Сума', 'Дата', 'Статус'];
-  const body = list.map(r => `<tr><td>${esc(r.id)}</td><td>${esc(r.orderId)}</td><td>${esc(r.saleId)}</td><td>${esc(r.client)}</td><td>${esc(r.agent)}</td><td>${esc(r.method)}</td><td>${esc(r.source)}</td><td>${esc(r.reference)}</td><td class="num">${money(r.amount)}</td><td>${date(r.date)}</td><td>${esc(r.status)}</td></tr>`).join('');
+  const head = ['Плащане', 'Поръчка', 'Продажба', 'Клиент', 'Инфлуенсър / Търговец', 'Вид', 'Източник', 'Референция', 'Сума', 'Дата', 'Статус', 'Редактирано от'];
+  const body = list.map(r => `<tr><td>${esc(r.id)}</td><td>${esc(r.orderId)}</td><td>${esc(r.saleId)}</td><td>${esc(r.client)}</td><td>${esc(r.agent)}</td><td>${esc(r.method)}</td><td>${esc(r.source)}</td><td>${esc(r.reference)}</td><td class="num">${money(r.amount)}</td><td>${date(r.date)}</td><td>${esc(r.status)}</td><td>${r.edited ? `${dateTime(r.edited)} · ${esc(r.editedBy || 'Венелин Тодоров')}` : '—'}</td></tr>`).join('');
   return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>`;
 }
 

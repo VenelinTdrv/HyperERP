@@ -30,19 +30,19 @@ const sellerType=(id:string)=>SELLERS.find(s=>s.id===id)?.type??'';
 const todayISO=()=>new Date().toLocaleDateString('en-CA');
 const day=(back:number)=>{const d=new Date();d.setDate(d.getDate()-back);return d.toLocaleDateString('en-CA');};
 type Form={orderId:string;saleId:string;client:string;agent:string;amount:string;method:string;source:string;status:string;date:string;reference:string;note:string};
-export type Payment=Form&{id:string};
+export type Payment=Form&{id:string;edited?:string;editedBy?:string};
 export type PaymentFilter={q:string;method:string;source:string;status:string;type:string;agent:string;from:string;to:string};
 const blank:Form={orderId:'',saleId:'',client:'',agent:'Виктория Григорова',amount:'',method:'Наложен платеж',source:'Еконт',status:'Очаквано',date:todayISO(),reference:'',note:''};
-const p=(n:number,o:string,c:string,a:number,m:string,s:string,st:string,d:string,r:string,agent:string):Payment=>({id:`PAY-${String(n).padStart(5,'0')}`,orderId:o,saleId:o.replace('ORD','SAL'),client:c,agent,amount:a.toFixed(2),method:m,source:s,status:st,date:d,reference:r,note:''});
+const p=(n:number,o:string,c:string,a:number,m:string,s:string,st:string,d:string,r:string,agent:string,edited?:string,editedBy?:string):Payment=>({id:`PAY-${String(n).padStart(5,'0')}`,orderId:o,saleId:o.replace('ORD','SAL'),client:c,agent,amount:a.toFixed(2),method:m,source:s,status:st,date:d,reference:r,note:'',edited:edited??'',editedBy:editedBy??''});
 export const paymentMatches=(r:Payment,f:PaymentFilter)=>{const s=f.q.trim().toLocaleLowerCase('bg-BG');return(!s||[r.id,r.orderId,r.saleId,r.client,r.reference,r.agent].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!f.method||r.method===f.method)&&(!f.source||r.source===f.source)&&(!f.type||sellerType(r.agent)===f.type)&&(!f.agent||r.agent===f.agent)&&(!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to)&&(!f.status||r.status===f.status);};
 export const initial:Payment[]=[
- p(23,'ORD-0024','Мария Иванова',73.9,'Банков превод','Pigeon','Получено',todayISO(),'PG-77166','Виктория Григорова'),
+ p(23,'ORD-0024','Мария Иванова',73.9,'Банков превод','Pigeon','Получено',todayISO(),'PG-77166','Виктория Григорова',`${todayISO()}T11:20`,ADMIN),
  p(22,'ORD-0022','Иван Георгиев',88.9,'Наложен платеж','Еконт','Получено',todayISO(),'EC-1048941','Елена Петрова'),
- p(21,'ORD-0019','Анна Стоянова',56.9,'Наложен платеж','Pigeon','Очаквано',todayISO(),'PG-77163','Мария Иванова'),
+ p(21,'ORD-0019','Анна Стоянова',56.9,'Наложен платеж','Pigeon','Очаквано',todayISO(),'PG-77163','Мария Иванова',`${day(1)}T15:42`,ADMIN),
  p(20,'ORD-0017','Румяна Дончева',112.9,'Банков превод','Pigeon','Частично',todayISO(),'PG-77161','Козметик Груп ООД'),
  p(19,'ORD-0024','Мария Иванова',48.9,'Наложен платеж','Еконт','Получено',todayISO(),'EC-1048933','Виктория Григорова'),
  p(18,'ORD-0023','Елена Петрова',118.9,'Банков превод','Pigeon','Очаквано',todayISO(),'PG-77160','Козметик Груп ООД'),
- p(17,'ORD-0022','Иван Георгиев',65.5,'Наложен платеж','Еконт','Частично',todayISO(),'EC-1048927','Елена Петрова'),
+ p(17,'ORD-0022','Иван Георгиев',65.5,'Наложен платеж','Еконт','Частично',todayISO(),'EC-1048927','Елена Петрова',`${day(2)}T09:05`,ADMIN),
  p(16,'ORD-0021','Десислава Николова',89.9,'Банков превод','Pigeon','Отказано',todayISO(),'PG-77158','Мария Иванова'),
  p(15,'ORD-0020','Петър Димитров',52.9,'Наложен платеж','Pigeon','Върнато',todayISO(),'PG-77153','Виктория Григорова'),
  p(14,'ORD-0019','Анна Стоянова',134.9,'Наложен платеж','Еконт','Получено',day(1),'EC-1048822','Козметик Груп ООД'),
@@ -62,6 +62,9 @@ export const initial:Payment[]=[
 ];
 export const paymentTotals=(rows:{amount:number|string;method:string;orderId?:string}[],shipping:Record<string,number>={})=>{const sum=(xs:{amount:number|string}[])=>Math.round(xs.reduce((a,r)=>a+Number(r.amount),0)*100)/100;const ship=Math.round(rows.reduce((a,r)=>a+Number(shipping[r.orderId??'']||0),0)*100)/100;const total=sum(rows);return{total,cash:sum(rows.filter(r=>r.method==='Наложен платеж')),shipping:ship,margin:Math.round((total-ship)*100)/100};};
 const money=(v:number|string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
+const ADMIN='Венелин Тодоров';
+const now=()=>new Date().toISOString();
+const dateTime=(v:string)=>{const d=new Date(v);return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'})}`;};
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'neutral'};
 const TILE_ICONS:Record<(typeof STATUSES)[number],typeof Wallet>={'Очаквано':Clock3,'Получено':CheckCheck,'Частично':CircleDollarSign,'Отказано':XCircle,'Върнато':RotateCcw};
 const TILE_TONE:Record<(typeof STATUSES)[number],string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'neutral'};
@@ -92,7 +95,7 @@ function Payments(){
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(e=>{const n={...e};delete n[k];return n;});};
  const pickOrder=(id:string)=>{const o=orders.find(x=>x.id===id);const own=o?.influencer&&SELLERS.some(x=>x.id===o.influencer)?o.influencer:'';setForm(f=>({...f,orderId:id,saleId:id?id.replace('ORD','SAL'):'',client:o?.customer??f.client,agent:own||f.agent,amount:o?total(o).toFixed(2):f.amount,method:o?.payment==='Банков превод'?'Банков превод':o?'Наложен платеж':f.method,source:o?(o.courier==='Еконт'?'Еконт':'Pigeon'):f.source}));setErrors({});};
- const changeStatus=(id:string,st:string)=>{setRows(prev=>prev.map(r=>r.id===id?{...r,status:st}:r));setAnnouncement(`${id} · Статусът е сменен на „${st}“ само в демонстрацията.`);};
+ const changeStatus=(id:string,st:string)=>{setRows(prev=>prev.map(r=>r.id===id?{...r,status:st,edited:now(),editedBy:ADMIN}:r));setAnnouncement(`${id} · Статусът е сменен на „${st}“ само в демонстрацията.`);};
  const save=(ev:FormEvent)=>{
   ev.preventDefault();const er:Record<string,string>={};
   if(!form.orderId.trim())er['orderId']='Въведете номер на поръчка';
@@ -104,7 +107,7 @@ function Payments(){
   if(Object.keys(er).length){document.getElementById(`pay-${Object.keys(er)[0]}`)?.focus();return;}
   const data={...form,orderId:form.orderId.trim(),saleId:form.saleId.trim()||form.orderId.trim().replace('ORD','SAL'),client:form.client.trim(),amount:a.toFixed(2),reference:form.reference.trim(),note:form.note.trim()};
   let id=editing?.id??'';
-  if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...data,id:editing.id}:r));
+  if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...data,id:editing.id,edited:now(),editedBy:ADMIN}:r));
   else{const n=Math.max(0,...rows.map(r=>Number(r.id.slice(4))))+1;id=`PAY-${String(n).padStart(5,'0')}`;setRows(prev=>[{...data,id},...prev]);}
   setEditor(false);setAnnouncement(`${id} · ${editing?'Промените са приложени':'Плащането е добавено'} само в демонстрацията.`);
  };
@@ -127,7 +130,7 @@ function Payments(){
    <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!type&&!agent&&!datesChanged} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с плащания"><div className="delivery-list-heading"><h2>Всички плащания <span>{filtered.length}</span></h2><span className="text-xs text-muted-foreground">Получени: <strong className="text-foreground">{money(String(sum))}</strong></span></div>
-   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Плащане</th><th>Поръчка / Продажба</th><th>Клиент</th><th>Инфлуенсър / Търговец</th><th>Вид</th><th>Източник</th><th className="text-right">Сума</th><th>Дата</th><th>Статус</th><th className="text-center">Действия</th><th className="text-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
+   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Плащане</th><th>Поръчка / Продажба</th><th>Клиент</th><th>Инфлуенсър / Търговец</th><th>Вид</th><th>Източник</th><th className="text-right">Сума</th><th>Дата</th><th>Статус</th><th>Редактирано от</th><th className="text-center">Действия</th><th className="text-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
     <td><span className="delivery-id">{r.id}</span></td>
     <td><span className="block">{r.orderId}</span><span className="text-[10px] text-muted-foreground">{r.saleId}</span></td>
     <td>{r.client}</td>
@@ -137,6 +140,7 @@ function Payments(){
     <td className="text-right font-semibold">{money(r.amount)}</td>
     <td>{r.date.split('-').reverse().join('.')}</td>
     <td><div className="field"><select aria-label={`Статус на ${r.id}`} data-tone={tone[r.status]} value={r.status} onChange={ev=>changeStatus(r.id,ev.target.value)}>{STATUSES.map(x=><option key={x}>{x}</option>)}</select></div></td>
+    <td>{r.edited?<>{dateTime(r.edited)}<span className="text-[10px] text-muted-foreground">{r.editedBy||ADMIN}</span></>:<span className="text-[10px] text-muted-foreground">—</span>}</td>
     <td className="text-center"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.id}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuItem onSelect={()=>changeStatus(r.id,'Получено')} disabled={r.status==='Получено'}><Check/>Отбележи като получено</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
     <td className="text-center"><Button variant="ghost" size="icon" aria-label={`Виж ${r.id}`} onClick={()=>setSelected(r)}><Eye/></Button></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><Wallet size={32}/><h3>{rows.length?'Няма намерени плащания':'Все още няма плащания'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Ново плащане</Button>}</div>}
@@ -167,7 +171,7 @@ function Payments(){
   <div><dt>Поръчка</dt><dd>{selected.orderId}</dd></div><div><dt>Продажба</dt><dd>{selected.saleId}</dd></div>
   <div><dt>Клиент</dt><dd>{selected.client}</dd></div><div><dt>Инфлуенсър / Търговец</dt><dd>{selected.agent}</dd></div><div><dt>Сума</dt><dd>{money(selected.amount)}</dd></div>
   <div><dt>Вид</dt><dd>{selected.method}</dd></div><div><dt>Източник</dt><dd>{selected.source}{selected.reference?` · ${selected.reference}`:''}</dd></div>
-  <div><dt>Статус</dt><dd><span className={`pay-status tone-${tone[selected.status]}`}><span/>{selected.status}</span></dd></div><div><dt>Дата</dt><dd>{selected.date.split('-').reverse().join('.')}</dd></div>
+  <div><dt>Статус</dt><dd><span className={`pay-status tone-${tone[selected.status]}`}><span/>{selected.status}</span></dd></div><div><dt>Дата</dt><dd>{selected.date.split('-').reverse().join('.')}</dd></div><div><dt>Редактирано от</dt><dd>{selected.edited?`${dateTime(selected.edited)} · ${selected.editedBy||ADMIN}`:'—'}</dd></div>
   {selected.note&&<div><dt>Бележка</dt><dd>{selected.note}</dd></div>}
  </dl><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button onClick={()=>open(selected)}><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog>
 
