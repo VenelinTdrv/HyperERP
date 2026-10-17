@@ -59,6 +59,31 @@ function Articles() {
  const visible = filtered.slice((current-1)*pageSize,current*pageSize);
  const exportXls = ()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='artikuli.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const exportPdf = ()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Артикули</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Артикули</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
+ const fileInput = useRef<HTMLInputElement|null>(null);
+ const importFile = async (file:File)=>{
+  const text = await file.text();
+  const timestamp = new Date().toISOString();
+  let imported = 0;
+  let skipped = 0;
+  setRows(prev=>{
+   const existing = new Set(prev.map(row=>row.sku.toLowerCase()));
+   const additions:Article[] = [];
+   for(const line of text.split(/\r?\n/).slice(file.name.toLowerCase().endsWith('.csv')?0:0)){
+    const columns = line.split(/[;,\t]/).map(column=>column.trim());
+    if(columns.length<2)continue;
+    const [sku,name,category] = columns;
+    if(!sku||!name||existing.has(sku.toLowerCase())){if(line.trim())skipped++;continue;}
+    const matched = categories.find(item=>item===category||item.startsWith(category));
+    if(!matched){skipped++;continue;}
+    existing.add(sku.toLowerCase());
+    additions.push({id:Math.max(0,...prev.map(row=>row.id),...additions.map(row=>row.id))+1,name,sku,category:matched,stock:0,created:timestamp,createdBy:'Венелин Тодоров (импорт)',edited:'',editedBy:''});
+    imported++;
+   }
+   return additions.length?[...additions,...prev]:prev;
+  });
+  if(imported)setAnnouncement(`Импортирани ${imported} артикула от ${file.name} само в демонстрацията${skipped?` · пропуснати ${skipped} реда`:''}.`);
+  else setAnnouncement(`Няма импортирани артикули от ${file.name} — очаква се CSV с колони SKU, Име, Категория.`);
+ };
  const exportPrint = exportPdf;
  const allSelected = visible.length>0&&visible.every(row=>selection.includes(row.id));
  const someSelected = visible.some(row=>selection.includes(row.id));
