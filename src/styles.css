@@ -440,6 +440,9 @@
 /* Sales status tiles */
 .sales-heading .delivery-overview { flex-wrap:wrap; justify-content:flex-start; }
 .sales-heading .metric-copy strong { font-size:14px; }
+/* Transfer status tiles */
+.transfers-heading .delivery-overview { flex-wrap:wrap; justify-content:flex-start; }
+.transfers-heading .metric-copy strong { font-size:14px; }
 /* Статусът на плащането е оцветен еднакво в плочите, таблицата, редактора и детайлите */
 .pay-status { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; font-size:10px; font-weight:700; border-radius:999px; white-space:nowrap; width:fit-content; }
 .pay-status>span { width:5px; height:5px; background:currentColor; border-radius:50%; }

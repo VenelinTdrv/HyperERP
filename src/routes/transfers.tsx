@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { ArrowLeftRight, Check, Eye, FileSpreadsheet, FileText, Info, Minus, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { ArrowLeftRight, Ban, Check, CheckCircle2, ClipboardList, Clock3, Eye, FileSpreadsheet, FileText, Info, Minus, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,16 @@ function Transfers(){
  const [selection,setSelection]=useState<number[]>([]);
  const [announcement,setAnnouncement]=useState('');
  const q=docQ.trim().toLowerCase();
- const filtered=rows.filter(r=>(!q||r.doc.toLowerCase().includes(q))&&(!dateFrom||r.created.slice(0,10)>=dateFrom)&&(!dateTo||r.created.slice(0,10)<=dateTo)&&(!statusQ||r.status===statusQ)&&(!userQ||r.createdBy===userQ));
+ const base=rows.filter(r=>(!q||r.doc.toLowerCase().includes(q))&&(!dateFrom||r.created.slice(0,10)>=dateFrom)&&(!dateTo||r.created.slice(0,10)<=dateTo)&&(!userQ||r.createdBy===userQ));
+ const filtered=base.filter(r=>!statusQ||r.status===statusQ);
+ const tiles=[
+  {label:'Всички',status:'',Icon:ClipboardList,tone:'neutral'},
+  {label:'Необработен',status:'Необработен',Icon:Clock3,tone:'pending'},
+  {label:'Потвърден',status:'Потвърден',Icon:CheckCircle2,tone:'info'},
+  {label:'Завършен',status:'Завършен',Icon:ArrowLeftRight,tone:'success'},
+  {label:'Отказан',status:'Отказан',Icon:Ban,tone:'danger'},
+ ] as const;
+ const tileValue=(status:string)=>status?base.filter(r=>r.status===status).length:base.length;
  const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const pageIds=shown.map(r=>r.id);
@@ -99,7 +108,7 @@ function Transfers(){
  const plist=comboProducts.filter(p=>{const s=pq.trim().toLocaleLowerCase('bg-BG');return !s||p.name.toLocaleLowerCase('bg-BG').includes(s)||p.sku.includes(s);});
  const editable=(t:Transfer)=>t.status==='Необработен';
  return <WorkspaceShell active="Трансфер на стоки"><div className="page-content deliveries-content orders-content">
-  <div className="page-heading"><div><h1>Трансфер на стоки<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Информация за списъка"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва всички трансфери — необработени, потвърдени, завършени и отказани.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Нов трансфер</Button></div></div>
+  <div className="page-heading deliveries-heading transfers-heading"><div className="heading-title"><h1>Трансфер на стоки<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Информация за списъка"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва трансферите по статус — избери плочка (Всички, Необработен, Потвърден, Завършен или Отказан), за да филтрираш. По подразбиране е избрано „Всички“.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="delivery-overview" aria-label="Броячи по статус">{tiles.map(t=><Button key={t.label} variant="ghost" className={`delivery-metric orders-metric tone-${t.tone} ${statusQ===t.status?'is-selected':''}`} aria-pressed={statusQ===t.status} onClick={()=>{setStatusQ(t.status);setPage(1);}}><span className="metric-icon"><t.Icon size={14}/></span><span className="metric-copy"><span>{t.label}</span><strong>{tileValue(t.status)}</strong></span></Button>)}</div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Нов трансфер</Button></div></div>
   <div className="suppliers-filters transfers-filters">
    <div className="search-box"><Search/><input className="search-input" aria-label="Документ номер" placeholder="Документ номер…" value={docQ} onChange={e=>{setDocQ(e.target.value);setPage(1);}}/></div>
    <div className="field"><input type="date" aria-label="Създаден от дата" title="От дата" value={dateFrom} onChange={e=>{setDateFrom(e.target.value);setPage(1);}}/></div>
