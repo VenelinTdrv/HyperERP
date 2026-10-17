@@ -50,11 +50,13 @@ function Index() {
   const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
   const tableBounds = productsTableRef.current?.getBoundingClientRect();
   if (tableBounds) {
+   // Избутваме останалата информация нагоре, така че търсенето и всички
+   // добавени продукти да се виждат удобно по време на въвеждане.
+   const toTop = inputBounds.top - 80;
    const overflow = tableBounds.bottom - (viewportHeight - 24);
-   if (overflow > 0) {
-    window.scrollBy({ top: Math.max(overflow, inputBounds.top - 80), behavior });
-    return;
-   }
+   const scroll = Math.max(toTop, overflow, 0);
+   if (scroll > 0) window.scrollBy({ top: scroll, behavior });
+   return;
   }
   const resultsBounds = productResultsRef.current?.getBoundingClientRect();
   const bottom = resultsBounds?.bottom ?? inputBounds.bottom + Math.min(260, viewportHeight * 0.4);
