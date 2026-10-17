@@ -15,9 +15,9 @@ export const Route = createFileRoute('/sales/new')({
  ] }), component: Index,
 });
 const catalog = [
- { id: 1, name: 'Rose Élixir', sku: 'PRF-001', stock: 49, price: 49 },
- { id: 2, name: 'Velvet Bloom', sku: 'PRF-002', stock: 32, price: 69 },
- { id: 3, name: 'Pure Essence', sku: 'PRF-003', stock: 120, price: 35 },
+ { id: 1, name: 'Rose Élixir', sku: 'PRF-001', stock: 49 },
+ { id: 2, name: 'Velvet Bloom', sku: 'PRF-002', stock: 32 },
+ { id: 3, name: 'Pure Essence', sku: 'PRF-003', stock: 120 },
 ];
 const DEMO_CLIENT = { name:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. Витоша 15, вход Б, ап. 3', courier:'Еконт' };
 type OrderItem = { id:number; quantity:number; price:number };
@@ -41,7 +41,7 @@ function Index() {
  const subtotal = items.reduce((sum,item) => sum + item.price*item.quantity,0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
- const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:p.price}]); setProductSearch(''); };
+ const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:0}]); setProductSearch(''); };
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,quantity:Math.max(1,Math.min(999,value||1))}:i));
  const price = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,price:Math.max(0,value||0)}:i));
  const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');};
@@ -74,7 +74,7 @@ function Index() {
        <div className="section-body !pb-0">
         {!influencer && <div className="delivery-notice" role="status"><Info size={16}/><span>Първо изберете инфлуенсър в „Обобщение“: търсенето показва и неговите комбота.</span></div>}
         <div className="search-box"><Search/><input aria-label="Търсене на продукт" className="search-input" placeholder="Добавете продукт по име или код…" value={productSearch} onChange={e=>setProductSearch(e.target.value)}/></div>
-        {productSearch && <div className="search-results mt-2">{catalog.filter(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase())).map(p=><Button key={p.id} type="button" variant="ghost" className="search-result" onClick={()=>addProduct(p.id)}><span>{p.name} · {p.sku}</span><span className="flex items-center gap-2">{money(p.price)}<Plus size={14}/></span></Button>)}{!catalog.some(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase()))&&<p className="p-2 text-xs text-muted-foreground">Няма намерени продукти.</p>}</div>}
+        {productSearch && <div className="search-results mt-2">{catalog.filter(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase())).map(p=><Button key={p.id} type="button" variant="ghost" className="search-result" onClick={()=>addProduct(p.id)}><span>{p.name} · {p.sku}</span><Plus size={14}/></Button>)}{!catalog.some(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase()))&&<p className="p-2 text-xs text-muted-foreground">Няма намерени продукти.</p>}</div>}
         {items.length===0 && <p className="text-sm text-muted-foreground py-3">Още няма добавени продукти</p>}
        </div>
        {items.length>0 && <table className="product-table"><thead><tr><th>Продукт</th><th>Ед. цена</th><th>Количество</th><th className="text-right">Сума</th><th><span className="sr-only">Премахване</span></th></tr></thead><tbody>{items.map(item=>{const p=catalog.find(p=>p.id===item.id);if(!p)return null;return <tr key={p.id}><td><div><div className="font-semibold">{p.name}</div><div className="text-muted-foreground text-[10px] mt-1">{p.sku} · Наличност: {p.stock}</div></div></td><td><div className="price-field"><input type="number" min={0} step="0.01" aria-label={`Ед. цена ${p.name}`} value={item.price} onChange={e=>price(p.id,Number(e.target.value))}/><span>€</span></div></td><td><div className="quantity-control"><Button type="button" variant="ghost" className="quantity-button" aria-label={`Намали ${p.name}`} onClick={()=>quantity(p.id,item.quantity-1)} disabled={item.quantity===1}><Minus size={12}/></Button><input type="number" min={1} max={999} aria-label={`Количество ${p.name}`} value={item.quantity} onChange={e=>quantity(p.id,Number(e.target.value))}/><Button type="button" variant="ghost" className="quantity-button" aria-label={`Увеличи ${p.name}`} onClick={()=>quantity(p.id,item.quantity+1)}><Plus size={12}/></Button></div></td><td className="font-bold text-right">{money(item.price*item.quantity)}</td><td><Button type="button" variant="ghost" size="icon" className="w-7 text-muted-foreground" aria-label={`Премахни ${p.name}`} title="Премахни продукта" onClick={()=>setItems(prev=>prev.filter(i=>i.id!==p.id))}><Trash2 size={14}/></Button></td></tr>;})}</tbody></table>}
@@ -84,7 +84,7 @@ function Index() {
      <aside className="summary" aria-label="Обобщение на поръчката"><div className="section-heading"><div className="section-title"><ClipboardList size={17} className="text-primary"/><h2>Обобщение</h2></div></div><div className="summary-body"><Field label="Инфлуенсър" id="influencer" required><select id="influencer" value={influencer} onChange={e=>setInfluencer(e.target.value)}><option value="">Изберете инфлуенсър</option>{INFLUENCERS.map(name=><option key={name}>{name}</option>)}</select></Field><div className="summary-line mt-3"><span>Брой артикули</span><strong>{count}</strong></div></div><div className="total-area" aria-live="polite"><div className="summary-line"><span>Общо</span><strong>{money(subtotal)}</strong></div><p>Крайна сума с включен ДДС</p></div><div className="summary-note"><Field label="Бележка към поръчката" id="note"><textarea id="note" maxLength={500} placeholder="Допълнителни уточнения…" value={form.note} onChange={e=>update('note',e.target.value)}/></Field><div className="note-counter">{form.note.length} / 500</div></div><div className="summary-status"><FileText size={13}/>Поръчката все още не е записана</div></aside>
      </div>
      <div className="order-footer"><div className="footer-buttons ml-auto"><Button type="button" variant="ghost" className="text-muted-foreground text-xs" onClick={()=>setResetOpen(true)}>Отказ</Button><Button type="submit" className="save h-10 text-xs"><Check/>Запази поръчката</Button></div></div>
-     <div className="demo-caption"><ShieldCheck size={12}/>Демонстрационни продукти и цени · без реално записване на поръчки</div>
+     <div className="demo-caption"><ShieldCheck size={12}/>Демонстрационни продукти · без реално записване на поръчки</div>
     </form>
    </div>
   <Dialog open={success} onOpenChange={setSuccess}><DialogContent><DialogHeader><div className="w-12 h-12 bg-success-soft text-success grid place-items-center rounded-full mb-3"><CheckCheck size={24}/></div><DialogTitle>Поръчката е проверена успешно</DialogTitle><DialogDescription>Това е демонстрация на екрана. Данните не са изпратени и поръчката не е записана в реална система.</DialogDescription></DialogHeader><Button onClick={()=>setSuccess(false)}>Обратно към поръчката</Button></DialogContent></Dialog>
