@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Ban, CheckCircle2, ClipboardList, Eye, FileSpreadsheet, FileText, Info, MoreVertical, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { Ban, CheckCircle2, ClipboardList, Clock3, Eye, FileSpreadsheet, FileText, Info, MoreVertical, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, Truck, X } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
@@ -56,11 +56,21 @@ function Sales() {
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
  const clear = () => { setFilters(emptyFilters); setPage(1); };
- const filtered = rows.filter(row => (!filters.status || row.status === filters.status)
-  && `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.product}`.toLowerCase().includes(filters.search.trim().toLowerCase())
+ const base = rows.filter(row =>
+  `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.product}`.toLowerCase().includes(filters.search.trim().toLowerCase())
   && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
-  && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to))
+  && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to));
+ const filtered = base.filter(row => !filters.status || row.status === filters.status)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
+ const tiles = [
+  { label:'Всички', status:'', Icon:ClipboardList, tone:'neutral' },
+  { label:'Необработена', status:'Необработена', Icon:Clock3, tone:'pending' },
+  { label:'Обработена', status:'Обработена', Icon:CheckCircle2, tone:'info' },
+  { label:'Изпратена', status:'Изпратена', Icon:Truck, tone:'info' },
+  { label:'Доставена', status:'Доставена', Icon:PackageCheck, tone:'success' },
+  { label:'Отказана', status:'Отказана', Icon:Ban, tone:'danger' },
+ ] as const;
+ const tileValue = (status:string) => status ? base.filter(row=>row.status===status).length : base.length;
  const pages = Math.max(1, Math.ceil(filtered.length/pageSize));
  const current = Math.min(page, pages);
  const visible = filtered.slice((current-1)*pageSize, current*pageSize);
@@ -74,7 +84,7 @@ function Sales() {
  const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Продажби</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Продажби</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  const exportPrint = exportPdf;
  return <WorkspaceShell active="Продажби"><div className="page-content deliveries-content orders-content">
-  <div className="page-heading"><div><h1>Продажби<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Списъкът показва всички продажби"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва всички продажби — необработени, обработени, изпратени, доставени и отказани.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
+  <div className="page-heading deliveries-heading sales-heading"><div className="heading-title"><h1>Продажби<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва продажбите по статус — избери плочка (Всички, Необработена, Обработена, Изпратена, Доставена или Отказана), за да филтрираш. По подразбиране е избрано „Всички".</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="delivery-overview" aria-label="Броячи по статус">{tiles.map(t=><Button key={t.label} variant="ghost" className={`delivery-metric orders-metric tone-${t.tone} ${filters.status===t.status?'is-selected':''}`} aria-pressed={filters.status===t.status} onClick={()=>{filter('status',t.status);}}><span className="metric-icon"><t.Icon size={14}/></span><span className="metric-copy"><span>{t.label}</span><strong>{tileValue(t.status)}</strong></span></Button>)}</div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={filters.status} onChange={e=>filter('status',e.target.value)}><option value="">Всички статуси</option>{statuses.map(s=><option key={s}>{s}</option>)}</select></div>
