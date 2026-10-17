@@ -26,3 +26,4 @@
 - Keep users at /users within WorkspaceShell as frontend demonstration state with roles Администратор/Инфлуенсър/Търговец на едро; passwords are never stored or sent, real auth/roles need a backend with a separate roles table.
 - Keep stock transfers at /transfers within WorkspaceShell; statuses, product quantities and stock moves on completion are frontend demonstration state until a real inventory service is connected.
 - Keep payments at /payments within WorkspaceShell as frontend demonstration state; no real Econt/Pigeon integration until a backend is connected.
+- Order-detail exports use the current draft, shared order-blank printing/PDF, and browser-generated binary XLS via order-export, so all actions reflect the visible order without changing session data.
