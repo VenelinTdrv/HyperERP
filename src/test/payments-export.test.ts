@@ -29,6 +29,14 @@ describe('paymentsTableHtml', () => {
     expect(html).toContain('17.10.2026');
   });
 
+  it('shows the editing admin with date and time after status', () => {
+    const html = paymentsTableHtml([{ ...row, edited: '2026-10-17T11:20', editedBy: 'Венелин Тодоров' }, row]);
+    expect(html.match(/<th>/g)).toHaveLength(12);
+    expect(html).toContain('17.10.2026');
+    expect(html).toContain('11:20 · Венелин Тодоров');
+    expect(html).toContain('<td>—</td>');
+  });
+
   it('escapes HTML in field values', () => {
     const html = paymentsTableHtml([{ ...row, client: 'A<B>&C' }]);
     expect(html).toContain('A' + '&' + 'lt;B' + '&' + 'gt;' + '&' + 'amp;C');
