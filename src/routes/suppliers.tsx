@@ -35,15 +35,15 @@ function Suppliers(){
  const [rows,setRows]=useState(initial);
  const [name,setName]=useState('');const [eik,setEik]=useState('');const [status,setStatus]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Supplier|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Supplier|null>(null);const [deleting,setDeleting]=useState<Supplier|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const e=eik.trim();
  const filtered=rows.filter(r=>(!q||r.name.toLocaleLowerCase('bg-BG').includes(q))&&(!e||r.eik.includes(e))&&(!status||(status==='active')===r.active));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setName('');setEik('');setStatus('');setPage(1);};
  const open=(s:Supplier|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{...s}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string|boolean)=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};

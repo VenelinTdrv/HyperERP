@@ -42,7 +42,7 @@ function Orders() {
  const [statusFilter, setStatusFilter] = useState('Необработена');
  const [sort, setSort] = useState('newest');
  const [page, setPage] = useState(1);
- const [pageSize, setPageSize] = useState(10);
+ const [pageSize, setPageSize] = useState(25);
  const [selected, setSelected] = useState<Order|null>(null);
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
@@ -53,7 +53,7 @@ function Orders() {
   && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to));
  const filtered = base.filter(row => !statusFilter || row.status === statusFilter)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
- const pages = Math.max(1, Math.ceil(filtered.length/pageSize));
+ const pages = Math.max(1, Math.ceil(filtered.length/(pageSize||filtered.length||1)));
  const current = Math.min(page, pages);
  const visible = filtered.slice((current-1)*pageSize, current*pageSize);
  const pageIds = visible.map(row=>row.id);

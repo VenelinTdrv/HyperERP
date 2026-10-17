@@ -50,7 +50,7 @@ function Deliveries() {
  const [rows,setRows]=useState(initialRows);
  const [filters,setFilters]=useState(emptyFilters);
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [selected,setSelected]=useState<Delivery|null>(null);
  const [selection,setSelection]=useState<string[]>([]);
  const [editor,setEditor]=useState(false);
@@ -62,9 +62,9 @@ function Deliveries() {
  const [sort,setSort]=useState<'newest'|'expected'>('newest');
  const inDate=(row:Delivery)=>{const value=row[filters.dateKind];if(!filters.from&&!filters.to)return true;return value!==''&&(!filters.from||value>=filters.from)&&(!filters.to||value<=filters.to);};
  const filtered=rows.filter(row=>(!filters.search||`${row.id} ${row.supplier} ${row.product}`.toLowerCase().includes(filters.search.toLowerCase()))&&(!filters.status||row.status===filters.status)&&(!filters.supplier||row.supplier===filters.supplier)&&(!filters.warehouse||row.warehouse===filters.warehouse)&&inDate(row)).sort((a,b)=>sort==='expected'?a.expected.localeCompare(b.expected):b.id.localeCompare(a.id));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));
  const currentPage=Math.min(page,pages);
- const visible=filtered.slice((currentPage-1)*pageSize,currentPage*pageSize);
+ const visible=filtered.slice((currentPage-1)*(pageSize||filtered.length),(currentPage-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const pageIds=visible.map(row=>row.id);
  const allSelected=pageIds.length>0&&pageIds.every(id=>selection.includes(id));
  const someSelected=!allSelected&&pageIds.some(id=>selection.includes(id));

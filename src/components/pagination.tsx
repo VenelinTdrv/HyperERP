@@ -3,8 +3,8 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-// Recordi na stranitsa: 10 po defaulta, plus izbor 25 / 50 / 100.
-export const PAGE_SIZES = [10, 25, 50, 100];
+// Recordi na stranitsa: 25 po defaulta, plus izbor 50 / 100 / Всички (0).
+export const PAGE_SIZES = [25, 50, 100, 0];
 
 type PaginationProps = {
   total: number;
@@ -29,10 +29,10 @@ export function Pagination({
   className,
   middle,
 }: PaginationProps) {
-  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const pages = pageSize > 0 ? Math.max(1, Math.ceil(total / pageSize)) : 1;
   const cur = Math.min(page, pages);
-  const from = total ? (cur - 1) * pageSize + 1 : 0;
-  const to = Math.min(cur * pageSize, total);
+  const from = total ? (cur - 1) * (pageSize || total) + 1 : 0;
+  const to = pageSize ? Math.min(cur * pageSize, total) : total;
 
   return (
     <div className={cn('delivery-pagination', className)}>
@@ -51,7 +51,7 @@ export function Pagination({
         >
           {PAGE_SIZES.map((n) => (
             <option key={n} value={n}>
-              {n}
+              {n === 0 ? 'Всички' : n}
             </option>
           ))}
         </select>
