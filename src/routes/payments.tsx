@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOrders, total } from '@/lib/orders-store';
 import { downloadPaymentsXls, openPaymentsPrint } from '@/lib/payments-export';
+import { SELLERS, sellerType } from '@/lib/sellers';
 
 export const Route = createFileRoute('/payments')({
   head:()=>({meta:[{title:'HyperERP · Плащания'},{name:'description',content:'Плащания по продажбите от Еконт и Pigeon — наложен платеж и банков превод, със статус и сума.'},{property:'og:title',content:'HyperERP · Плащания'},{property:'og:description',content:'Списък с плащания по продажби, филтри по вид, източник и статус, създаване и редакция.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -18,14 +19,7 @@ export const Route = createFileRoute('/payments')({
 const STATUSES=['Очаквано','Получено','Частично','Отказано','Върнато'] as const;
 const METHODS=['Наложен платеж','Банков превод'] as const;
 const SOURCES=['Еконт','Pigeon'] as const;
-// Demo sellers: every payment is credited to one influencer or wholesale merchant
-export const SELLERS=[
- {id:'Виктория Григорова',type:'Инфлуенсър'},
- {id:'Елена Петрова',type:'Инфлуенсър'},
- {id:'Мария Иванова',type:'Инфлуенсър'},
- {id:'Козметик Груп ООД',type:'Търговец на едро'},
-] as const;
-const sellerType=(id:string)=>SELLERS.find(s=>s.id===id)?.type??'';
+export { SELLERS, sellerType };
 const todayISO=()=>new Date().toLocaleDateString('en-CA');
 const day=(back:number)=>{const d=new Date();d.setDate(d.getDate()-back);return d.toLocaleDateString('en-CA');};
 const ADMIN='Венелин Тодоров';
