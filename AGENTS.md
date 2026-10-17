@@ -29,4 +29,4 @@
 - Generate demonstration record dates relative to the current day instead of hardcoding a calendar date, so screens that default to "today" always return rows.
 - Order-detail exports use the current draft, shared order-blank printing/PDF, and browser-generated binary XLS via order-export, so all actions reflect the visible order without changing session data.
 - Render every list footer through the shared Pagination component instead of hand-written pager markup, so paging and the records-per-page choice stay identical across screens and new lists inherit them.
-- Keep the influencer / wholesale-trader nomenclature in one shared module that order, sale and payment screens import, so a seller's name and type stay identical across every screen.
+- Keep the influencer / wholesale-trader nomenclature, and the demo seller credited to each order number, in one shared module that order, sale and payment screens import, so a seller's name, type and assignment stay identical across every screen.
