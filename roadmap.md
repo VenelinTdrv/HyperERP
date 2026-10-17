@@ -202,3 +202,7 @@
 ## Подравняване на „Действия" в Населени места, Складове и Потребители
 - [x] И в трите списъка таблицата ползва и `orders-table`, клетката за действия е в `delivery-row-actions`, а надписът е в `delivery-head-center` — иконата ⋮ стои точно под надписа „Действия".
 - [x] Проверено с измерване в браузъра при 1776 и 1280 px: центровете съвпадат (напр. Населени места 1614,7 срещу 1614,7; Складове 1622,9 срещу 1622,9; Потребители 1635,4 срещу 1635,4); изграждането е OK.
+
+## Payments filter row
+- [x] Remove the duplicate „Тип / Всички типове“ select; the „Инфлуенсър / Търговец“ select alone filters by person.
+- [x] Verify the filter row, seller filtering and clearing in the browser.
