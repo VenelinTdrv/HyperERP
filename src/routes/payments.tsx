@@ -59,6 +59,7 @@ export const initial:Payment[]=[
  p(1,'ORD-0015','Ирина Георгиева',123.9,'Банков превод','Pigeon','Получено',day(6),'PG-76902','Козметик Груп ООД'),
 ];
 const PAGE=10;
+export const paymentTotals=(rows:{amount:number|string;method:string}[])=>({total:rows.reduce((a,r)=>a+Number(r.amount),0),cash:rows.filter(r=>r.method==='Наложен платеж').reduce((a,r)=>a+Number(r.amount),0)});
 const money=(v:string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'pending','Отказано':'danger','Върнато':'danger'};
 const TILE_ICONS:Record<(typeof STATUSES)[number],typeof Wallet>={'Очаквано':Clock3,'Получено':CheckCheck,'Частично':CircleDollarSign,'Отказано':XCircle,'Върнато':RotateCcw};
@@ -80,7 +81,7 @@ function Payments(){
  const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
  const sum=filtered.filter(r=>r.status==='Получено').reduce((a,r)=>a+Number(r.amount),0);
- const totalAll=filtered.reduce((a,r)=>a+Number(r.amount),0);const cashTotal=filtered.filter(r=>r.method==='Наложен платеж').reduce((a,r)=>a+Number(r.amount),0);const floatAmount=Number(float)||0;
+ const { total: totalAll, cash: cashTotal } = paymentTotals(filtered);const floatAmount=Number(float)||0;
  const datesChanged=from!==todayISO()||to!==todayISO();
  const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setType('');setAgent('');setFrom(todayISO());setTo(todayISO());setPage(1);};
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
