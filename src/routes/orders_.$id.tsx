@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, FileText, Plus, Save, ShieldCheck, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileSpreadsheet, FileText, Plus, Printer, Save, ShieldCheck, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { CATALOG, ORDER_STATUSES, PAYMENT_METHODS, type Order, type OrderStatus, type PaymentMethod, saveOrder, subtotal, total, useOrders } from '@/lib/orders-store';
-import { openOrderBlank } from '@/lib/order-blank';
+import { downloadOrderBlankPdf, openOrderBlank } from '@/lib/order-blank';
+import { downloadOrderXls } from '@/lib/order-export';
 
 export const Route = createFileRoute('/orders_/$id')({
   head: ({ params }) => ({ meta: [
@@ -58,7 +59,9 @@ function OrderScreen() {
     <div className="page-heading"><div><Link to="/orders" className="text-xs text-muted-foreground inline-flex items-center gap-1"><ArrowLeft size={13} />Поръчки</Link><h1>Поръчка {draft.id}</h1><p>Създадена на {new Date(`${draft.created}T12:00:00`).toLocaleDateString('bg-BG')} · <span className={`delivery-status ${statusClass[original.status]}`}><span />{original.status}</span></p></div>
       <div className="flex gap-2 flex-wrap items-end">
         <div className="field"><label htmlFor="o-status">Статус</label><select id="o-status" value={draft.status} disabled={locked} onChange={e => set('status', e.target.value as OrderStatus)}>{ORDER_STATUSES.map(s => <option key={s}>{s}</option>)}</select></div>
-        <Button variant="outline" onClick={() => openOrderBlank(draft)} aria-label="Експорт на бланката в PDF"><FileText />Бланка (PDF)</Button>
+        <Button variant="outline" size="icon" onClick={() => openOrderBlank(draft)} aria-label="Печат" title="Печат"><Printer /></Button>
+        <Button variant="outline" size="icon" onClick={() => downloadOrderBlankPdf(draft)} aria-label="Експорт в PDF" title="Експорт в PDF"><FileText className="text-destructive" /></Button>
+        <Button variant="outline" size="icon" onClick={() => downloadOrderXls(draft)} aria-label="Експорт в XLS" title="Експорт в XLS"><FileSpreadsheet className="text-primary" /></Button>
         <Button variant="outline" asChild><Link to="/orders">Отказ</Link></Button>
         <Button onClick={save} disabled={locked}><Save />Запази</Button>
       </div></div>
