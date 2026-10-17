@@ -216,7 +216,7 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
   y += 8;
 
   // Totals
-  const tx = R - 70;
+  const tx = R - 46;
   const totals: [string, string, boolean][] = [
     ['Общо с ДДС', money(total(o)), true],
   ];
