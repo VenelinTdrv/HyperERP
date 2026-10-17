@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Users, X } from 'lucide-react';
+import { Ban, Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Undo2, Users, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,18 +15,18 @@ export const Route = createFileRoute('/clients')({
 
 const cities=['София','Пловдив','Варна','Бургас','Ямбол','Стара Загора','Русе'];
 type Address={id:number;city:string;kind:'street'|'place';street:string;number:string;place:string};
-type Client={id:number;first:string;last:string;phone:string;notes:string;addresses:Address[];primary:number;createdBy:string;createdAt:string;editedBy:string;editedAt:string};
+type Client={id:number;first:string;last:string;phone:string;blacklisted:boolean;notes:string;addresses:Address[];primary:number;createdBy:string;createdAt:string;editedBy:string;editedAt:string};
 const initial:Client[]=[
- {id:1,first:'Мария',last:'Георгиева',phone:'0891234567',notes:'Предпочита доставка следобед',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Стара планина',number:'1А',place:''}],primary:1,createdBy:'Master Admin',createdAt:'14.10.2026, 11:03',editedBy:'',editedAt:''},
- {id:2,first:'Иван',last:'Иванов',phone:'0895055199',notes:'Спешно',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Ангел Кънчев',number:'10',place:''},{id:2,city:'София',kind:'place',street:'',number:'',place:'Бизнес парк, сграда 4'}],primary:1,createdBy:'Виктория Григорова',createdAt:'14.10.2026, 11:21',editedBy:'',editedAt:''},
- {id:3,first:'Елена',last:'Петрова',phone:'0887112233',notes:'',addresses:[{id:1,city:'Пловдив',kind:'street',street:'Капитан Райчо',number:'56',place:''}],primary:1,createdBy:'Master Admin',createdAt:'13.10.2026, 16:40',editedBy:'Master Admin',editedAt:'14.10.2026, 09:12'},
- {id:4,first:'Георги',last:'Димитров',phone:'0897654321',notes:'Плаща с банков превод',addresses:[{id:1,city:'София',kind:'street',street:'Витоша',number:'15',place:''}],primary:1,createdBy:'Виктория Григорова',createdAt:'13.10.2026, 10:15',editedBy:'',editedAt:''},
- {id:5,first:'Николина',last:'Стефанова',phone:'0888222333',notes:'',addresses:[{id:1,city:'Варна',kind:'street',street:'Княз Борис I',number:'8',place:''}],primary:1,createdBy:'Master Admin',createdAt:'12.10.2026, 14:05',editedBy:'',editedAt:''},
- {id:6,first:'Петя',last:'Колева',phone:'0879111222',notes:'Доставка до офис',addresses:[{id:1,city:'Пловдив',kind:'place',street:'',number:'',place:'Бизнес център, етаж 3'}],primary:1,createdBy:'Виктория Григорова',createdAt:'12.10.2026, 09:30',editedBy:'',editedAt:''},
- {id:7,first:'Десислава',last:'Радева',phone:'0895555666',notes:'',addresses:[{id:1,city:'Бургас',kind:'street',street:'Александър Батенберг',number:'22',place:''}],primary:1,createdBy:'Master Admin',createdAt:'11.10.2026, 17:45',editedBy:'',editedAt:''},
- {id:8,first:'Христо',last:'Янев',phone:'0888444555',notes:'Предпочита наложен платеж',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Цар Иван Асень II',number:'7',place:''},{id:2,city:'София',kind:'street',street:'Пиротска',number:'40',place:''}],primary:1,createdBy:'Венелин Тодоров',createdAt:'11.10.2026, 12:20',editedBy:'Венелин Тодоров',editedAt:'13.10.2026, 08:40'},
- {id:9,first:'Саня',last:'Тодорова',phone:'0877888999',notes:'',addresses:[{id:1,city:'Стара Загора',kind:'street',street:'Г. С. Раковски',number:'33',place:''}],primary:1,createdBy:'Виктория Григорова',createdAt:'10.10.2026, 15:10',editedBy:'',editedAt:''},
- {id:10,first:'Мирослав',last:'Киров',phone:'0896333444',notes:'Променен адрес за празниците',addresses:[{id:1,city:'Русе',kind:'street',street:'Цар Освободител',number:'4',place:''}],primary:1,createdBy:'Master Admin',createdAt:'09.10.2026, 11:00',editedBy:'',editedAt:''},
+ {id:1,first:'Мария',last:'Георгиева',phone:'0891234567',blacklisted:false,notes:'Предпочита доставка следобед',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Стара планина',number:'1А',place:''}],primary:1,createdBy:'Master Admin',createdAt:'14.10.2026, 11:03',editedBy:'',editedAt:''},
+ {id:2,first:'Иван',last:'Иванов',phone:'0895055199',blacklisted:false,notes:'Спешно',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Ангел Кънчев',number:'10',place:''},{id:2,city:'София',kind:'place',street:'',number:'',place:'Бизнес парк, сграда 4'}],primary:1,createdBy:'Виктория Григорова',createdAt:'14.10.2026, 11:21',editedBy:'',editedAt:''},
+ {id:3,first:'Елена',last:'Петрова',phone:'0887112233',blacklisted:false,notes:'',addresses:[{id:1,city:'Пловдив',kind:'street',street:'Капитан Райчо',number:'56',place:''}],primary:1,createdBy:'Master Admin',createdAt:'13.10.2026, 16:40',editedBy:'Master Admin',editedAt:'14.10.2026, 09:12'},
+ {id:4,first:'Георги',last:'Димитров',phone:'0897654321',blacklisted:false,notes:'Плаща с банков превод',addresses:[{id:1,city:'София',kind:'street',street:'Витоша',number:'15',place:''}],primary:1,createdBy:'Виктория Григорова',createdAt:'13.10.2026, 10:15',editedBy:'',editedAt:''},
+ {id:5,first:'Николина',last:'Стефанова',phone:'0888222333',blacklisted:false,notes:'',addresses:[{id:1,city:'Варна',kind:'street',street:'Княз Борис I',number:'8',place:''}],primary:1,createdBy:'Master Admin',createdAt:'12.10.2026, 14:05',editedBy:'',editedAt:''},
+ {id:6,first:'Петя',last:'Колева',phone:'0879111222',blacklisted:false,notes:'Доставка до офис',addresses:[{id:1,city:'Пловдив',kind:'place',street:'',number:'',place:'Бизнес център, етаж 3'}],primary:1,createdBy:'Виктория Григорова',createdAt:'12.10.2026, 09:30',editedBy:'',editedAt:''},
+ {id:7,first:'Десислава',last:'Радева',phone:'0895555666',blacklisted:false,notes:'',addresses:[{id:1,city:'Бургас',kind:'street',street:'Александър Батенберг',number:'22',place:''}],primary:1,createdBy:'Master Admin',createdAt:'11.10.2026, 17:45',editedBy:'',editedAt:''},
+ {id:8,first:'Христо',last:'Янев',phone:'0888444555',blacklisted:true,notes:'Предпочита наложен платеж',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Цар Иван Асень II',number:'7',place:''},{id:2,city:'София',kind:'street',street:'Пиротска',number:'40',place:''}],primary:1,createdBy:'Венелин Тодоров',createdAt:'11.10.2026, 12:20',editedBy:'Венелин Тодоров',editedAt:'13.10.2026, 08:40'},
+ {id:9,first:'Саня',last:'Тодорова',phone:'0877888999',blacklisted:false,notes:'',addresses:[{id:1,city:'Стара Загора',kind:'street',street:'Г. С. Раковски',number:'33',place:''}],primary:1,createdBy:'Виктория Григорова',createdAt:'10.10.2026, 15:10',editedBy:'',editedAt:''},
+ {id:10,first:'Мирослав',last:'Киров',phone:'0896333444',blacklisted:false,notes:'Променен адрес за празниците',addresses:[{id:1,city:'Русе',kind:'street',street:'Цар Освободител',number:'4',place:''}],primary:1,createdBy:'Master Admin',createdAt:'09.10.2026, 11:00',editedBy:'',editedAt:''},
 ];
 const addrText=(a?:Address)=>!a?'—':a.kind==='street'?`ул. ${a.street} ${a.number}`:a.place;
 const now=()=>'14.10.2026, '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'});
@@ -37,7 +37,8 @@ function Clients(){
  const [name,setName]=useState('');const [phone,setPhone]=useState('');
  const [page,setPage]=useState(1);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Client|null>(null);
- const [selected,setSelected]=useState<Client|null>(null);const [deleting,setDeleting]=useState<Client|null>(null);
+  const [selected,setSelected]=useState<Client|null>(null);const [deleting,setDeleting]=useState<Client|null>(null);
+  const [blacklisting,setBlacklisting]=useState<Client|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const p=phone.replace(/\D/g,'');
  const filtered=rows.filter(r=>(!q||`${r.first} ${r.last}`.toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p)));
@@ -49,7 +50,8 @@ function Clients(){
   else setRows(prev=>[...prev,{id:Math.max(0,...prev.map(r=>r.id))+1,...data,createdBy:'Венелин Тодоров',createdAt:now(),editedBy:'',editedAt:''}]);
   setEditor(false);setAnnouncement(`${data.first} ${data.last} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
  };
- const primaryOf=(c:Client)=>c.addresses.find(a=>a.id===c.primary)??c.addresses[0];
+  const primaryOf=(c:Client)=>c.addresses.find(a=>a.id===c.primary)??c.addresses[0];
+  const toggleBlack=(c:Client)=>{setRows(prev=>prev.map(r=>r.id===c.id?{...r,blacklisted:!r.blacklisted}:r));setAnnouncement(`${c.first} ${c.last} · ${!c.blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);};
  return <WorkspaceShell active="Клиенти"><div className="page-content deliveries-content orders-content">
   <div className="page-heading"><div><h1>Клиенти<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Контакти и адреси за доставка. Търси по име или телефон и отвори клиент за детайли.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави клиент</Button></div>
   <div className="clients-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Име или фамилия" placeholder="Име или фамилия…" value={name} onChange={e=>{setName(e.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" inputMode="tel" aria-label="Телефон" placeholder="Телефон…" value={phone} onChange={e=>{setPhone(e.target.value);setPage(1);}}/></div><Button variant="outline" disabled={!name&&!phone} onClick={()=>{setName('');setPhone('');setPage(1);}}><X/>Изчисти</Button></div>
