@@ -1,28 +1,15 @@
 import { describe, expect, it } from 'vitest';
-
 import { renderHook } from '@testing-library/react';
-
-import { initial, paymentMatches, paymentTotals, SELLER_TYPES, type PaymentFilter } from '@/routes/payments';
+import { initial, paymentMatches, paymentTotals, SELLERS, type PaymentFilter } from '@/routes/payments';
 import { useOrders } from '@/lib/orders-store';
 
-const empty: PaymentFilter = { q: '', method: '', source: '', status: '', type: '', agent: '', from: '', to: '' };
+const empty: PaymentFilter = { q: '', method: '', source: '', status: '', agent: '', from: '', to: '' };
 const today = new Date().toLocaleDateString('en-CA');
 
 describe('Payments filter by influencer or merchant', () => {
- it('offers exactly the two seller types', () => {
-  expect(SELLER_TYPES).toEqual(['Инфлуенсър', 'Търговец на едро']);
- });
-
- it('drops wholesale payments when the type filter is Инфлуенсър', () => {
-  const rows = initial.filter(r => paymentMatches(r, { ...empty, type: 'Инфлуенсър' }));
-  expect(rows.length).toBeGreaterThan(0);
-  expect(rows.every(r => r.agent !== 'Козметик Груп ООД')).toBe(true);
- });
-
- it('keeps only the wholesale merchant when the type filter is Търговец на едро', () => {
-  const rows = initial.filter(r => paymentMatches(r, { ...empty, type: 'Търговец на едро' }));
-  expect(rows.length).toBeGreaterThan(0);
-  expect(new Set(rows.map(r => r.agent))).toEqual(new Set(['Козметик Груп ООД']));
+ it('lists sellers of both kinds in the single person select', () => {
+  expect(SELLERS.map(s => s.type)).toEqual(['Инфлуенсър', 'Инфлуенсър', 'Инфлуенсър', 'Търговец на едро']);
+  expect(initial.every(r => SELLERS.some(s => s.id === r.agent))).toBe(true);
  });
 
  it('keeps only the payments of the chosen person', () => {
