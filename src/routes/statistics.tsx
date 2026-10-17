@@ -128,8 +128,8 @@ function buildDays(s: Seller, k: number, st: { weight: number } | null): DayRow[
   return out;
 }
 
-function pickSellers(type: string, seller: string): Seller[] {
-  return seller ? SELLERS.filter(s => s.id === seller) : type ? SELLERS.filter(s => s.type === type) : [...SELLERS];
+export function pickSellers(seller: string): Seller[] {
+  return seller ? SELLERS.filter(s => s.id === seller) : [...SELLERS];
 }
 
 const ordersCfg = { paid: { label: 'Платени', color: 'var(--primary)' }, returned: { label: 'Върнати', color: 'var(--destructive)' }, orders: { label: 'Всички', color: 'var(--info)' } } satisfies ChartConfig;
@@ -139,25 +139,23 @@ const priceCfg = { avgPrice: { label: 'Ср. цена', color: 'var(--warning)' 
 const returnCfg = { returnPct: { label: '% върнати', color: 'var(--destructive)' } } satisfies ChartConfig;
 
 function Statistics() {
-  const [type, setType] = useState('');
   const [seller, setSeller] = useState('');
   const [settlement, setSettlement] = useState('');
   const [from, setFrom] = useState(DEFAULT_PERIOD.from);
   const [to, setTo] = useState(DEFAULT_PERIOD.to);
   const [open, setOpen] = useState(false);
-  const options = SELLERS.filter(s => !type || s.type === type);
 
   const days = useMemo(() => {
     const st = settlement ? SETTLEMENTS.find(x => x.id === settlement) ?? null : null;
     const map = new Map<number, DayRow>();
-    pickSellers(type, seller).forEach((s, k) => buildDays(s, k, st).forEach(p => {
+    pickSellers(seller).forEach((s, k) => buildDays(s, k, st).forEach(p => {
       const key = +p.d;
       const cur = map.get(key) ?? { d: p.d, orders: 0, paid: 0, returned: 0, items: 0, revenue: 0 };
       cur.orders += p.orders; cur.paid += p.paid; cur.returned += p.returned; cur.items += p.items; cur.revenue += p.revenue;
       map.set(key, cur);
     }));
     return [...map.values()].sort((a, b) => +a.d - +b.d);
-  }, [type, seller, settlement]);
+  }, [seller, settlement]);
 
   const period = useMemo(() => {
     const f = +from, t = +to;
@@ -192,12 +190,12 @@ function Statistics() {
   }, [days, to]);
 
   const settlementStats = useMemo(() => {
-    const sellers = pickSellers(type, seller);
+    const sellers = pickSellers(seller);
     const f = +from, t = +to;
     const rows = SETTLEMENTS.map(st => ({ id: st.id, orders: sellers.reduce((a, s, k) => a + buildDays(s, k, st).reduce((b, p) => b + (+p.d >= f && +p.d <= t ? p.orders : 0), 0), 0) }));
     const total = rows.reduce((a, r) => a + r.orders, 0);
     return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
-  }, [type, seller, from, to]);
+  }, [seller, from, to]);
 
   const paidPct = period.orders ? (period.paid / period.orders * 100).toFixed(1) : '0';
   const activePreset = PRESETS.find(p => { const r = presetRange(p.id); return +r.from === +from && +r.to === +to; })?.id;
@@ -219,7 +217,7 @@ function Statistics() {
   const applyPreset = (id: string) => { const r = presetRange(id); setFrom(r.from); setTo(r.to); };
 
   return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
-    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по тип, инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
+    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
     <div className="suppliers-filters transfers-filters">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -251,8 +249,7 @@ function Statistics() {
           </div>
         </PopoverContent>
       </Popover>
-      <div className="search-box"><select className="search-input" aria-label="Тип" value={type} onChange={e => { setType(e.target.value); setSeller(''); }}><option value="">Всички типове</option><option>Инфлуенсър</option><option>Търговец на едро</option></select></div>
-      <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{options.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type}</option>)}</select></div>
+      <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type}</option>)}</select></div>
       <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
     </div>
 
