@@ -7,3 +7,18 @@ export const SELLERS = [
 ] as const;
 
 export const sellerType = (id: string) => SELLERS.find(s => s.id === id)?.type ?? '';
+
+// Which seller each demo order and sale is credited to. The same map backs „Поръчки" and „Продажби",
+// so both screens agree about who sold what.
+export const sellerByOrder: Record<string, string> = {
+  'ORD-0024': 'Виктория Григорова',
+  'ORD-0023': 'Елена Петрова',
+  'ORD-0022': 'Козметик Груп ООД',
+  'ORD-0021': 'Виктория Григорова',
+  'ORD-0020': 'Мария Иванова',
+  'ORD-0019': 'Елена Петрова',
+  'ORD-0018': 'Виктория Григорова',
+  'ORD-0017': 'Мария Иванова',
+  'ORD-0016': 'Козметик Груп ООД',
+  'ORD-0015': 'Елена Петрова',
+};
