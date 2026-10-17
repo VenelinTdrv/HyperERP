@@ -132,6 +132,16 @@ export function pickSellers(seller: string): Seller[] {
   return seller ? SELLERS.filter(s => s.id === seller) : [...SELLERS];
 }
 
+// Orders per seller within [from, to], optionally limited to one settlement,
+// with each seller's percentage of the combined total.
+export function sellerShareStats(settlement: string, from: Date, to: Date): Record<string, { orders: number; pct: string }> {
+  const st = settlement ? SETTLEMENTS.find(x => x.id === settlement) ?? null : null;
+  const f = +from, t = +to;
+  const rows = SELLERS.map((s, k) => ({ id: s.id, orders: buildDays(s, k, st).reduce((b, p) => b + (+p.d >= f && +p.d <= t ? p.orders : 0), 0) }));
+  const total = rows.reduce((a, r) => a + r.orders, 0);
+  return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
+}
+
 const ordersCfg = { paid: { label: 'Платени', color: 'var(--primary)' }, returned: { label: 'Върнати', color: 'var(--destructive)' }, orders: { label: 'Всички', color: 'var(--info)' } } satisfies ChartConfig;
 const salesCfg = { paid: { label: 'Продажби (платени)', color: 'var(--primary)' } } satisfies ChartConfig;
 const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--info)' } } satisfies ChartConfig;
@@ -197,6 +207,10 @@ function Statistics() {
     return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
   }, [seller, from, to]);
 
+  // Per-seller share for the dropdown labels, mirroring settlementStats.
+  // Denominator always spans all sellers so a chosen seller still shows its real share.
+  const sellerStats = useMemo(() => sellerShareStats(settlement, from, to), [settlement, from, to]);
+
   const paidPct = period.orders ? (period.paid / period.orders * 100).toFixed(1) : '0';
   const activePreset = PRESETS.find(p => { const r = presetRange(p.id); return +r.from === +from && +r.to === +to; })?.id;
   const windowLabel = data.length ? `${data[0]!.month} – ${data[data.length - 1]!.month}` : '';
@@ -249,7 +263,7 @@ function Statistics() {
           </div>
         </PopoverContent>
       </Popover>
-      <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type}</option>)}</select></div>
+      <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type} · {sellerStats[s.id]!.orders} поръчки · {sellerStats[s.id]!.pct}%</option>)}</select></div>
       <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
     </div>
 
