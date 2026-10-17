@@ -34,7 +34,7 @@ const now=()=>'14.10.2026, '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digi
 
 function Clients(){
  const [rows,setRows]=useState(initial);
- const [name,setName]=useState('');const [phone,setPhone]=useState('');
+ const [name,setName]=useState('');const [phone,setPhone]=useState('');const [status,setStatus]=useState('');
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Client|null>(null);
@@ -42,7 +42,7 @@ function Clients(){
   const [blacklisting,setBlacklisting]=useState<Client|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const p=phone.replace(/\D/g,'');
- const filtered=rows.filter(r=>(!q||`${r.first} ${r.last}`.toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p)));
+ const filtered=rows.filter(r=>(!q||`${r.first} ${r.last}`.toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p))&&(!status||(status==='Черен списък'?r.blacklisted:!r.blacklisted)));
  const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
@@ -55,7 +55,7 @@ function Clients(){
   const toggleBlack=(c:Client)=>{setRows(prev=>prev.map(r=>r.id===c.id?{...r,blacklisted:!r.blacklisted}:r));setAnnouncement(`${c.first} ${c.last} · ${!c.blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);};
  return <WorkspaceShell active="Клиенти"><div className="page-content deliveries-content orders-content">
   <div className="page-heading"><div><h1>Клиенти<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Контакти и адреси за доставка. Търси по име или телефон и отвори клиент за детайли.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави клиент</Button></div>
-  <div className="clients-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Име или фамилия" placeholder="Име или фамилия…" value={name} onChange={e=>{setName(e.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" inputMode="tel" aria-label="Телефон" placeholder="Телефон…" value={phone} onChange={e=>{setPhone(e.target.value);setPage(1);}}/></div><Button variant="outline" disabled={!name&&!phone} onClick={()=>{setName('');setPhone('');setPage(1);}}><X/>Изчисти</Button></div>
+  <div className="clients-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Име или фамилия" placeholder="Име или фамилия…" value={name} onChange={e=>{setName(e.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" inputMode="tel" aria-label="Телефон" placeholder="Телефон…" value={phone} onChange={e=>{setPhone(e.target.value);setPage(1);}}/></div><div className="field"><label htmlFor="clients-status" className="sr-only">Статус</label><select id="clients-status" aria-label="Статус" title="Статус" value={status} onChange={e=>{setStatus(e.target.value);setPage(1);}}><option value="">Всички статуси</option><option>Активен</option><option>Черен списък</option></select></div><Button variant="outline" disabled={!name&&!phone&&!status} onClick={()=>{setName('');setPhone('');setStatus('');setPage(1);}}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с клиенти"><div className="delivery-list-heading"><h2>Всички клиенти <span>{filtered.length}</span></h2></div>
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Статус</th><th>Основен адрес</th><th>Бележки</th><th>Създаден</th><th>Редактиран</th><th className="text-right">Действия</th></tr></thead><tbody>{shown.map(c=>{const a=primaryOf(c);return <tr key={c.id}>
@@ -68,7 +68,7 @@ function Clients(){
     <td><span className="block text-xs">{c.createdBy}</span><span className="delivery-cell-sub">{c.createdAt}</span></td>
     <td>{c.editedBy?<><span className="block text-xs">{c.editedBy}</span><span className="delivery-cell-sub">{c.editedAt}</span></>:'—'}</td>
     <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${c.first} ${c.last}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(c)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(c)}><Pencil/>Редактирай</DropdownMenuItem>{c.blacklisted?<DropdownMenuItem onSelect={()=>toggleBlack(c)}><Undo2/>Премахни от черния списък</DropdownMenuItem>:<DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setBlacklisting(c)}><Ban/>В черен списък</DropdownMenuItem>}<DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(c)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
-   </tr>;})}</tbody></table></div>:<div className="delivery-empty"><Users size={32}/><h3>{rows.length?'Няма намерени клиенти':'Все още няма клиенти'}</h3>{rows.length?<Button variant="outline" onClick={()=>{setName('');setPhone('');}}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави клиент</Button>}</div>}
+   </tr>;})}</tbody></table></div>:<div className="delivery-empty"><Users size={32}/><h3>{rows.length?'Няма намерени клиенти':'Все още няма клиенти'}</h3>{rows.length?<Button variant="outline" onClick={()=>{setName('');setPhone('');setStatus('');}}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави клиент</Button>}</div>}
       <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="clients-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни клиенти · без реално записване</div>
