@@ -52,7 +52,13 @@ function Clients(){
   setEditor(false);setAnnouncement(`${data.first} ${data.last} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
  };
   const primaryOf=(c:Client)=>c.addresses.find(a=>a.id===c.primary)??c.addresses[0];
-  const toggleBlack=(c:Client)=>{setRows(prev=>prev.map(r=>r.id===c.id?{...r,blacklisted:!r.blacklisted}:r));setAnnouncement(`${c.first} ${c.last} · ${!c.blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);};
+  const applyStatus=(c:Client,blacklisted:boolean)=>{
+    if(c.blacklisted===blacklisted)return;
+    setRows(prev=>prev.map(r=>r.id===c.id?{...r,blacklisted,editedBy:'Венелин Тодоров',editedAt:now()}:r));
+    setSelected(prev=>prev&&prev.id===c.id?{...prev,blacklisted}:prev);
+    setAnnouncement(`${c.first} ${c.last} · ${blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);
+  };
+  const toggleBlack=(c:Client)=>applyStatus(c,!c.blacklisted);
  return <WorkspaceShell active="Клиенти"><div className="page-content deliveries-content orders-content">
   <div className="page-heading"><div><h1>Клиенти<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Контакти и адреси за доставка. Търси по име или телефон и отвори клиент за детайли.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави клиент</Button></div>
   <div className="clients-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Име или фамилия" placeholder="Име или фамилия…" value={name} onChange={e=>{setName(e.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" inputMode="tel" aria-label="Телефон" placeholder="Телефон…" value={phone} onChange={e=>{setPhone(e.target.value);setPage(1);}}/></div><div className="field"><label htmlFor="clients-status" className="sr-only">Статус</label><select id="clients-status" aria-label="Статус" title="Статус" value={status} onChange={e=>{setStatus(e.target.value);setPage(1);}}><option value="">Всички статуси</option><option>Активен</option><option>Черен списък</option></select></div><Button variant="outline" disabled={!name&&!phone&&!status} onClick={()=>{setName('');setPhone('');setStatus('');setPage(1);}}><X/>Изчисти</Button></div>
@@ -62,7 +68,7 @@ function Clients(){
     <td><span className="delivery-id">#{c.id}</span></td>
     <td><Button variant="ghost" className="client-name" onClick={()=>setSelected(c)}>{c.first} {c.last}</Button></td>
     <td className="whitespace-nowrap">{c.phone}</td>
-    <td>{c.blacklisted?<span className="client-badge client-badge-black">Черен списък</span>:<span className="client-badge client-badge-active">Активен</span>}</td>
+    <td><select className={`client-status-select${c.blacklisted?' client-status-select-black':''}`} value={c.blacklisted?'black':'active'} onChange={e=>applyStatus(c,e.target.value==='black')} aria-label={`Статус на ${c.first} ${c.last}`}><option value="active">Активен</option><option value="black">Черен списък</option></select></td>
     <td><strong className="block text-xs">{a?.city}</strong><span className="delivery-cell-sub">{addrText(a)}{c.addresses.length>1&&` · +${c.addresses.length-1}`}</span></td>
     <td className="client-notes">{c.notes||'—'}</td>
     <td><span className="block text-xs">{c.createdBy}</span><span className="delivery-cell-sub">{c.createdAt}</span></td>
