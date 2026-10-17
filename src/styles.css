@@ -444,6 +444,16 @@
 .payments-summary-field > span { color:var(--muted-foreground); font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; }
 .payments-summary-field > strong { font-size:13px; line-height:1.3; font-variant-numeric:tabular-nums; }
 .payments-summary-field > small { color:var(--muted-foreground); font-size:10px; }
+/* цветовете са същите като статусните chips в „Продажби“ */
+.payments-summary-field.is-info { background:var(--info-soft); border-color:color-mix(in srgb, var(--info) 30%, var(--border)); }
+.payments-summary-field.is-warning { background:var(--warning-soft); border-color:color-mix(in srgb, var(--warning) 32%, var(--border)); }
+.payments-summary-field.is-success { background:var(--success-soft); border-color:color-mix(in srgb, var(--success) 32%, var(--border)); }
+.payments-summary-field.is-info > strong { color:var(--info); }
+.payments-summary-field.is-warning > strong { color:var(--warning); }
+.payments-summary-field.is-success > strong { color:var(--success); }
+.payments-summary-field.is-info > span, .payments-summary-field.is-info > small { color:color-mix(in srgb, var(--info) 62%, var(--foreground)); }
+.payments-summary-field.is-warning > span, .payments-summary-field.is-warning > small { color:color-mix(in srgb, var(--warning) 66%, var(--foreground)); }
+.payments-summary-field.is-success > span, .payments-summary-field.is-success > small { color:color-mix(in srgb, var(--success) 62%, var(--foreground)); }
 @media (max-width:700px) { .payments-footrow { flex-wrap:wrap; } .payments-summary { flex:1 1 100%; justify-content:flex-start; } }
 
 /* Компактен „Нова поръчка“ — по-плътни отстояния само на този екран */
