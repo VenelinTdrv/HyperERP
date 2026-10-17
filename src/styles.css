@@ -429,6 +429,15 @@
 .payments-metric.tone-info .metric-icon { background:var(--info-soft); color:var(--info); }
 .payments-metric.tone-danger .metric-icon { background:var(--destructive-soft); color:var(--destructive); }
 @media (max-width:700px) { .payments-heading .delivery-overview { justify-content:flex-start; } .payments-heading .delivery-metric { min-height:38px; } }
+/* Плащания: всички филтри в един ред, за да остане пагинацията на екрана */
+.payments-content .suppliers-filters { gap:6px; margin-bottom:10px; }
+.payments-content .suppliers-filters .search-box { flex:1 1 150px; min-width:140px; }
+.payments-content .suppliers-filters .field { flex:0 0 auto; }
+.payments-content .suppliers-filters .field input[type="date"] { width:124px; }
+.payments-content .suppliers-filters .field select { min-width:0; width:auto; font-size:12px; }
+.payments-content .suppliers-filters .field select[aria-label="Инфлуенсър / Търговец"] { max-width:250px; }
+@media (max-width:700px) { .payments-content .suppliers-filters .field, .payments-content .suppliers-filters .field select { width:100%; } }
+@media (max-width:700px) { .payments-content .suppliers-filters .field select { width:100%; } }
 
 /* Компактен „Нова поръчка“ — по-плътни отстояния само на този екран */
 .new-order.page-content { padding:16px 28px 0; }
