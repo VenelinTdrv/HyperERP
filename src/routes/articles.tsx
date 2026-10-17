@@ -74,7 +74,7 @@ function Articles() {
     const columns = line.split(/[;,\t]/).map(column=>column.trim());
     if(columns.length<2)continue;
     const [sku,name,category] = columns;
-    if(!sku||!name||existing.has(sku.toLowerCase())){if(line.trim())skipped++;continue;}
+    if(!sku||!name||!category||existing.has(sku.toLowerCase())){if(line.trim())skipped++;continue;}
     const matched = categories.find(item=>item===category||item.startsWith(category));
     if(!matched){skipped++;continue;}
     existing.add(sku.toLowerCase());
