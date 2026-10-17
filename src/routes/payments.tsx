@@ -25,17 +25,16 @@ export const SELLERS=[
  {id:'Мария Иванова',type:'Инфлуенсър'},
  {id:'Козметик Груп ООД',type:'Търговец на едро'},
 ] as const;
-export const SELLER_TYPES=[...new Set(SELLERS.map(s=>s.type))] as string[];
 const sellerType=(id:string)=>SELLERS.find(s=>s.id===id)?.type??'';
 const todayISO=()=>new Date().toLocaleDateString('en-CA');
 const day=(back:number)=>{const d=new Date();d.setDate(d.getDate()-back);return d.toLocaleDateString('en-CA');};
 const ADMIN='Венелин Тодоров';
 type Form={orderId:string;saleId:string;client:string;agent:string;amount:string;method:string;source:string;status:string;date:string;reference:string;note:string};
 export type Payment=Form&{id:string;edited?:string;editedBy?:string};
-export type PaymentFilter={q:string;method:string;source:string;status:string;type:string;agent:string;from:string;to:string};
+export type PaymentFilter={q:string;method:string;source:string;status:string;agent:string;from:string;to:string};
 const blank:Form={orderId:'',saleId:'',client:'',agent:'Виктория Григорова',amount:'',method:'Наложен платеж',source:'Еконт',status:'Очаквано',date:todayISO(),reference:'',note:''};
 const p=(n:number,o:string,c:string,a:number,m:string,s:string,st:string,d:string,r:string,agent:string,edited?:string,editedBy?:string):Payment=>({id:`PAY-${String(n).padStart(5,'0')}`,orderId:o,saleId:o.replace('ORD','SAL'),client:c,agent,amount:a.toFixed(2),method:m,source:s,status:st,date:d,reference:r,note:'',edited:edited??'',editedBy:editedBy??''});
-export const paymentMatches=(r:Payment,f:PaymentFilter)=>{const s=f.q.trim().toLocaleLowerCase('bg-BG');return(!s||[r.id,r.orderId,r.saleId,r.client,r.reference,r.agent].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!f.method||r.method===f.method)&&(!f.source||r.source===f.source)&&(!f.type||sellerType(r.agent)===f.type)&&(!f.agent||r.agent===f.agent)&&(!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to)&&(!f.status||r.status===f.status);};
+export const paymentMatches=(r:Payment,f:PaymentFilter)=>{const s=f.q.trim().toLocaleLowerCase('bg-BG');return(!s||[r.id,r.orderId,r.saleId,r.client,r.reference,r.agent].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!f.method||r.method===f.method)&&(!f.source||r.source===f.source)&&(!f.agent||r.agent===f.agent)&&(!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to)&&(!f.status||r.status===f.status);};
 export const initial:Payment[]=[
  p(23,'ORD-0024','Мария Иванова',73.9,'Банков превод','Pigeon','Получено',todayISO(),'PG-77166','Виктория Григорова',`${todayISO()}T11:20`,ADMIN),
  p(22,'ORD-0022','Иван Георгиев',88.9,'Наложен платеж','Еконт','Получено',todayISO(),'EC-1048941','Елена Петрова'),
@@ -72,7 +71,7 @@ const TILE_TONE:Record<(typeof STATUSES)[number],string>={'Очаквано':'pe
 function Payments(){
  const orders=useOrders();
  const [rows,setRows]=useState(initial);
- const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');const [type,setType]=useState('');const [agent,setAgent]=useState('');
+ const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');const const [agent,setAgent]=useState('');
  const [from,setFrom]=useState(todayISO());const [to,setTo]=useState(todayISO());
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(25);
@@ -80,7 +79,7 @@ function Payments(){
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);
  const [announcement,setAnnouncement]=useState('');
- const base=rows.filter(r=>paymentMatches(r,{q,method,source,status:'',type,agent,from,to}));
+ const base=rows.filter(r=>paymentMatches(r,{q,method,source,status:'',agent,from,to}));
  const filtered=base.filter(r=>!status||r.status===status);
  const tiles=[{label:'Всички',Icon:Wallet,value:base.length,status:'',tone:'info'},...STATUSES.map(st=>({label:st,Icon:TILE_ICONS[st],value:base.filter(r=>r.status===st).length,status:st,tone:TILE_TONE[st]}))];
  const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
@@ -91,7 +90,7 @@ function Payments(){
  const exportXls=()=>downloadPaymentsXls(filtered);
  const exportPdf=()=>openPaymentsPrint(filtered,'Плащания');
  const exportPrint=exportPdf;
- const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setType('');setAgent('');setFrom(todayISO());setTo(todayISO());setPage(1);};
+ const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setAgent('');setFrom(todayISO());setTo(todayISO());setPage(1);};
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(e=>{const n={...e};delete n[k];return n;});};
  const pickOrder=(id:string)=>{const o=orders.find(x=>x.id===id);const own=o?.influencer&&SELLERS.some(x=>x.id===o.influencer)?o.influencer:'';setForm(f=>({...f,orderId:id,saleId:id?id.replace('ORD','SAL'):'',client:o?.customer??f.client,agent:own||f.agent,amount:o?total(o).toFixed(2):f.amount,method:o?.payment==='Банков превод'?'Банков превод':o?'Наложен платеж':f.method,source:o?(o.courier==='Еконт'?'Еконт':'Pigeon'):f.source}));setErrors({});};
@@ -122,12 +121,11 @@ function Payments(){
   <div className="suppliers-filters transfers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Търсене" placeholder="Плащане, поръчка, клиент…" value={q} onChange={ev=>{setQ(ev.target.value);setPage(1);}}/></div>
    <div className="field"><input id="pay-from" type="date" aria-label="От дата" value={from} onChange={ev=>{setFrom(ev.target.value);setPage(1);}}/></div>
    <div className="field"><input id="pay-to" type="date" aria-label="До дата" value={to} onChange={ev=>{setTo(ev.target.value);setPage(1);}}/></div>
-   <div className="field"><select aria-label="Тип" value={type} onChange={ev=>{setType(ev.target.value);setAgent('');setPage(1);}}><option value="">Всички типове</option>{SELLER_TYPES.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Инфлуенсър / Търговец" value={agent} onChange={ev=>{setAgent(ev.target.value);setPage(1);}}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s=><option key={s.id} value={s.id}>{s.id}</option>)}</select></div>
    <div className="field"><select aria-label="Вид плащане" value={method} onChange={ev=>{setMethod(ev.target.value);setPage(1);}}><option value="">Всички видове</option>{METHODS.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Източник" value={source} onChange={ev=>{setSource(ev.target.value);setPage(1);}}><option value="">Всички източници</option>{SOURCES.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Статус" value={status} onChange={ev=>{setStatus(ev.target.value);setPage(1);}}><option value="">Всички статуси</option>{STATUSES.map(x=><option key={x}>{x}</option>)}</select></div>
-   <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!type&&!agent&&!datesChanged} onClick={clear}><X/>Изчисти</Button></div>
+   <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!type&&!agent&&!type&&!agent!agent&&!datesChanged} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с плащания"><div className="delivery-list-heading"><h2>Всички плащания <span>{filtered.length}</span></h2><span className="text-xs text-muted-foreground">Получени: <strong className="text-foreground">{money(String(sum))}</strong></span></div>
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Плащане</th><th>Поръчка / Продажба</th><th>Клиент</th><th>Инфлуенсър / Търговец</th><th>Вид</th><th>Източник</th><th className="text-right">Сума</th><th>Дата</th><th>Статус</th><th>Редактирано от</th><th className="text-center">Действия</th><th className="text-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
