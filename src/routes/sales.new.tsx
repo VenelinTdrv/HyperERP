@@ -19,6 +19,7 @@ const catalog = [
  { id: 2, name: 'Velvet Bloom', sku: 'PRF-002', stock: 32, price: 69 },
  { id: 3, name: 'Pure Essence', sku: 'PRF-003', stock: 120, price: 35 },
 ];
+const DEMO_CLIENT = { name:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. Витоша 15, вход Б, ап. 3', courier:'Еконт' };
 type OrderItem = { id:number; quantity:number; price:number };
 const INFLUENCERS = ['Виктория Григорова','Елена Петрова','Мария Иванова'];
 const CITIES = ['София','Пловдив','Варна','Бургас','Русе','Стара Загора','Плевен','Ямбол'];
@@ -60,7 +61,7 @@ function Index() {
      <div className="order-layout"><div className="min-w-0">
       <section className="order-section"><div className="section-heading"><div className="section-title"><h2>Клиент и доставка</h2></div><UserRound size={16} className="text-muted-foreground"/></div><div className="section-body">
         <div className="field"><label htmlFor="client-search">Избор на клиент</label><div className="client-search-row"><div className="search-box"><Search/><input id="client-search" className="search-input" placeholder="Търсене по име или телефон…" value={clientSearch} onChange={e=>setClientSearch(e.target.value)}/></div><Button type="button" variant="outline" className="new-client h-[41px]" onClick={()=>{setClient({name:'Нов клиент',phone:''});setClientSearch('');}}><UserRoundPlus/>Нов клиент</Button></div><p className="text-xs text-muted-foreground mt-2">Потърсете клиент по име или телефон, или създайте нов.</p></div>
-        {clientSearch && <div className="search-results">{'Мария Иванова 0888123456'.toLowerCase().includes(clientSearch.toLowerCase())?<Button type="button" variant="ghost" className="search-result" onClick={()=>{setClient({name:'Мария Иванова',phone:'0888 123 456'});setClientSearch('');}}><span>Мария Иванова <small className="text-muted-foreground">· примерен клиент</small></span><span>0888 123 456</span></Button>:<p className="p-2 text-xs text-muted-foreground">Няма намерен клиент. Добавете нов.</p>}</div>}
+        {clientSearch && <div className="search-results">{`${DEMO_CLIENT.name} ${DEMO_CLIENT.phone}`.toLowerCase().includes(clientSearch.toLowerCase())?<Button type="button" variant="ghost" className="search-result" onClick={()=>{setClient({name:DEMO_CLIENT.name,phone:DEMO_CLIENT.phone});setForm(prev=>({...prev,city:DEMO_CLIENT.city,address:DEMO_CLIENT.address,courier:DEMO_CLIENT.courier}));setDelivery('address');setClientSearch('');}}><span>{DEMO_CLIENT.name} <small className="text-muted-foreground">· примерен клиент</small></span><span>{DEMO_CLIENT.phone}</span></Button>:<p className="p-2 text-xs text-muted-foreground">Няма намерен клиент. Добавете нов.</p>}</div>}
         {client && <div className="client-chip mt-4" role="status"><UserRound size={15}/><span className="font-semibold">{client.name}</span>{client.phone && <span className="text-muted-foreground">{client.phone}</span>}<Button type="button" variant="ghost" size="icon" className="ml-auto w-7 h-7 text-muted-foreground" aria-label="Премахни клиента" onClick={()=>setClient(null)}><Trash2 size={13}/></Button></div>}
        {client ? <>
        <div className="form-divider"/><div className="delivery-heading"><Truck size={16}/>Данни за доставка</div>
