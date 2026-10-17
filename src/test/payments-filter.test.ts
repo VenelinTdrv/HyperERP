@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { renderHook } from '@testing-library/react';
+
 import { initial, paymentMatches, paymentTotals, SELLER_TYPES, type PaymentFilter } from '@/routes/payments';
+import { useOrders } from '@/lib/orders-store';
 
 const empty: PaymentFilter = { q: '', method: '', source: '', status: '', type: '', agent: '', from: '', to: '' };
 const today = new Date().toLocaleDateString('en-CA');
@@ -40,6 +43,9 @@ describe('Payments filter by influencer or merchant', () => {
 
  it('totals the filtered payments shown in the summary under the table', () => {
   const todays = initial.filter(r => paymentMatches(r, { ...empty, from: today, to: today }));
-  expect(paymentTotals(todays)).toEqual({ total: 811.6, cash: 416 });
+  const { result, unmount } = renderHook(() => useOrders());
+  const shipping = Object.fromEntries(result.current.map(o => [o.id, o.shipping]));
+  expect(paymentTotals(todays, shipping)).toEqual({ total: 811.6, cash: 416, shipping: 49 });
+  unmount();
  });
 });
