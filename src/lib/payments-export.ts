@@ -12,7 +12,7 @@ export type PaymentRow = {
   status: string;
 };
 
-const esc = (s: string) => s.replace(/[&<>"]/g, c => ({ '&': '&', '<': '<', '>': '>', '"': '"' }[c] ?? c));
+const esc = (s: string) => s.replace(/&/g, '&' + 'amp;').replace(/</g, '&' + 'lt;').replace(/>/g, '&' + 'gt;').replace(/"/g, '&' + 'quot;');
 const money = (v: number | string) => `${Number(v).toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 const date = (v: string) => v.split('-').reverse().join('.');
 
