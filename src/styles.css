@@ -317,8 +317,9 @@
  .field input, .field select { min-height:44px; }
  .search-box > svg { top:14px; }
 }
-.clients-filters { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) auto; gap:12px; max-width:820px; margin-bottom:22px; }
+.clients-filters { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,170px) auto; gap:12px; max-width:980px; margin-bottom:22px; }
 .clients-filters>button { height:41px; }
+.clients-filters .field select { min-height:41px; }
 .client-name { padding:0; height:auto; font-weight:700; font-size:12px; color:var(--foreground); }
 .client-name:hover { color:var(--primary); background:transparent; }
 .client-notes { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted-foreground); }
