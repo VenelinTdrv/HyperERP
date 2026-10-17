@@ -495,7 +495,7 @@
  .order-detail.page-content { padding:14px 16px 0; }
  .order-detail .page-heading { grid-template-columns:minmax(0,1fr); }
  .order-detail .page-heading > div:last-child { gap:8px; }
- .order-detail .page-heading > div:last-child .field { flex:1; }
+ .order-detail .page-heading > div:last-child .field { flex:1 0 100%; }
  .order-detail .page-heading > div:last-child button { min-height:40px; }
  .order-detail .delivery-editor-grid { gap:10px; }
  .order-detail .field input, .order-detail .field select { min-height:40px; }
