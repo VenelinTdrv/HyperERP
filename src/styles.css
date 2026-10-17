@@ -439,6 +439,8 @@
 .new-order .field { gap:5px; }
 .new-order .field input, .new-order .field select, .new-order .field textarea, .new-order .search-input { min-height:36px; padding:6px 10px; }
 .new-order .search-box > svg { top:10px; }
+.new-order .search-box input { padding-left:37px; }
+.new-order .search-box input::placeholder { font-size:11px; }
 .new-order .client-search-row { gap:10px; }
 .new-order .form-divider { margin:13px 0 12px; }
 .new-order .delivery-heading { margin-bottom:10px; }
