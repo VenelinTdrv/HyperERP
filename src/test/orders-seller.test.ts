@@ -1,10 +1,13 @@
+import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useOrders } from '@/lib/orders-store';
 import { SELLERS, sellerType } from '@/lib/sellers';
 
 describe('Orders seller column', () => {
   it('gives every demo order a known influencer or wholesale trader', () => {
-    const rows = useOrders();
+    const { result, unmount } = renderHook(() => useOrders());
+    const rows = result.current;
+    unmount();
     expect(rows.length).toBeGreaterThan(0);
     expect(rows.every(row => SELLERS.some(s => s.id === row.influencer))).toBe(true);
   });
