@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, CheckCheck, ChevronLeft, ChevronRight, CircleDollarSign, Clock3, Eye, Info, MoreVertical, Pencil, Plus, RotateCcw, Search, ShieldCheck, Trash2, Wallet, X, XCircle } from 'lucide-react';
+import { Check, CheckCheck, CircleDollarSign, Clock3, Eye, Info, MoreVertical, Pencil, Plus, RotateCcw, Search, ShieldCheck, Trash2, Wallet, X, XCircle } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -58,7 +59,6 @@ export const initial:Payment[]=[
  p(2,'ORD-0016','Кирил Атанасов',211.9,'Наложен платеж','Еконт','Очаквано',day(5),'EC-1048301','Козметик Груп ООД'),
  p(1,'ORD-0015','Ирина Георгиева',123.9,'Банков превод','Pigeon','Получено',day(6),'PG-76902','Козметик Груп ООД'),
 ];
-const PAGE=10;
 export const paymentTotals=(rows:{amount:number|string;method:string;orderId?:string}[],shipping:Record<string,number>={})=>{const sum=(xs:{amount:number|string}[])=>Math.round(xs.reduce((a,r)=>a+Number(r.amount),0)*100)/100;const ship=Math.round(rows.reduce((a,r)=>a+Number(shipping[r.orderId??'']||0),0)*100)/100;const total=sum(rows);return{total,cash:sum(rows.filter(r=>r.method==='Наложен платеж')),shipping:ship,margin:Math.round((total-ship)*100)/100};};
 const money=(v:number|string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'neutral'};
@@ -71,6 +71,7 @@ function Payments(){
  const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');const [type,setType]=useState('');const [agent,setAgent]=useState('');
  const [from,setFrom]=useState(todayISO());const [to,setTo]=useState(todayISO());
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Payment|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);
@@ -78,8 +79,8 @@ function Payments(){
  const base=rows.filter(r=>paymentMatches(r,{q,method,source,status:'',type,agent,from,to}));
  const filtered=base.filter(r=>!status||r.status===status);
  const tiles=[{label:'Всички',Icon:Wallet,value:base.length,status:'',tone:'info'},...STATUSES.map(st=>({label:st,Icon:TILE_ICONS[st],value:base.filter(r=>r.status===st).length,status:st,tone:TILE_TONE[st]}))];
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const sum=filtered.filter(r=>r.status==='Получено').reduce((a,r)=>a+Number(r.amount),0);
  const shippingByOrder=Object.fromEntries(orders.map(o=>[o.id,o.shipping]));const { total: totalAll, cash: cashTotal, shipping: shippingTotal, margin: marginTotal } = paymentTotals(filtered, shippingByOrder);
  const datesChanged=from!==todayISO()||to!==todayISO();
@@ -135,7 +136,7 @@ function Payments(){
     <td className="text-center"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.id}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuItem onSelect={()=>changeStatus(r.id,'Получено')} disabled={r.status==='Получено'}><Check/>Отбележи като получено</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
     <td className="text-center"><Button variant="ghost" size="icon" aria-label={`Виж ${r.id}`} onClick={()=>setSelected(r)}><Eye/></Button></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><Wallet size={32}/><h3>{rows.length?'Няма намерени плащания':'Все още няма плащания'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Ново плащане</Button>}</div>}
-   <div className="delivery-pagination payments-footrow"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="payments-summary"><div className="payments-summary-field is-info"><span>Обща сума</span><strong>{money(totalAll)}</strong><small>наложен {money(cashTotal)}</small></div><div className="payments-summary-field is-warning"><span>Сума доставни цени</span><strong>{money(shippingTotal)}</strong></div><div className="payments-summary-field is-success"><span>Горница</span><strong>{money(marginTotal)}</strong><small>обща − доставни</small></div></div><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} className="payments-footrow" id="payments-page-size" middle={<div className="payments-summary"><div className="payments-summary-field is-info"><span>Обща сума</span><strong>{money(totalAll)}</strong><small>наложен {money(cashTotal)}</small></div><div className="payments-summary-field is-warning"><span>Сума доставни цени</span><strong>{money(shippingTotal)}</strong></div><div className="payments-summary-field is-success"><span>Горница</span><strong>{money(marginTotal)}</strong><small>обща − доставни</small></div></div>} />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни плащания · без реална връзка с Еконт и Pigeon и без реално записване</div>
  </div>

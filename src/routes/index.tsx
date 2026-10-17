@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Ban, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ClipboardList, Eye, FileSpreadsheet, FileText, Info, MoreVertical, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { Ban, CheckCircle2, ClipboardList, Eye, FileSpreadsheet, FileText, Info, MoreVertical, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import perfume from '@/assets/perfume.jpg';
@@ -95,7 +96,7 @@ function Sales() {
    </tr>)}</tbody></table></div>
    {visible.length===0&&<div className="delivery-empty"><ClipboardList size={32}/><h3>Няма намерени поръчки</h3><p>Няма необработени поръчки за избраните филтри.</p><Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button></div>}
    {selection.length>0&&<div className="article-selection"><span>{selection.length} {selection.length===1?'избрана поръчка':'избрани поръчки'}</span><Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(current-1)*pageSize+1}–${Math.min(current*pageSize,filtered.length)}`:'0'} от {filtered.length} поръчки</span><div className="delivery-pagination-controls"><label htmlFor="orders-page-size">На страница</label><select id="orders-page-size" value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[5,10,25,50].map(n=><option key={n}>{n}</option>)}</select><Button variant="ghost" size="icon" aria-label="Първа страница" disabled={current===1} onClick={()=>setPage(1)}><ChevronsLeft/></Button><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={current===1} onClick={()=>setPage(current-1)}><ChevronLeft/></Button><span>{current} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={current===pages} onClick={()=>setPage(current+1)}><ChevronRight/></Button><Button variant="ghost" size="icon" aria-label="Последна страница" disabled={current===pages} onClick={()=>setPage(pages)}><ChevronsRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} noun="поръчки" id="sales-page-size" />
   </section><div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни поръчки · без реално записване</div>
  </div><Dialog open={selected!==null} onOpenChange={open=>{if(!open)setSelected(null);}}><DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">{selected&&<><DialogHeader><DialogTitle>Поръчка {selected.id}</DialogTitle><DialogDescription>Примерна поръчка · без реално записване</DialogDescription></DialogHeader><OrderStatus status={selected.status}/><dl className="delivery-details">{[['Клиент',selected.customer],['Телефон',selected.phone],['Населено място',selected.city],['Куриер',selected.courier],['Адрес / офис',selected.address],['Създадена на',date(selected.created)]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><div className="delivery-detail-product"><img src={perfume} alt="Примерен парфюм"/><div><strong>{selected.product}</strong><p>{selected.quantity} бр. × {money(selected.price)}</p></div><strong className="ml-auto">{money(selected.quantity*selected.price)}</strong></div><dl className="delivery-details"><div><dt>Доставка</dt><dd>{money(selected.shipping)}</dd></div><div><dt>Общо с ДДС</dt><dd>{money(selected.quantity*selected.price+selected.shipping)}</dd></div></dl><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button></>}</DialogContent></Dialog></WorkspaceShell>;
 }

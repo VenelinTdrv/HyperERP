@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { Check, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -28,12 +29,12 @@ const initial:Settlement[]=[
  {id:9,country:'България',name:'Казанлък',region:'Стара Загора',postalCode:'6100'},
  {id:10,country:'България',name:'Велинград',region:'Пазарджик',postalCode:'4600'},
 ];
-const PAGE=10;
 
 function Settlements(){
  const [rows,setRows]=useState(initial);
  const [nameQ,setNameQ]=useState('');const [regionQ,setRegionQ]=useState('');
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Settlement|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Settlement|null>(null);const [deleting,setDeleting]=useState<Settlement|null>(null);
@@ -41,8 +42,8 @@ function Settlements(){
  const q=nameQ.trim().toLocaleLowerCase('bg-BG');const rg=regionQ.trim().toLocaleLowerCase('bg-BG');
  const regions=[...new Set(rows.map(r=>r.region))].sort((a,b)=>a.localeCompare(b,'bg-BG'));
  const filtered=rows.filter(r=>(!q||r.name.toLocaleLowerCase('bg-BG').includes(q))&&(!rg||r.region===regionQ));
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const clear=()=>{setNameQ('');setRegionQ('');setPage(1);};
  const open=(s:Settlement|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{country:s.country,name:s.name,region:s.region,postalCode:s.postalCode}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
@@ -75,7 +76,7 @@ function Settlements(){
     <td>{r.country}</td>
     <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.name}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(r)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><MapPin size={32}/><h3>{rows.length?'Няма намерени населени места':'Все още няма населени места'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави населено място</Button>}</div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="settlements-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни населени места · без реално записване</div>
  </div>

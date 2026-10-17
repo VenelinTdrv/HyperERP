@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, EyeOff, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react';
+import { Check, Eye, EyeOff, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -24,13 +25,13 @@ const initial:User[]=[
  {id:5,email:'testuser@abv.bg',firstName:'Тест',lastName:'Потребител',role:'Администратор',active:false},
  {id:6,email:'aivan_2001@abv.bg',firstName:'Мария',lastName:'Иванова',role:'Инфлуенсър',active:true},
 ];
-const PAGE=5;
 const EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function Users(){
  const [rows,setRows]=useState(initial);
  const [q,setQ]=useState('');const [role,setRole]=useState('');const [status,setStatus]=useState('');
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<User|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [showPw,setShowPw]=useState(false);
@@ -38,8 +39,8 @@ function Users(){
  const [announcement,setAnnouncement]=useState('');
  const t=q.trim().toLocaleLowerCase('bg-BG');
  const filtered=rows.filter(r=>(!t||`${r.firstName} ${r.lastName} ${r.email}`.toLocaleLowerCase('bg-BG').includes(t))&&(!role||r.role===role)&&(!status||(status==='active')===r.active));
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const clear=()=>{setQ('');setRole('');setStatus('');setPage(1);};
  const open=(u:User|null)=>{setSelected(null);setEditing(u);setErrors({});setShowPw(false);setForm(u?{...blank,email:u.email,firstName:u.firstName,lastName:u.lastName,role:u.role,active:u.active}:{...blank});setEditor(true);};
  const set=<K extends keyof Form>(k:K,v:Form[K])=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
@@ -83,7 +84,7 @@ function Users(){
     <td><span className={`delivery-status ${r.active?'received':'cancelled'}`}>{r.active?'Активен':'Неактивен'}</span></td>
     <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.email}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(r)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem>{r.id!==1&&<><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></>}</DropdownMenuContent></DropdownMenu></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><UserCog size={32}/><h3>{rows.length?'Няма намерени потребители':'Все още няма потребители'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави потребител</Button>}</div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="users-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни потребители · без реално записване и без реален вход</div>
  </div>

@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, Info, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Truck, X } from 'lucide-react';
+import { Check, Eye, Info, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Truck, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -29,20 +30,20 @@ const initial:Supplier[]=[
  {id:10,...blank,name:'Polena Beauty Sp. z o.o.',description:'Грижа за кожата и косата',eik:'7010056789',vat:'PL7010056789',country:'Полша',city:'Варшава',street:'ul. Marszałkowska 27',block:'5',entrance:'C',floor:'2',apartment:'8',postcode:'00-638',phone:'+48221234567',iban:'PL61109010140000071219812874',contactName:'Anna Kowalska',contactEmail:'anna@polena-beauty.pl',contactPhone:'+48501123456'},
 ];
 const addr=(s:Form)=>[s.street,s.block&&`бл. ${s.block}`,s.entrance&&`вх. ${s.entrance}`,s.floor&&`ет. ${s.floor}`,s.apartment&&`ап. ${s.apartment}`].filter(Boolean).join(', ');
-const PAGE=10;
 
 function Suppliers(){
  const [rows,setRows]=useState(initial);
  const [name,setName]=useState('');const [eik,setEik]=useState('');const [status,setStatus]=useState('');
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Supplier|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Supplier|null>(null);const [deleting,setDeleting]=useState<Supplier|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const e=eik.trim();
  const filtered=rows.filter(r=>(!q||r.name.toLocaleLowerCase('bg-BG').includes(q))&&(!e||r.eik.includes(e))&&(!status||(status==='active')===r.active));
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const clear=()=>{setName('');setEik('');setStatus('');setPage(1);};
  const open=(s:Supplier|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{...s}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string|boolean)=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
@@ -84,7 +85,7 @@ function Suppliers(){
     <td>{badge(s.active)}</td>
     <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${s.name}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(s)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(s)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(s)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><Truck size={32}/><h3>{rows.length?'Няма намерени доставчици':'Все още няма доставчици'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави доставчик</Button>}</div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="suppliers-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни доставчици · без реално записване</div>
  </div>

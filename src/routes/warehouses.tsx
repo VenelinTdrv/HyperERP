@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Warehouse, X } from 'lucide-react';
+import { Check, Eye, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Warehouse, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -24,20 +25,20 @@ const initial:WarehouseRow[]=[
  {id:5,name:'Склад Варна',kind:'Физически',country:'България',city:'Варна',street:'ул. Морска 8',postalCode:'9000'},
  {id:6,name:'Виртуален — Връщания',kind:'Виртуален',country:'България',city:'Ямбол',street:'',postalCode:''},
 ];
-const PAGE=5;
 
 function Warehouses(){
  const [rows,setRows]=useState(initial);
  const [nameQ,setNameQ]=useState('');const [cityQ,setCityQ]=useState('');
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<WarehouseRow|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<WarehouseRow|null>(null);const [deleting,setDeleting]=useState<WarehouseRow|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=nameQ.trim().toLocaleLowerCase('bg-BG');const cq=cityQ.trim().toLocaleLowerCase('bg-BG');
  const filtered=rows.filter(r=>(!q||r.name.toLocaleLowerCase('bg-BG').includes(q))&&(!cq||r.city.toLocaleLowerCase('bg-BG').includes(cq)));
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const clear=()=>{setNameQ('');setCityQ('');setPage(1);};
  const open=(s:WarehouseRow|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{name:s.name,kind:s.kind,country:s.country,city:s.city,street:s.street,postalCode:s.postalCode}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
@@ -73,7 +74,7 @@ function Warehouses(){
     <td>{r.country}</td>
     <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.name}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(r)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><Warehouse size={32}/><h3>{rows.length?'Няма намерени складове':'Все още няма складове'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави склад</Button>}</div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="warehouses-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни складове · без реално записване</div>
  </div>
