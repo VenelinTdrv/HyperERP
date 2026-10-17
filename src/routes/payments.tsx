@@ -61,9 +61,9 @@ export const initial:Payment[]=[
 const PAGE=10;
 export const paymentTotals=(rows:{amount:number|string;method:string;orderId?:string}[],shipping:Record<string,number>={})=>{const sum=(xs:{amount:number|string}[])=>Math.round(xs.reduce((a,r)=>a+Number(r.amount),0)*100)/100;const ship=Math.round(rows.reduce((a,r)=>a+Number(shipping[r.orderId??'']||0),0)*100)/100;const total=sum(rows);return{total,cash:sum(rows.filter(r=>r.method==='Наложен платеж')),shipping:ship,margin:Math.round((total-ship)*100)/100};};
 const money=(v:number|string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
-const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'pending','Отказано':'danger','Върнато':'danger'};
+const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'neutral'};
 const TILE_ICONS:Record<(typeof STATUSES)[number],typeof Wallet>={'Очаквано':Clock3,'Получено':CheckCheck,'Частично':CircleDollarSign,'Отказано':XCircle,'Върнато':RotateCcw};
-const TILE_TONE:Record<(typeof STATUSES)[number],string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'danger'};
+const TILE_TONE:Record<(typeof STATUSES)[number],string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'neutral'};
 
 function Payments(){
  const orders=useOrders();
@@ -106,7 +106,7 @@ function Payments(){
  const remove=()=>{if(!deleting)return;setRows(prev=>prev.filter(r=>r.id!==deleting.id));setAnnouncement(`${deleting.id} · Плащането е изтрито само в демонстрацията.`);setDeleting(null);};
  const err=(k:string)=>errors[k]?<p id={`pay-${k}-error`} className="text-xs text-destructive" role="alert">{errors[k]}</p>:null;
  const input=(k:keyof Form,label:string,o:{req?:boolean;ph?:string;type?:string}={})=><div className="field"><label htmlFor={`pay-${k}`}>{label}{o.req&&<span className="required">*</span>}</label><input id={`pay-${k}`} type={o.type??'text'} placeholder={o.ph} value={form[k]} aria-invalid={Boolean(errors[k])} aria-describedby={errors[k]?`pay-${k}-error`:undefined} onChange={ev=>set(k,ev.target.value)}/>{err(k)}</div>;
- const sel=(k:keyof Form,label:string,opts:readonly string[])=><div className="field"><label htmlFor={`pay-${k}`}>{label}</label><select id={`pay-${k}`} value={form[k]} onChange={ev=>set(k,ev.target.value)}>{opts.map(x=><option key={x} value={x}>{x}</option>)}</select></div>;
+ const sel=(k:keyof Form,label:string,opts:readonly string[],toneValue?:string)=><div className="field"><label htmlFor={`pay-${k}`}>{label}</label><select id={`pay-${k}`} data-tone={toneValue} value={form[k]} onChange={ev=>set(k,ev.target.value)}>{opts.map(x=><option key={x} value={x}>{x}</option>)}</select></div>;
  return <WorkspaceShell active="Плащания"><div className="page-content deliveries-content orders-content payments-content">
   <div className="page-heading deliveries-heading payments-heading"><div className="heading-title"><h1>Плащания<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Плащания по продажбите, получени от Еконт и Pigeon — наложен платеж или банков превод. По подразбиране се показват само плащанията за настоящия ден — променете периода „От/До дата“, за да видите повече. Броячите горе филтрират по статус в рамките на избрания период. Филтрирай и по инфлуенсър или търговец. Статусът се сменя директно от реда.</TooltipContent></Tooltip></TooltipProvider></h1></div>
   <div className="delivery-overview" aria-label="Броячи по статус">{tiles.map(t=><Button key={t.label} variant="ghost" className={`delivery-metric payments-metric tone-${t.tone} ${status===t.status?'is-selected':''}`} aria-pressed={status===t.status} onClick={()=>{setStatus(t.status);setPage(1);}}><span className="metric-icon"><t.Icon size={14}/></span><span className="metric-copy"><span>{t.label}</span><strong>{t.value}</strong></span></Button>)}</div>
@@ -150,7 +150,7 @@ function Payments(){
     {input('amount','Сума (€)',{req:true,ph:'0.00'})}
     {sel('method','Вид плащане',METHODS)}
     {sel('source','Източник',SOURCES)}
-    {sel('status','Статус',STATUSES)}
+    {sel('status','Статус',STATUSES,tone[form.status])}
     {input('date','Дата',{req:true,type:'date'})}
     {input('reference','Референция от източника',{ph:'EC-1048820'})}
     {input('note','Бележка')}
@@ -162,7 +162,7 @@ function Payments(){
   <div><dt>Поръчка</dt><dd>{selected.orderId}</dd></div><div><dt>Продажба</dt><dd>{selected.saleId}</dd></div>
   <div><dt>Клиент</dt><dd>{selected.client}</dd></div><div><dt>Инфлуенсър / Търговец</dt><dd>{selected.agent}</dd></div><div><dt>Сума</dt><dd>{money(selected.amount)}</dd></div>
   <div><dt>Вид</dt><dd>{selected.method}</dd></div><div><dt>Източник</dt><dd>{selected.source}{selected.reference?` · ${selected.reference}`:''}</dd></div>
-  <div><dt>Статус</dt><dd>{selected.status}</dd></div><div><dt>Дата</dt><dd>{selected.date.split('-').reverse().join('.')}</dd></div>
+  <div><dt>Статус</dt><dd><span className={`pay-status tone-${tone[selected.status]}`}><span/>{selected.status}</span></dd></div><div><dt>Дата</dt><dd>{selected.date.split('-').reverse().join('.')}</dd></div>
   {selected.note&&<div><dt>Бележка</dt><dd>{selected.note}</dd></div>}
  </dl><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button onClick={()=>open(selected)}><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog>
 
