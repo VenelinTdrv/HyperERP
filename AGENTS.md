@@ -12,6 +12,7 @@
 ## Application rules
 - Keep the sales list at the index route and the new-order workspace at /sales/new and its styling in the semantic global design system, so the entry screen stays consistent.
 - Treat order and catalog data as frontend demonstration state until a real service is connected; never imply that demo confirmation persists an order.
+- Create new orders through the shared orders store and navigate to /orders after validation, so order entry and order management use the same session-only data.
 - Share sidebar and header through WorkspaceShell across order entry, unprocessed orders, and delivery routes so navigation and workspace styling remain consistent.
 - Keep desktop sidebar collapse in WorkspaceShell with a visible toggle and labeled icon links; preserve the mobile drawer so all navigation stays accessible.
 - Keep the unprocessed orders list at /orders with an explicit status filter and frontend demonstration data, so processed orders cannot appear and no persistence is implied.

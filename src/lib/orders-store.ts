@@ -5,7 +5,7 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type OrderItem = { sku: string; name: string; quantity: number; price: number };
 export const PAYMENT_METHODS = ['Наложен платеж', 'Банкова карта', 'Банков превод'] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
-export type Order = { id: string; status: OrderStatus; customer: string; phone: string; city: string; address: string; courier: string; created: string; items: OrderItem[]; shipping: number; note: string; payment: PaymentMethod; edited?: string };
+export type Order = { id: string; status: OrderStatus; customer: string; phone: string; city: string; address: string; courier: string; created: string; items: OrderItem[]; shipping: number; note: string; payment: PaymentMethod; influencer?: string; deliveryType?: 'address' | 'office'; edited?: string };
 
 export const CATALOG: Omit<OrderItem, 'quantity'>[] = [
   { sku: 'PRF-ROSE-50', name: 'Rose Élixir', price: 49 },
@@ -13,7 +13,11 @@ export const CATALOG: Omit<OrderItem, 'quantity'>[] = [
   { sku: 'PRF-PURE-30', name: 'Pure Essence', price: 35 },
   { sku: 'CRM-HYDR-50', name: 'Hydra Cream', price: 29 },
 ];
-const item = (i: number, quantity: number): OrderItem => ({ ...CATALOG[i]!, quantity });
+const item = (i: number, quantity: number): OrderItem => {
+  const product = CATALOG[i];
+  if (!product) throw new Error('Unknown catalog product');
+  return { ...product, quantity };
+};
 
 let orders: Order[] = [
   { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', items:[item(0,2)], shipping:4.9, note:'', payment:'Наложен платеж' },
@@ -32,6 +36,14 @@ const emit = () => listeners.forEach(l => l());
 const subscribe = (l: () => void) => { listeners.add(l); return () => listeners.delete(l); };
 
 export const useOrders = () => useSyncExternalStore(subscribe, () => orders, () => orders);
+export const createOrder = (data: Omit<Order, 'id' | 'status' | 'created' | 'edited'>): Order => {
+  const nextNumber = orders.reduce((max, order) => Math.max(max, Number(order.id.replace('ORD-', '')) || 0), 0) + 1;
+  const created = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Sofia' }).format(new Date());
+  const order: Order = { ...data, items: data.items.map(item => ({ ...item })), id: `ORD-${String(nextNumber).padStart(4, '0')}`, status: 'Необработена', created };
+  orders = [order, ...orders];
+  emit();
+  return order;
+};
 export const saveOrder = (next: Order) => { orders = orders.map(o => o.id === next.id ? { ...next, edited: new Date().toISOString() } : o); emit(); };
 export const setOrderStatus = (id: string, status: OrderStatus) => { const o = orders.find(x => x.id === id); if (o) saveOrder({ ...o, status }); };
 export const subtotal = (o: Pick<Order, 'items'>) => o.items.reduce((s, i) => s + i.quantity * i.price, 0);
