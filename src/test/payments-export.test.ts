@@ -31,7 +31,7 @@ describe('paymentsTableHtml', () => {
 
   it('escapes HTML in field values', () => {
     const html = paymentsTableHtml([{ ...row, client: 'A<B>&C' }]);
-    expect(html).toContain('A<B>&C');
+    expect(html).toContain('A' + '&' + 'lt;B' + '&' + 'gt;' + '&' + 'amp;C');
     expect(html).not.toContain('A<B>&C');
   });
 });
