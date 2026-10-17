@@ -61,6 +61,9 @@ export const initial:Payment[]=[
  p(1,'ORD-0015','Ирина Георгиева',123.9,'Банков превод','Pigeon','Получено',day(6),'PG-76902','Козметик Груп ООД'),
 ];
 export const paymentTotals=(rows:{amount:number|string;method:string;orderId?:string}[],shipping:Record<string,number>={})=>{const sum=(xs:{amount:number|string}[])=>Math.round(xs.reduce((a,r)=>a+Number(r.amount),0)*100)/100;const ship=Math.round(rows.reduce((a,r)=>a+Number(shipping[r.orderId??'']||0),0)*100)/100;const total=sum(rows);return{total,cash:sum(rows.filter(r=>r.method==='Наложен платеж')),shipping:ship,margin:Math.round((total-ship)*100)/100};};
+// Sales per seller for the „Всички инфлуенсъри и търговци“ labels: amount and share of
+// all sellers, over the same filters but ignoring the chosen person so the numbers stay stable.
+export const sellerShare=(rows:Payment[],f:PaymentFilter)=>{const st=rows.filter(r=>paymentMatches(r,{...f,agent:''}));const totals=SELLERS.map(s=>({id:s.id,amount:Math.round(st.filter(r=>r.agent===s.id).reduce((a,r)=>a+Number(r.amount),0)*100)/100}));const total=Math.round(totals.reduce((a,r)=>a+r.amount,0)*100)/100;return Object.fromEntries(totals.map(r=>[r.id,{amount:r.amount,pct:total?(r.amount/total*100).toFixed(1):'0'}])) as Record<string,{amount:number;pct:string}>;};
 const money=(v:number|string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
 const now=()=>new Date().toISOString();
 const dateTime=(v:string)=>{const d=new Date(v);return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'})}`;};
