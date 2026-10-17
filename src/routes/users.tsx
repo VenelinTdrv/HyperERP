@@ -39,8 +39,8 @@ function Users(){
  const [announcement,setAnnouncement]=useState('');
  const t=q.trim().toLocaleLowerCase('bg-BG');
  const filtered=rows.filter(r=>(!t||`${r.firstName} ${r.lastName} ${r.email}`.toLocaleLowerCase('bg-BG').includes(t))&&(!role||r.role===role)&&(!status||(status==='active')===r.active));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setQ('');setRole('');setStatus('');setPage(1);};
  const open=(u:User|null)=>{setSelected(null);setEditing(u);setErrors({});setShowPw(false);setForm(u?{...blank,email:u.email,firstName:u.firstName,lastName:u.lastName,role:u.role,active:u.active}:{...blank});setEditor(true);};
  const set=<K extends keyof Form>(k:K,v:Form[K])=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};

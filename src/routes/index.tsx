@@ -70,7 +70,7 @@ function Sales() {
   { label:'Отказана', status:'Отказана', Icon:Ban, tone:'danger' },
  ] as const;
  const tileValue = (status:string) => status ? base.filter(row=>row.status===status).length : base.length;
- const pages = Math.max(1, Math.ceil(filtered.length/pageSize));
+ const pages = Math.max(1, Math.ceil(filtered.length/(pageSize||filtered.length||1)));
  const current = Math.min(page, pages);
  const visible = filtered.slice((current-1)*pageSize, current*pageSize);
  const pageIds = visible.map(row=>row.id);

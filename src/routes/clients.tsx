@@ -43,8 +43,8 @@ function Clients(){
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const p=phone.replace(/\D/g,'');
  const filtered=rows.filter(r=>(!q||`${r.first} ${r.last}`.toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p))&&(!status||(status==='Черен списък'?r.blacklisted:!r.blacklisted)));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
  const saveClient=(data:ClientFormData)=>{
   if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,editedBy:'Венелин Тодоров',editedAt:now()}:r));

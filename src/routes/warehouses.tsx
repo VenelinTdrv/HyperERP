@@ -37,8 +37,8 @@ function Warehouses(){
  const [announcement,setAnnouncement]=useState('');
  const q=nameQ.trim().toLocaleLowerCase('bg-BG');const cq=cityQ.trim().toLocaleLowerCase('bg-BG');
  const filtered=rows.filter(r=>(!q||r.name.toLocaleLowerCase('bg-BG').includes(q))&&(!cq||r.city.toLocaleLowerCase('bg-BG').includes(cq)));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setNameQ('');setCityQ('');setPage(1);};
  const open=(s:WarehouseRow|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{name:s.name,kind:s.kind,country:s.country,city:s.city,street:s.street,postalCode:s.postalCode}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};

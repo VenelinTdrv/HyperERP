@@ -42,8 +42,8 @@ function Suppliers(){
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const e=eik.trim();
  const filtered=rows.filter(r=>(!q||r.name.toLocaleLowerCase('bg-BG').includes(q))&&(!e||r.eik.includes(e))&&(!status||(status==='active')===r.active));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setName('');setEik('');setStatus('');setPage(1);};
  const open=(s:Supplier|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{...s}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string|boolean)=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};

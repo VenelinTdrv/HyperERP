@@ -67,8 +67,8 @@ function Transfers(){
   {label:'Отказан',status:'Отказан',Icon:Ban,tone:'danger'},
  ] as const;
  const tileValue=(status:string)=>status?base.filter(r=>r.status===status).length:base.length;
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const pageIds=shown.map(r=>r.id);
  const allSelected=pageIds.length>0&&pageIds.every(id=>selection.includes(id));
  const someSelected=pageIds.some(id=>selection.includes(id));

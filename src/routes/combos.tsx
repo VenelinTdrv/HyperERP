@@ -28,9 +28,9 @@ function Combos() {
  const [deleting,setDeleting]=useState<Combo|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const filtered=rows.filter(row=>row.name.toLowerCase().includes(search.trim().toLowerCase())&&(!influencer||row.influencer===influencer));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));
  const current=Math.min(page,pages);
- const visible=filtered.slice((current-1)*pageSize,current*pageSize);
+ const visible=filtered.slice((current-1)*(pageSize||filtered.length),(current-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setSearch('');setInfluencer('');setPage(1);};
  const startNew=()=>{setEditing(null);setEditor(true);};
  const startEdit=(row:Combo)=>{setSelected(null);setEditing(row);setEditor(true);};

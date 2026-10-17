@@ -45,8 +45,8 @@ function Countries(){
  const [announcement,setAnnouncement]=useState('');
  const c=code.trim().toLocaleUpperCase('bg-BG');const q=nameQ.trim().toLocaleLowerCase('bg-BG');
  const filtered=rows.filter(r=>(!c||r.code.includes(c))&&(!q||r.name.toLocaleLowerCase('bg-BG').includes(q)||r.localName.toLocaleLowerCase('bg-BG').includes(q)));
- const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
+ const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setCode('');setNameQ('');setPage(1);};
  const open=(s:Country|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{code:s.code,name:s.name,localName:s.localName}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:k==='code'?v.toLocaleUpperCase('bg-BG').replace(/[^A-Z]/g,''):v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
