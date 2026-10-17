@@ -1,3 +1,5 @@
+import { DateRangeFilter } from '@/components/date-range-filter';
+import { todayIso } from '@/lib/demo-dates';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { CheckCircle2, ClipboardList, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
@@ -38,7 +40,7 @@ function tableHtml(list:Order[]){
 function Orders() {
  const rows = useOrders();
  const navigate = useNavigate();
- const [filters, setFilters] = useState(emptyFilters);
+ const [filters, setFilters] = useState(() => ({ ...emptyFilters, from: todayIso(), to: todayIso() }));
  const [statusFilter, setStatusFilter] = useState('Необработена');
  const [advanced, setAdvanced] = useState(false);
  const [sort, setSort] = useState('newest');
@@ -47,7 +49,7 @@ function Orders() {
  const [selected, setSelected] = useState<Order|null>(null);
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
- const clear = () => { setFilters(emptyFilters); setPage(1); };
+ const clear = () => { setFilters(f => ({ ...emptyFilters, from: f.from, to: f.to })); setPage(1); };
  const filtered = rows.filter(row => row.status === statusFilter
   && `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.items.map(i=>i.name).join(' ')}`.toLowerCase().includes(filters.search.trim().toLowerCase())
   && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
@@ -61,7 +63,7 @@ function Orders() {
  const someSelected = !allSelected && pageIds.some(id=>selection.includes(id));
  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id=>!pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
- const activeFilters = Object.values(filters).filter(Boolean).length;
+ const activeFilters = [filters.search, (filters as Record<string,string>).status, filters.city, filters.courier].filter(Boolean).length;
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='porachki.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const selectedOrders=()=>{ const orders = selection.map(id=>rows.find(r=>r.id===id)).filter((o): o is NonNullable<typeof o> => !!o); if (orders.length) return orders; toast.error(selection.length ? 'Избраните поръчки вече не са в списъка.' : 'Изберете поръчки с чекбокса.'); return null; };
  const exportPdf=()=>{ const orders = selectedOrders(); if (orders) downloadOrderBlankPdf(orders); };
@@ -69,6 +71,7 @@ function Orders() {
   return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content orders-content">
   <div className="page-heading"><div><h1>Поръчки<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Списъкът показва само необработени поръчки"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва само поръчки в статус „Необработена" — обработените и анулираните се виждат от филтъра за статус.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
+   <DateRangeFilter id="orders-period" from={filters.from} to={filters.to} onChange={(from,to)=>{setFilters(prev=>({...prev,from,to}));setPage(1);}}/>
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setPage(1);}}><option>Необработена</option><option>Обработена</option><option>Анулирана</option></select></div>
    <div className="field"><label htmlFor="orders-courier" className="sr-only">Куриер</label><select id="orders-courier" value={filters.courier} onChange={e=>filter('courier',e.target.value)}><option value="">Всички куриери</option><option>Еконт</option><option>Спиди</option></select></div>
