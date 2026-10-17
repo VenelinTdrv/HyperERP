@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Building2, Check, CheckCheck, ClipboardList, FileText, Info, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, UserRound, UserRoundPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ClientEditorDialog } from '@/components/client-editor';
 
 export const Route = createFileRoute('/sales/new')({
  head: () => ({ meta: [
@@ -41,6 +42,7 @@ function Index() {
  const [error,setError] = useState('');
  const [success,setSuccess] = useState(false);
  const [resetOpen,setResetOpen] = useState(false);
+ const [clientOpen,setClientOpen] = useState(false);
  const [influencer,setInfluencer] = useState('');
  const subtotal = items.reduce((sum,item) => sum + item.price*item.quantity,0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
@@ -64,7 +66,7 @@ function Index() {
      {error && <div className="form-error" role="alert">{error}</div>}
      <div className="order-layout"><div className="min-w-0">
       <section className="order-section"><div className="section-heading"><div className="section-title"><h2>Клиент и доставка</h2></div><UserRound size={16} className="text-muted-foreground"/></div><div className="section-body">
-        <div className="field"><label htmlFor="client-search">Избор на клиент</label><div className="client-search-row"><div className="search-box"><Search/><input id="client-search" className="search-input" placeholder="Търсене по име или телефон…" value={clientSearch} onChange={e=>setClientSearch(e.target.value)}/></div><Button type="button" variant="outline" className="new-client h-9" onClick={()=>{setClient({name:'Нов клиент',phone:''});setClientSearch('');}}><UserRoundPlus/>Нов клиент</Button></div><p className="text-xs text-muted-foreground mt-2">Потърсете клиент по име или телефон, или създайте нов.</p></div>
+        <div className="field"><label htmlFor="client-search">Избор на клиент</label><div className="client-search-row"><div className="search-box"><Search/><input id="client-search" className="search-input" placeholder="Търсене по име или телефон…" value={clientSearch} onChange={e=>setClientSearch(e.target.value)}/></div><Button type="button" variant="outline" className="new-client h-9" onClick={()=>setClientOpen(true)}><UserRoundPlus/>Нов клиент</Button></div><p className="text-xs text-muted-foreground mt-2">Потърсете клиент по име или телефон, или създайте нов.</p></div>
         {clientSearch && <div className="search-results">{`${DEMO_CLIENT.name} ${DEMO_CLIENT.phone}`.toLowerCase().includes(clientSearch.toLowerCase())?<Button type="button" variant="ghost" className="search-result" onClick={()=>{setClient({name:DEMO_CLIENT.name,phone:DEMO_CLIENT.phone});setForm(prev=>({...prev,city:DEMO_CLIENT.city,address:DEMO_CLIENT.address,courier:DEMO_CLIENT.courier}));setDelivery('address');setClientSearch('');}}><span>{DEMO_CLIENT.name} <small className="text-muted-foreground">· примерен клиент</small></span><span>{DEMO_CLIENT.phone}</span></Button>:<p className="p-2 text-xs text-muted-foreground">Няма намерен клиент. Добавете нов.</p>}</div>}
         {client && <div className="client-chip mt-3" role="status"><UserRound size={15}/><span className="font-semibold">{client.name}</span>{client.phone && <span className="text-muted-foreground">{client.phone}</span>}<Button type="button" variant="ghost" size="icon" className="ml-auto w-7 h-7 text-muted-foreground" aria-label="Премахни клиента" onClick={()=>setClient(null)}><Trash2 size={13}/></Button></div>}
        {client ? <>
@@ -93,5 +95,6 @@ function Index() {
    </div>
   <Dialog open={success} onOpenChange={setSuccess}><DialogContent><DialogHeader><div className="w-12 h-12 bg-success-soft text-success grid place-items-center rounded-full mb-3"><CheckCheck size={24}/></div><DialogTitle>Поръчката е проверена успешно</DialogTitle><DialogDescription>Това е демонстрация на екрана. Данните не са изпратени и поръчката не е записана в реална система.</DialogDescription></DialogHeader><Button onClick={()=>setSuccess(false)}>Обратно към поръчката</Button></DialogContent></Dialog>
   <Dialog open={resetOpen} onOpenChange={setResetOpen}><DialogContent><DialogHeader><DialogTitle>Отказ от поръчката?</DialogTitle><DialogDescription>Въведените данни и добавените продукти ще бъдат премахнати.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setResetOpen(false)}>Продължи редакцията</Button><Button variant="destructive" onClick={()=>{reset();setResetOpen(false);}}>Изчисти</Button></div></DialogContent></Dialog>
+  <ClientEditorDialog open={clientOpen} onOpenChange={setClientOpen} editing={null} phones={[]} onSave={data=>{const a=data.addresses.find(x=>x.id===data.primary)??data.addresses[0];setClient({name:`${data.first} ${data.last}`,phone:data.phone});setClientSearch('');if(a){setDelivery('address');setForm(prev=>({...prev,city:a.city,address:a.kind==='street'?`ул. ${a.street} ${a.number}`:a.place}));}}}/>
  </WorkspaceShell>;
 }

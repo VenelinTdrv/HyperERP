@@ -44,23 +44,11 @@ function Clients(){
  const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
  const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
- const save=(e:FormEvent)=>{
-  e.preventDefault();const er:Record<string,string>={};
-  if(!form.first.trim())er['first']='Въведете име';
-  if(!form.last.trim())er['last']='Въведете фамилия';
-  const ph=form.phone.replace(/[\s-]/g,'');
-  if(!ph)er['phone']='Въведете телефон';else if(!/^(\+359|0)\d{8,9}$/.test(ph))er['phone']='Невалиден телефон (напр. 0888123456)';
-  else if(rows.some(r=>r.id!==editing?.id&&r.phone===ph))er['phone']='Вече има клиент с този телефон';
-  form.addresses.forEach(a=>{if(!a.city)er[`city-${a.id}`]='Изберете населено място';if(a.kind==='street'){if(!a.street.trim())er[`street-${a.id}`]='Въведете улица';if(!a.number.trim())er[`number-${a.id}`]='Въведете номер';}else if(!a.place.trim())er[`place-${a.id}`]='Въведете местоназначение';});
-  setErrors(er);
-  if(Object.keys(er).length){document.getElementById(`client-${Object.keys(er)[0]}`)?.focus();return;}
-  const data={first:form.first.trim(),last:form.last.trim(),phone:ph,notes:form.notes.trim(),addresses:form.addresses,primary:form.addresses.some(a=>a.id===form.primary)?form.primary:form.addresses[0]!.id};
+ const saveClient=(data:ClientFormData)=>{
   if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,editedBy:'Венелин Тодоров',editedAt:now()}:r));
   else setRows(prev=>[...prev,{id:Math.max(0,...prev.map(r=>r.id))+1,...data,createdBy:'Венелин Тодоров',createdAt:now(),editedBy:'',editedAt:''}]);
   setEditor(false);setAnnouncement(`${data.first} ${data.last} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
  };
- const err=(k:string)=>errors[k]&&<p id={`client-${k}-error`} className="text-xs text-destructive" role="alert">{errors[k]}</p>;
- const inv=(k:string)=>({'aria-invalid':Boolean(errors[k]),'aria-describedby':errors[k]?`client-${k}-error`:undefined});
  const primaryOf=(c:Client)=>c.addresses.find(a=>a.id===c.primary)??c.addresses[0];
  return <WorkspaceShell active="Клиенти"><div className="page-content deliveries-content orders-content">
   <div className="page-heading"><div><h1>Клиенти<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Контакти и адреси за доставка. Търси по име или телефон и отвори клиент за детайли.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави клиент</Button></div>
