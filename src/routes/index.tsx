@@ -1,3 +1,6 @@
+import { DateRangeFilter } from '@/components/date-range-filter';
+import { todayIso } from '@/lib/demo-dates';
+import { rebaseDates } from '@/lib/demo-dates';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Ban, CheckCircle2, ClipboardList, Eye, FileSpreadsheet, FileText, Info, MoreVertical, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
@@ -27,11 +30,11 @@ type Status = 'Необработена'|'Обработена'|'Изпрате�
 const statuses: Status[] = ['Необработена','Обработена','Изпратена','Доставена','Отказана'];
 type Order = { id: string; status: Status; customer: string; phone: string; city: string; address: string; courier: string; created: string; product: string; quantity: number; price: number; shipping: number; processed?: string; processedBy?: string };
 const ADMIN = 'Венелин Тодоров';
-const initialRows: Order[] = [
+const initialRows: Order[] = rebaseDates([
  { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', product:'Rose Élixir', quantity:2, price:49, shipping:4.9 },
  { id:'ORD-0023', status:'Обработена', customer:'Елена Петрова', phone:'0888 234 567', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-14', product:'Velvet Bloom', quantity:1, price:69, shipping:4.9, processed:'2026-10-14T15:10:00', processedBy:ADMIN  }, { id:'ORD-0022', status:'Изпратена', customer:'Иван Георгиев', phone:'0888 345 678', city:'Варна', address:'Офис · Център', courier:'Еконт', created:'2026-10-13', product:'Pure Essence', quantity:3, price:35, shipping:4.9, processed:'2026-10-13T16:20:00', processedBy:ADMIN  }, { id:'ORD-0021', status:'Доставена', customer:'Десислава Николова', phone:'0888 456 789', city:'София', address:'ул. „Искър“ 18', courier:'Спиди', created:'2026-10-13', product:'Rose Élixir', quantity:1, price:49, shipping:4.9, processed:'2026-10-13T17:05:00', processedBy:ADMIN  }, { id:'ORD-0020', status:'Отказана', customer:'Петър Димитров', phone:'0888 567 890', city:'Бургас', address:'Офис · Център', courier:'Еконт', created:'2026-10-12', product:'Velvet Bloom', quantity:2, price:69, shipping:4.9 },
  { id:'ORD-0019', status:'Доставена', customer:'Анна Стоянова', phone:'0888 678 901', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-12', product:'Pure Essence', quantity:1, price:35, shipping:4.9, processed:'2026-10-12T14:45:00', processedBy:ADMIN  }, { id:'ORD-0018', status:'Обработена', customer:'Стефан Колев', phone:'0888 789 012', city:'София', address:'Офис · Младост 4', courier:'Еконт', created:'2026-10-11', product:'Hydra Cream', quantity:2, price:29, shipping:4.9, processed:'2026-10-11T12:30:00', processedBy:ADMIN  }, { id:'ORD-0017', status:'Изпратена', customer:'Румяна Дончева', phone:'0888 890 123', city:'Варна', address:'ул. „Чаталджа“ 7', courier:'Спиди', created:'2026-10-11', product:'Rose Élixir', quantity:1, price:49, shipping:4.9, processed:'2026-10-11T15:55:00', processedBy:ADMIN  }, { id:'ORD-0016', status:'Доставена', customer:'Кирил Атанасов', phone:'0888 901 234', city:'Русе', address:'Офис · Център', courier:'Еконт', created:'2026-10-10', product:'Velvet Bloom', quantity:3, price:69, shipping:4.9, processed:'2026-10-10T13:15:00', processedBy:ADMIN  }, { id:'ORD-0015', status:'Отказана', customer:'Ирина Георгиева', phone:'0888 012 345', city:'София', address:'ул. „Христо Ботев“ 31', courier:'Спиди', created:'2026-10-10', product:'Pure Essence', quantity:2, price:35, shipping:4.9 },
-];
+], ['created','processed']);
 const emptyFilters = { search:'', status:'', city:'', courier:'', from:'', to:'' };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG');
@@ -45,7 +48,7 @@ function tableHtml(list:Order[]){
 }
 
 function Sales() {
- const [filters, setFilters] = useState(emptyFilters);
+ const [filters, setFilters] = useState(() => ({ ...emptyFilters, from: todayIso(), to: todayIso() }));
  const [advanced, setAdvanced] = useState(false);
  const [sort, setSort] = useState('newest');
  const [page, setPage] = useState(1);
@@ -55,7 +58,7 @@ function Sales() {
   const [rows, setRows] = useState(initialRows);
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
- const clear = () => { setFilters(emptyFilters); setPage(1); };
+ const clear = () => { setFilters(f => ({ ...emptyFilters, from: f.from, to: f.to })); setPage(1); };
  const filtered = rows.filter(row => (!filters.status || row.status === filters.status)
   && `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.product}`.toLowerCase().includes(filters.search.trim().toLowerCase())
   && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
@@ -69,13 +72,14 @@ function Sales() {
  const someSelected = !allSelected && pageIds.some(id=>selection.includes(id));
  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id=>!pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
- const activeFilters = Object.values(filters).filter(Boolean).length;
+ const activeFilters = [filters.search, (filters as Record<string,string>)['status'], filters.city, filters.courier].filter(Boolean).length;
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='prodazhbi.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Продажби</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Продажби</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  const exportPrint = exportPdf;
  return <WorkspaceShell active="Продажби"><div className="page-content deliveries-content orders-content">
   <div className="page-heading"><div><h1>Продажби<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Списъкът показва всички продажби"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Списъкът показва всички продажби — необработени, обработени, изпратени, доставени и отказани.</TooltipContent></Tooltip></TooltipProvider></h1></div><div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button asChild className="delivery-add"><Link to="/sales/new"><Plus/>Нова поръчка</Link></Button></div></div>
   <div className="delivery-filters"><div className="delivery-filter-primary">
+   <DateRangeFilter id="sales-period" from={filters.from} to={filters.to} onChange={(from,to)=>{setFilters(prev=>({...prev,from,to}));setPage(1);}}/>
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={filters.status} onChange={e=>filter('status',e.target.value)}><option value="">Всички статуси</option>{statuses.map(s=><option key={s}>{s}</option>)}</select></div>
    <div className="field"><label htmlFor="orders-courier" className="sr-only">Куриер</label><select id="orders-courier" value={filters.courier} onChange={e=>filter('courier',e.target.value)}><option value="">Всички куриери</option><option>Еконт</option><option>Спиди</option></select></div>
