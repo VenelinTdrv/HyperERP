@@ -427,3 +427,37 @@
 .payments-metric.tone-info .metric-icon { background:var(--info-soft); color:var(--info); }
 .payments-metric.tone-danger .metric-icon { background:var(--destructive-soft); color:var(--destructive); }
 @media (max-width:700px) { .payments-heading .delivery-overview { justify-content:flex-start; } .payments-heading .delivery-metric { min-height:38px; } }
+
+/* Компактен „Нова поръчка“ — по-плътни отстояния само на този екран */
+.new-order.page-content { padding:16px 28px 0; }
+.new-order .page-heading { margin-bottom:12px; }
+.new-order .page-heading h1 { font-size:20px; margin:0 0 2px; }
+.new-order .order-layout { gap:16px; }
+.new-order .order-section { margin-bottom:12px; }
+.new-order .section-heading { padding:10px 18px; }
+.new-order .section-body { padding:13px 18px; }
+.new-order .field { gap:5px; }
+.new-order .field input, .new-order .field select, .new-order .field textarea, .new-order .search-input { min-height:36px; padding:6px 10px; }
+.new-order .search-box > svg { top:10px; }
+.new-order .client-search-row { gap:10px; }
+.new-order .form-divider { margin:13px 0 12px; }
+.new-order .delivery-heading { margin-bottom:10px; }
+.new-order .delivery-grid { gap:12px; }
+.new-order .segmented .segment { height:27px; min-width:96px; }
+.new-order .delivery-placeholder { margin-top:12px; padding:10px 12px; }
+.new-order .product-table th { padding:7px 12px; }
+.new-order .product-table th:first-child, .new-order .product-table td:first-child { padding-left:18px; }
+.new-order .product-table td { padding:9px 12px; }
+.new-order .product-bottom { padding:7px 18px; }
+.new-order .summary { top:16px; }
+.new-order .summary .section-heading { padding:10px 14px; }
+.new-order .summary-body { padding:13px 14px; }
+.new-order .summary-line { margin-bottom:12px; }
+.new-order .total-area { padding:12px 14px; }
+.new-order .total-area strong { font-size:21px; }
+.new-order .summary-note { padding:13px 14px; }
+.new-order .summary-note textarea { min-height:64px; }
+.new-order .note-counter { margin-top:4px; }
+.new-order .summary-status { padding:9px 14px; }
+.new-order .order-footer { padding:10px 0; }
+.new-order .demo-caption { padding-bottom:12px; }
