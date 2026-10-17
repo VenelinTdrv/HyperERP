@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, CheckCheck, CircleDollarSign, Clock3, Eye, Info, MoreVertical, Pencil, Plus, RotateCcw, Search, ShieldCheck, Trash2, Wallet, X, XCircle } from 'lucide-react';
+import { Check, CheckCheck, CircleDollarSign, Clock3, Eye, FileSpreadsheet, FileText, Info, MoreVertical, Pencil, Plus, Printer, RotateCcw, Search, ShieldCheck, Trash2, Wallet, X, XCircle } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOrders, total } from '@/lib/orders-store';
+import { downloadPaymentsXls, openPaymentsPrint } from '@/lib/payments-export';
 
 export const Route = createFileRoute('/payments')({
   head:()=>({meta:[{title:'HyperERP · Плащания'},{name:'description',content:'Плащания по продажбите от Еконт и Pigeon — наложен платеж и банков превод, със статус и сума.'},{property:'og:title',content:'HyperERP · Плащания'},{property:'og:description',content:'Списък с плащания по продажби, филтри по вид, източник и статус, създаване и редакция.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -84,6 +85,9 @@ function Payments(){
  const sum=filtered.filter(r=>r.status==='Получено').reduce((a,r)=>a+Number(r.amount),0);
  const shippingByOrder=Object.fromEntries(orders.map(o=>[o.id,o.shipping]));const { total: totalAll, cash: cashTotal, shipping: shippingTotal, margin: marginTotal } = paymentTotals(filtered, shippingByOrder);
  const datesChanged=from!==todayISO()||to!==todayISO();
+ const exportXls=()=>downloadPaymentsXls(filtered);
+ const exportPdf=()=>openPaymentsPrint(filtered,'Плащания');
+ const exportPrint=exportPdf;
  const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setType('');setAgent('');setFrom(todayISO());setTo(todayISO());setPage(1);};
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(e=>{const n={...e};delete n[k];return n;});};
@@ -111,7 +115,7 @@ function Payments(){
  return <WorkspaceShell active="Плащания"><div className="page-content deliveries-content orders-content payments-content">
   <div className="page-heading deliveries-heading payments-heading"><div className="heading-title"><h1>Плащания<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Плащания по продажбите, получени от Еконт и Pigeon — наложен платеж или банков превод. По подразбиране се показват само плащанията за настоящия ден — променете периода „От/До дата“, за да видите повече. Броячите горе филтрират по статус в рамките на избрания период. Филтрирай и по инфлуенсър или търговец. Статусът се сменя директно от реда.</TooltipContent></Tooltip></TooltipProvider></h1></div>
   <div className="delivery-overview" aria-label="Броячи по статус">{tiles.map(t=><Button key={t.label} variant="ghost" className={`delivery-metric payments-metric tone-${t.tone} ${status===t.status?'is-selected':''}`} aria-pressed={status===t.status} onClick={()=>{setStatus(t.status);setPage(1);}}><span className="metric-icon"><t.Icon size={14}/></span><span className="metric-copy"><span>{t.label}</span><strong>{t.value}</strong></span></Button>)}</div>
-  <Button className="delivery-add" onClick={()=>open(null)}><Plus/>Ново плащане</Button></div>
+  <div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Ново плащане</Button></div></div>
   <div className="suppliers-filters transfers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Търсене" placeholder="Плащане, поръчка, клиент…" value={q} onChange={ev=>{setQ(ev.target.value);setPage(1);}}/></div>
    <div className="field"><input id="pay-from" type="date" aria-label="От дата" value={from} onChange={ev=>{setFrom(ev.target.value);setPage(1);}}/></div>
    <div className="field"><input id="pay-to" type="date" aria-label="До дата" value={to} onChange={ev=>{setTo(ev.target.value);setPage(1);}}/></div>
