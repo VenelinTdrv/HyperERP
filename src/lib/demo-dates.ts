@@ -9,7 +9,7 @@ const shiftDay = (value: string, days: number) => {
 };
 
 /** Shifts demo date fields so the newest `anchor` value lands on today, keeping relative spacing. */
-export function rebaseDates<T extends Record<string, unknown>>(rows: T[], keys: (keyof T)[], anchor: keyof T = keys[0]): T[] {
+export function rebaseDates<T extends Record<string, unknown>>(rows: T[], keys: (keyof T)[], anchor: keyof T = keys[0] as keyof T): T[] {
   const max = rows.map(r => String(r[anchor] ?? '').slice(0, 10)).filter(Boolean).sort().pop();
   if (!max) return rows;
   const diff = Math.round((+new Date(`${todayIso()}T12:00:00Z`) - +new Date(`${max}T12:00:00Z`)) / DAY);
