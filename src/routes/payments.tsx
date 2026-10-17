@@ -60,7 +60,7 @@ export const initial:Payment[]=[
 ];
 const PAGE=10;
 export const paymentTotals=(rows:{amount:number|string;method:string}[])=>({total:rows.reduce((a,r)=>a+Number(r.amount),0),cash:rows.filter(r=>r.method==='Наложен платеж').reduce((a,r)=>a+Number(r.amount),0)});
-const money=(v:string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
+const money=(v:number|string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'pending','Отказано':'danger','Върнато':'danger'};
 const TILE_ICONS:Record<(typeof STATUSES)[number],typeof Wallet>={'Очаквано':Clock3,'Получено':CheckCheck,'Частично':CircleDollarSign,'Отказано':XCircle,'Върнато':RotateCcw};
 const TILE_TONE:Record<(typeof STATUSES)[number],string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'danger'};
