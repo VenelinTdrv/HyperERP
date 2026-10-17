@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { CheckCircle2, ClipboardList, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Clock3, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
@@ -48,10 +48,11 @@ function Orders() {
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
  const clear = () => { setFilters(emptyFilters); setPage(1); };
- const filtered = rows.filter(row => row.status === statusFilter
-  && `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.items.map(i=>i.name).join(' ')}`.toLowerCase().includes(filters.search.trim().toLowerCase())
+ const base = rows.filter(row =>
+  `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.items.map(i=>i.name).join(' ')}`.toLowerCase().includes(filters.search.trim().toLowerCase())
   && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
-  && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to))
+  && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to));
+ const filtered = base.filter(row => !statusFilter || row.status === statusFilter)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
  const pages = Math.max(1, Math.ceil(filtered.length/pageSize));
  const current = Math.min(page, pages);
@@ -62,6 +63,13 @@ function Orders() {
  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id=>!pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
  const activeFilters = Object.values(filters).filter(Boolean).length;
+ const tiles = [
+  { label:'Всички', status:'', Icon:ClipboardList, tone:'neutral' },
+  { label:'Необработена', status:'Необработена', Icon:Clock3, tone:'pending' },
+  { label:'Обработена', status:'Обработена', Icon:CheckCircle2, tone:'success' },
+  { label:'Анулирана', status:'Анулирана', Icon:Ban, tone:'danger' },
+ ] as const;
+ const tileValue = (status:string) => status ? base.filter(row=>row.status===status).length : base.length;
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='porachki.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const selectedOrders=()=>{ const orders = selection.map(id=>rows.find(r=>r.id===id)).filter((o): o is NonNullable<typeof o> => !!o); if (orders.length) return orders; toast.error(selection.length ? 'Избраните поръчки вече не са в списъка.' : 'Изберете поръчки с чекбокса.'); return null; };
  const exportPdf=()=>{ const orders = selectedOrders(); if (orders) downloadOrderBlankPdf(orders); };
