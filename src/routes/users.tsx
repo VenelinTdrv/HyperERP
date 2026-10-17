@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ChevronRight, Eye, EyeOff, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react';
+import { Check, Eye, EyeOff, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, UserCog, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';

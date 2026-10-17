@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Boxes, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, Info, MoreVertical, Package, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
+import { Boxes, Eye, Info, MoreVertical, Package, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { ComboEditor } from '@/components/combo-editor';
 import { Button } from '@/components/ui/button';

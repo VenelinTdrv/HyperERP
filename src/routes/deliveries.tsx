@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { ArrowDownToLine, Check, CheckCheck, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock3, Info, MoreVertical, Eye, FileSpreadsheet, FileText, Package, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, Truck, Warehouse, X } from 'lucide-react';
+import { ArrowDownToLine, Check, CheckCheck, Clock3, Info, MoreVertical, Eye, FileSpreadsheet, FileText, Package, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, Truck, Warehouse, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

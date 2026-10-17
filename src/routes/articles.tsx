@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye, FileSpreadsheet, FileText, Folder, FolderInput, Info, MoreVertical, Package, Pencil, Plus, Printer, Search, ShieldCheck, X } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Eye, FileSpreadsheet, FileText, Folder, FolderInput, Info, MoreVertical, Package, Pencil, Plus, Printer, Search, ShieldCheck, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
