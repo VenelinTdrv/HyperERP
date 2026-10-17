@@ -428,6 +428,23 @@
 .payments-metric.tone-success .metric-icon { background:var(--success-soft); color:var(--success); }
 .payments-metric.tone-info .metric-icon { background:var(--info-soft); color:var(--info); }
 .payments-metric.tone-danger .metric-icon { background:var(--destructive-soft); color:var(--destructive); }
+.payments-metric.tone-neutral .metric-icon { background:var(--muted); color:var(--muted-foreground); }
+/* Статусът на плащането е оцветен еднакво в плочите, таблицата, редактора и детайлите */
+.pay-status { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; font-size:10px; font-weight:700; border-radius:999px; white-space:nowrap; width:fit-content; }
+.pay-status>span { width:5px; height:5px; background:currentColor; border-radius:50%; }
+.pay-status.tone-pending { background:var(--warning-soft); color:var(--warning); }
+.pay-status.tone-success { background:var(--success-soft); color:var(--success); }
+.pay-status.tone-info { background:var(--info-soft); color:var(--info); }
+.pay-status.tone-danger { background:var(--destructive-soft); color:var(--destructive); }
+.pay-status.tone-neutral { background:var(--muted); color:var(--muted-foreground); }
+.delivery-table select[data-tone], .delivery-editor select[data-tone] { font-weight:700; border-radius:999px; }
+.delivery-table select[data-tone] { min-height:30px; padding:4px 24px 4px 10px; font-size:11px; }
+.delivery-editor select[data-tone] { min-height:36px; padding:6px 24px 6px 11px; font-size:13px; }
+.delivery-table select[data-tone="pending"], .delivery-editor select[data-tone="pending"] { background:var(--warning-soft); color:var(--warning); border-color:color-mix(in srgb, var(--warning) 34%, var(--border)); }
+.delivery-table select[data-tone="success"], .delivery-editor select[data-tone="success"] { background:var(--success-soft); color:var(--success); border-color:color-mix(in srgb, var(--success) 34%, var(--border)); }
+.delivery-table select[data-tone="info"], .delivery-editor select[data-tone="info"] { background:var(--info-soft); color:var(--info); border-color:color-mix(in srgb, var(--info) 34%, var(--border)); }
+.delivery-table select[data-tone="danger"], .delivery-editor select[data-tone="danger"] { background:var(--destructive-soft); color:var(--destructive); border-color:color-mix(in srgb, var(--destructive) 34%, var(--border)); }
+.delivery-table select[data-tone="neutral"], .delivery-editor select[data-tone="neutral"] { background:var(--muted); color:var(--muted-foreground); border-color:var(--border); }
 @media (max-width:700px) { .payments-heading .delivery-overview { justify-content:flex-start; } .payments-heading .delivery-metric { min-height:38px; } }
 /* Плащания: всички филтри в един ред, за да остане пагинацията на екрана */
 .payments-content .suppliers-filters { gap:6px; margin-bottom:10px; }
