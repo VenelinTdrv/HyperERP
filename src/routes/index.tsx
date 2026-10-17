@@ -10,6 +10,7 @@ import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import perfume from '@/assets/perfume.jpg';
+import { SELLERS, sellerByOrder } from '@/lib/sellers';
 
 export const Route = createFileRoute('/')({
  head: () => ({ meta: [
@@ -25,14 +26,27 @@ export const Route = createFileRoute('/')({
 
 type Status = 'Необработена'|'Обработена'|'Изпратена'|'Доставена'|'Отказана';
 const statuses: Status[] = ['Необработена','Обработена','Изпратена','Доставена','Отказана'];
-type Order = { id: string; status: Status; customer: string; phone: string; city: string; address: string; courier: string; created: string; product: string; quantity: number; price: number; shipping: number; processed?: string; processedBy?: string };
+type Order = { id: string; status: Status; customer: string; phone: string; city: string; address: string; courier: string; created: string; product: string; quantity: number; price: number; shipping: number; influencer?: string; processed?: string; processedBy?: string };
 const ADMIN = 'Венелин Тодоров';
-const initialRows: Order[] = [
+const demoSales: Order[] = [
  { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', product:'Rose Élixir', quantity:2, price:49, shipping:4.9 },
  { id:'ORD-0023', status:'Обработена', customer:'Елена Петрова', phone:'0888 234 567', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-14', product:'Velvet Bloom', quantity:1, price:69, shipping:4.9, processed:'2026-10-14T15:10:00', processedBy:ADMIN  }, { id:'ORD-0022', status:'Изпратена', customer:'Иван Георгиев', phone:'0888 345 678', city:'Варна', address:'Офис · Център', courier:'Еконт', created:'2026-10-13', product:'Pure Essence', quantity:3, price:35, shipping:4.9, processed:'2026-10-13T16:20:00', processedBy:ADMIN  }, { id:'ORD-0021', status:'Доставена', customer:'Десислава Николова', phone:'0888 456 789', city:'София', address:'ул. „Искър“ 18', courier:'Спиди', created:'2026-10-13', product:'Rose Élixir', quantity:1, price:49, shipping:4.9, processed:'2026-10-13T17:05:00', processedBy:ADMIN  }, { id:'ORD-0020', status:'Отказана', customer:'Петър Димитров', phone:'0888 567 890', city:'Бургас', address:'Офис · Център', courier:'Еконт', created:'2026-10-12', product:'Velvet Bloom', quantity:2, price:69, shipping:4.9 },
  { id:'ORD-0019', status:'Доставена', customer:'Анна Стоянова', phone:'0888 678 901', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-12', product:'Pure Essence', quantity:1, price:35, shipping:4.9, processed:'2026-10-12T14:45:00', processedBy:ADMIN  }, { id:'ORD-0018', status:'Обработена', customer:'Стефан Колев', phone:'0888 789 012', city:'София', address:'Офис · Младост 4', courier:'Еконт', created:'2026-10-11', product:'Hydra Cream', quantity:2, price:29, shipping:4.9, processed:'2026-10-11T12:30:00', processedBy:ADMIN  }, { id:'ORD-0017', status:'Изпратена', customer:'Румяна Дончева', phone:'0888 890 123', city:'Варна', address:'ул. „Чаталджа“ 7', courier:'Спиди', created:'2026-10-11', product:'Rose Élixir', quantity:1, price:49, shipping:4.9, processed:'2026-10-11T15:55:00', processedBy:ADMIN  }, { id:'ORD-0016', status:'Доставена', customer:'Кирил Атанасов', phone:'0888 901 234', city:'Русе', address:'Офис · Център', courier:'Еконт', created:'2026-10-10', product:'Velvet Bloom', quantity:3, price:69, shipping:4.9, processed:'2026-10-10T13:15:00', processedBy:ADMIN  }, { id:'ORD-0015', status:'Отказана', customer:'Ирина Георгиева', phone:'0888 012 345', city:'София', address:'ул. „Христо Ботев“ 31', courier:'Спиди', created:'2026-10-10', product:'Pure Essence', quantity:2, price:35, shipping:4.9 },
 ];
-const emptyFilters = { search:'', status:'', city:'', courier:'', from:'', to:'' };
+// Each sale is credited to the seller of the order with that number (see src/lib/sellers).
+export const initialRows: Order[] = demoSales.map(row => { const seller = sellerByOrder[row.id]; return seller ? { ...row, influencer: seller } : row; });
+export type SaleFilter = { search:string; status:string; city:string; courier:string; from:string; to:string; seller:string };
+export const emptyFilters: SaleFilter = { search:'', status:'', city:'', courier:'', from:'', to:'', seller:'' };
+// A sale passes when the free-text search, settlement, courier and date range all match — and,
+// once a person is picked in „Всички инфлуенсъри и търговци", the sale is credited to them.
+export const saleMatches = (row: Order, f: SaleFilter) =>
+ `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.product}`.toLowerCase().includes(f.search.trim().toLowerCase())
+ && (!f.city || row.city === f.city) && (!f.courier || row.courier === f.courier)
+ && (!f.seller || row.influencer === f.seller)
+ && (!f.from || row.created >= f.from) && (!f.to || row.created <= f.to);
+// Counts per seller for the „Всички инфлуенсъри и търговци" labels: sales and share of all
+// sellers, over the same filters but ignoring the chosen person so the numbers stay stable.
+export const sellerShare = (rows: Order[], f: SaleFilter) => { const st = rows.filter(r => saleMatches(r, { ...f, seller: '' })); const totals = SELLERS.map(s => ({ id: s.id, count: st.filter(r => r.influencer === s.id).length })); const all = totals.reduce((a, r) => a + r.count, 0); return Object.fromEntries(totals.map(r => [r.id, { count: r.count, pct: all ? (r.count / all * 100).toFixed(1) : '0' }])) as Record<string, { count: number; pct: string }>; };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG');
 const dateTime = (value:string) => { const d = new Date(value); return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'})}`; };
@@ -55,10 +69,7 @@ function Sales() {
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
  const clear = () => { setFilters(emptyFilters); setPage(1); };
- const base = rows.filter(row =>
-  `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.product}`.toLowerCase().includes(filters.search.trim().toLowerCase())
-  && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
-  && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to));
+ const base = rows.filter(row => saleMatches(row, filters));
  const filtered = base.filter(row => !filters.status || row.status === filters.status)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
  const tiles = [
@@ -79,6 +90,7 @@ function Sales() {
  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id=>!pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
  const activeFilters = Object.values(filters).filter(Boolean).length;
+ const share = sellerShare(rows, filters);
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='prodazhbi.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Продажби</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Продажби</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  const exportPrint = exportPdf;
@@ -91,6 +103,7 @@ function Sales() {
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={filters.status} onChange={e=>filter('status',e.target.value)}><option value="">Всички статуси</option>{statuses.map(s=><option key={s}>{s}</option>)}</select></div>
    <div className="field"><label htmlFor="orders-courier" className="sr-only">Куриер</label><select id="orders-courier" value={filters.courier} onChange={e=>filter('courier',e.target.value)}><option value="">Всички куриери</option><option>Еконт</option><option>Спиди</option></select></div>
    <div className="field"><label htmlFor="orders-city" className="sr-only">Населено място</label><select id="orders-city" aria-label="Населено място" title="Населено място" value={filters.city} onChange={e=>filter('city',e.target.value)}><option value="">Населени места</option>{Array.from(new Set(rows.map(row=>row.city))).map(city=><option key={city}>{city}</option>)}</select></div>
+   <div className="field"><label htmlFor="sales-seller" className="sr-only">Инфлуенсър / Търговец</label><select id="sales-seller" aria-label="Инфлуенсър / Търговец" title="Инфлуенсър / Търговец" value={filters.seller} onChange={e=>filter('seller',e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s=><option key={s.id} value={s.id}>{s.id} · {s.type} · {share[s.id]!.count} {share[s.id]!.count===1?'продажба':'продажби'} · {share[s.id]!.pct}%</option>)}</select></div>
   </div>{activeFilters>0&&<div className="delivery-filter-state"><span>{filtered.length} намерени поръчки</span><Button variant="ghost" size="sm" onClick={clear}><X/>Изчисти филтрите</Button></div>}</div>
   <section className="delivery-list" aria-label="Списък с продажби"><div className="delivery-list-heading"><h2>Списък с продажби <span>{filtered.length}</span></h2><div className="field"><label className="sr-only" htmlFor="orders-sort">Подреждане</label><select id="orders-sort" value={sort} onChange={e=>{setSort(e.target.value);setPage(1);}}><option value="newest">Най-новите първо</option><option value="oldest">Най-старите първо</option></select></div></div>
    <div className="delivery-table-scroll"><table className="delivery-table orders-table"><thead><tr><th className="row-select-cell"><Checkbox aria-label="Избери всички поръчки на страницата" checked={allSelected?true:someSelected?'indeterminate':false} onCheckedChange={()=>toggleAll()}/></th><th>Поръчка</th><th>Статус</th><th>Клиент</th><th>Доставка</th><th>Общо с ДДС</th><th>Създадена</th><th>Обработена от</th><th className="delivery-head-center">Действия</th><th className="delivery-head-center">Виж</th></tr></thead><tbody>{visible.map(row=><tr key={row.id} data-selected={selection.includes(row.id)}>
