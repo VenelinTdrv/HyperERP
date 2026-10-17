@@ -21,7 +21,7 @@ function Combos() {
  const [search,setSearch]=useState('');
  const [influencer,setInfluencer]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [editor,setEditor]=useState(false);
  const [editing,setEditing]=useState<Combo|null>(null);
  const [selected,setSelected]=useState<Combo|null>(null);

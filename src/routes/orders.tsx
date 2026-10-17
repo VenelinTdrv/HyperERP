@@ -45,7 +45,7 @@ function Orders() {
  const [advanced, setAdvanced] = useState(false);
  const [sort, setSort] = useState('newest');
  const [page, setPage] = useState(1);
- const [pageSize, setPageSize] = useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [selected, setSelected] = useState<Order|null>(null);
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };

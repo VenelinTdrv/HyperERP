@@ -51,7 +51,7 @@ function Deliveries() {
  const [filters,setFilters]=useState(emptyFilters);
  const [advanced,setAdvanced]=useState(false);
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [selected,setSelected]=useState<Delivery|null>(null);
  const [selection,setSelection]=useState<string[]>([]);
  const [editor,setEditor]=useState(false);

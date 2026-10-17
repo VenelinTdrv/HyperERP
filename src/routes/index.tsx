@@ -52,7 +52,7 @@ function Sales() {
  const [advanced, setAdvanced] = useState(false);
  const [sort, setSort] = useState('newest');
  const [page, setPage] = useState(1);
- const [pageSize, setPageSize] = useState(10);
+ const [pageSize,setPageSize]=useState(25);
   const [selected, setSelected] = useState<Order|null>(null);
   const navigate = useNavigate();
   const [rows, setRows] = useState(initialRows);

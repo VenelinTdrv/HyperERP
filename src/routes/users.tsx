@@ -31,7 +31,7 @@ function Users(){
  const [rows,setRows]=useState(initial);
  const [q,setQ]=useState('');const [role,setRole]=useState('');const [status,setStatus]=useState('');
  const [page,setPage]=useState(1);
- const [pageSize,setPageSize]=useState(10);
+ const [pageSize,setPageSize]=useState(25);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<User|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [showPw,setShowPw]=useState(false);
