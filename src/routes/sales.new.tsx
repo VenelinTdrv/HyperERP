@@ -41,15 +41,27 @@ function Index() {
  const [productSearch,setProductSearch] = useState('');
  const productSearchRef = useRef<HTMLInputElement>(null);
  const productResultsRef = useRef<HTMLDivElement>(null);
+ const productsTableRef = useRef<HTMLTableElement>(null);
  const revealProductSearch = () => {
   const input = productSearchRef.current;
   if (!input) return;
   const inputBounds = input.getBoundingClientRect();
-  const resultsBounds = productResultsRef.current?.getBoundingClientRect();
   const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+  const tableBounds = productsTableRef.current?.getBoundingClientRect();
+  if (tableBounds) {
+   // Избутваме останалата информация нагоре, така че търсенето и всички
+   // добавени продукти да се виждат удобно по време на въвеждане.
+   const toTop = inputBounds.top - 80;
+   const overflow = tableBounds.bottom - (viewportHeight - 24);
+   const scroll = Math.max(toTop, overflow, 0);
+   if (scroll > 0) window.scrollBy({ top: scroll, behavior });
+   return;
+  }
+  const resultsBounds = productResultsRef.current?.getBoundingClientRect();
   const bottom = resultsBounds?.bottom ?? inputBounds.bottom + Math.min(260, viewportHeight * 0.4);
   if (inputBounds.top < 80 || bottom > viewportHeight - 24) {
-   input.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+   input.scrollIntoView({ block: 'start', behavior });
   }
  };
  useEffect(() => {
@@ -110,7 +122,7 @@ function Index() {
         {productSearch && <div ref={productResultsRef} className="search-results mt-2 max-h-[50dvh] overflow-y-auto">{catalog.filter(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase())).map(p=><Button key={p.id} type="button" variant="ghost" className="search-result" onClick={()=>addProduct(p.id)}><span>{p.name} · {p.sku}</span><Plus size={14}/></Button>)}{!catalog.some(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase()))&&<p className="p-2 text-xs text-muted-foreground">Няма намерени продукти.</p>}</div>}
         {items.length===0 && <p className="text-sm text-muted-foreground py-3">Още няма добавени продукти</p>}
        </div>
-       {items.length>0 && <table className="product-table"><thead><tr><th>Продукт</th><th>Ед. цена</th><th>Количество</th><th className="text-right">Сума</th><th><span className="sr-only">Премахване</span></th></tr></thead><tbody>{items.map(item=>{const p=catalog.find(p=>p.id===item.id);if(!p)return null;return <tr key={p.id}><td><div><div className="font-semibold">{p.name}</div><div className="text-muted-foreground text-[10px] mt-1">{p.sku} · Наличност: {p.stock}</div></div></td><td><div className="price-field"><input type="number" min={0} step="0.01" aria-label={`Ед. цена ${p.name}`} value={item.price} onChange={e=>price(p.id,Number(e.target.value))}/><span>€</span></div></td><td><div className="quantity-control"><Button type="button" variant="ghost" className="quantity-button" aria-label={`Намали ${p.name}`} onClick={()=>quantity(p.id,item.quantity-1)} disabled={item.quantity===1}><Minus size={12}/></Button><input type="number" min={1} max={999} aria-label={`Количество ${p.name}`} value={item.quantity} onChange={e=>quantity(p.id,Number(e.target.value))}/><Button type="button" variant="ghost" className="quantity-button" aria-label={`Увеличи ${p.name}`} onClick={()=>quantity(p.id,item.quantity+1)}><Plus size={12}/></Button></div></td><td className="font-bold text-right">{money(item.price*item.quantity)}</td><td><Button type="button" variant="ghost" size="icon" className="w-7 text-muted-foreground" aria-label={`Премахни ${p.name}`} title="Премахни продукта" onClick={()=>setItems(prev=>prev.filter(i=>i.id!==p.id))}><Trash2 size={14}/></Button></td></tr>;})}</tbody></table>}
+       {items.length>0 && <table ref={productsTableRef} className="product-table"><thead><tr><th>Продукт</th><th>Ед. цена</th><th>Количество</th><th className="text-right">Сума</th><th><span className="sr-only">Премахване</span></th></tr></thead><tbody>{items.map(item=>{const p=catalog.find(p=>p.id===item.id);if(!p)return null;return <tr key={p.id}><td><div><div className="font-semibold">{p.name}</div><div className="text-muted-foreground text-[10px] mt-1">{p.sku} · Наличност: {p.stock}</div></div></td><td><div className="price-field"><input type="number" min={0} step="0.01" aria-label={`Ед. цена ${p.name}`} value={item.price} onChange={e=>price(p.id,Number(e.target.value))}/><span>€</span></div></td><td><div className="quantity-control"><Button type="button" variant="ghost" className="quantity-button" aria-label={`Намали ${p.name}`} onClick={()=>quantity(p.id,item.quantity-1)} disabled={item.quantity===1}><Minus size={12}/></Button><input type="number" min={1} max={999} aria-label={`Количество ${p.name}`} value={item.quantity} onChange={e=>quantity(p.id,Number(e.target.value))}/><Button type="button" variant="ghost" className="quantity-button" aria-label={`Увеличи ${p.name}`} onClick={()=>quantity(p.id,item.quantity+1)}><Plus size={12}/></Button></div></td><td className="font-bold text-right">{money(item.price*item.quantity)}</td><td><Button type="button" variant="ghost" size="icon" className="w-7 text-muted-foreground" aria-label={`Премахни ${p.name}`} title="Премахни продукта" onClick={()=>setItems(prev=>prev.filter(i=>i.id!==p.id))}><Trash2 size={14}/></Button></td></tr>;})}</tbody></table>}
        <div className="product-bottom"><ShieldCheck size={13}/>Цените са с включен ДДС</div>
       </section>
      </div>
