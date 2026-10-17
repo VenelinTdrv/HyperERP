@@ -132,6 +132,16 @@ export function pickSellers(seller: string): Seller[] {
   return seller ? SELLERS.filter(s => s.id === seller) : [...SELLERS];
 }
 
+// Orders per seller within [from, to], optionally limited to one settlement,
+// with each seller's percentage of the combined total.
+export function sellerShareStats(settlement: string, from: Date, to: Date): Record<string, { orders: number; pct: string }> {
+  const st = settlement ? SETTLEMENTS.find(x => x.id === settlement) ?? null : null;
+  const f = +from, t = +to;
+  const rows = SELLERS.map((s, k) => ({ id: s.id, orders: buildDays(s, k, st).reduce((b, p) => b + (+p.d >= f && +p.d <= t ? p.orders : 0), 0) }));
+  const total = rows.reduce((a, r) => a + r.orders, 0);
+  return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
+}
+
 const ordersCfg = { paid: { label: 'Платени', color: 'var(--primary)' }, returned: { label: 'Върнати', color: 'var(--destructive)' }, orders: { label: 'Всички', color: 'var(--info)' } } satisfies ChartConfig;
 const salesCfg = { paid: { label: 'Продажби (платени)', color: 'var(--primary)' } } satisfies ChartConfig;
 const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--info)' } } satisfies ChartConfig;
@@ -196,6 +206,10 @@ function Statistics() {
     const total = rows.reduce((a, r) => a + r.orders, 0);
     return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
   }, [seller, from, to]);
+
+  // Per-seller share for the dropdown labels, mirroring settlementStats.
+  // Denominator always spans all sellers so a chosen seller still shows its real share.
+  const sellerStats = useMemo(() => sellerShareStats(settlement, from, to), [settlement, from, to]);
 
   const paidPct = period.orders ? (period.paid / period.orders * 100).toFixed(1) : '0';
   const activePreset = PRESETS.find(p => { const r = presetRange(p.id); return +r.from === +from && +r.to === +to; })?.id;
