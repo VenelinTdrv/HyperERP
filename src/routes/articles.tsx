@@ -68,7 +68,9 @@ function Articles() {
   setRows(prev=>{
    const existing = new Set(prev.map(row=>row.sku.toLowerCase()));
    const additions:Article[] = [];
-   for(const line of text.split(/\r?\n/).slice(file.name.toLowerCase().endsWith('.csv')?0:0)){
+   const lines = text.split(/\r?\n/);
+   if(lines[0]&&/^sku\b/i.test(lines[0]))lines.shift();
+   for(const line of lines){
     const columns = line.split(/[;,\t]/).map(column=>column.trim());
     if(columns.length<2)continue;
     const [sku,name,category] = columns;
