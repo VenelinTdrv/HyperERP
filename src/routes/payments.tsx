@@ -29,6 +29,7 @@ export const SELLER_TYPES=[...new Set(SELLERS.map(s=>s.type))] as string[];
 const sellerType=(id:string)=>SELLERS.find(s=>s.id===id)?.type??'';
 const todayISO=()=>new Date().toLocaleDateString('en-CA');
 const day=(back:number)=>{const d=new Date();d.setDate(d.getDate()-back);return d.toLocaleDateString('en-CA');};
+const ADMIN='Венелин Тодоров';
 type Form={orderId:string;saleId:string;client:string;agent:string;amount:string;method:string;source:string;status:string;date:string;reference:string;note:string};
 export type Payment=Form&{id:string;edited?:string;editedBy?:string};
 export type PaymentFilter={q:string;method:string;source:string;status:string;type:string;agent:string;from:string;to:string};
@@ -62,7 +63,6 @@ export const initial:Payment[]=[
 ];
 export const paymentTotals=(rows:{amount:number|string;method:string;orderId?:string}[],shipping:Record<string,number>={})=>{const sum=(xs:{amount:number|string}[])=>Math.round(xs.reduce((a,r)=>a+Number(r.amount),0)*100)/100;const ship=Math.round(rows.reduce((a,r)=>a+Number(shipping[r.orderId??'']||0),0)*100)/100;const total=sum(rows);return{total,cash:sum(rows.filter(r=>r.method==='Наложен платеж')),shipping:ship,margin:Math.round((total-ship)*100)/100};};
 const money=(v:number|string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
-const ADMIN='Венелин Тодоров';
 const now=()=>new Date().toISOString();
 const dateTime=(v:string)=>{const d=new Date(v);return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'})}`;};
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'info','Отказано':'danger','Върнато':'neutral'};
