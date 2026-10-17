@@ -47,7 +47,7 @@ function Clients(){
  const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
  const saveClient=(data:ClientFormData)=>{
   if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,editedBy:'Венелин Тодоров',editedAt:now()}:r));
-  else setRows(prev=>[...prev,{id:Math.max(0,...prev.map(r=>r.id))+1,...data,createdBy:'Венелин Тодоров',createdAt:now(),editedBy:'',editedAt:''}]);
+  else setRows(prev=>[...prev,{id:Math.max(0,...prev.map(r=>r.id))+1,blacklisted:false,...data,createdBy:'Венелин Тодоров',createdAt:now(),editedBy:'',editedAt:''}]);
   setEditor(false);setAnnouncement(`${data.first} ${data.last} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
  };
   const primaryOf=(c:Client)=>c.addresses.find(a=>a.id===c.primary)??c.addresses[0];
