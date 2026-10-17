@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from 'sonner';
 import { type Order, useOrders, setOrderStatus, total, itemCount, ADMIN } from '@/lib/orders-store';
 import { openOrderBlank, downloadOrderBlankPdf } from '@/lib/order-blank';
-import { sellerType } from '@/lib/sellers';
+import { SELLERS, sellerType } from '@/lib/sellers';
 
 export const Route = createFileRoute('/orders')({
  head: () => ({ meta: [
@@ -26,7 +26,18 @@ export const Route = createFileRoute('/orders')({
  component: Orders,
 });
 
-const emptyFilters = { search:'', city:'', courier:'', from:'', to:'' };
+export type OrderFilter = { search:string; city:string; courier:string; from:string; to:string; seller:string };
+export const emptyFilters: OrderFilter = { search:'', city:'', courier:'', from:'', to:'', seller:'' };
+// A row passes when the free-text search, settlement, courier and date range all match — and,
+// once a person is picked in „Всички инфлуенсъри и търговци", the order is credited to them.
+export const orderMatches = (row: Order, f: OrderFilter) =>
+ `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.items.map(i=>i.name).join(' ')}`.toLowerCase().includes(f.search.trim().toLowerCase())
+ && (!f.city || row.city === f.city) && (!f.courier || row.courier === f.courier)
+ && (!f.seller || row.influencer === f.seller)
+ && (!f.from || row.created >= f.from) && (!f.to || row.created <= f.to);
+// Counts per seller for the „Всички инфлуенсъри и търговци" labels: orders and share of all
+// sellers, over the same filters but ignoring the chosen person so the numbers stay stable.
+export const sellerShare = (rows: Order[], f: OrderFilter) => { const st = rows.filter(r => orderMatches(r, { ...f, seller: '' })); const totals = SELLERS.map(s => ({ id: s.id, count: st.filter(r => r.influencer === s.id).length })); const all = totals.reduce((a, r) => a + r.count, 0); return Object.fromEntries(totals.map(r => [r.id, { count: r.count, pct: all ? (r.count / all * 100).toFixed(1) : '0' }])) as Record<string, { count: number; pct: string }>; };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG'); const dateTime = (value:string) => { const d = new Date(value); return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'})}`; };
 function OrderStatus({status='Необработена'}:{status?:string}) { const cls = status==='Обработена'?'received':status==='Анулирана'?'cancelled':'pending'; return <span className={`delivery-status ${cls}`}><span/>{status}</span>; }
@@ -48,10 +59,7 @@ function Orders() {
  const [selection, setSelection] = useState<string[]>([]);
  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
  const clear = () => { setFilters(emptyFilters); setPage(1); };
- const base = rows.filter(row =>
-  `${row.id} ${row.customer} ${row.phone} ${row.phone.replaceAll(' ', '')} ${row.items.map(i=>i.name).join(' ')}`.toLowerCase().includes(filters.search.trim().toLowerCase())
-  && (!filters.city || row.city === filters.city) && (!filters.courier || row.courier === filters.courier)
-  && (!filters.from || row.created >= filters.from) && (!filters.to || row.created <= filters.to));
+ const base = rows.filter(row => orderMatches(row, filters));
  const filtered = base.filter(row => !statusFilter || row.status === statusFilter)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
  const pages = Math.max(1, Math.ceil(filtered.length/(pageSize||filtered.length||1)));
@@ -63,6 +71,7 @@ function Orders() {
  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id=>!pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
  const activeFilters = Object.values(filters).filter(Boolean).length;
+ const share = sellerShare(rows, filters);
  const tiles = [
   { label:'Всички', status:'', Icon:ClipboardList, tone:'neutral' },
   { label:'Необработена', status:'Необработена', Icon:Clock3, tone:'pending' },
@@ -83,6 +92,7 @@ function Orders() {
    <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setPage(1);}}><option>Необработена</option><option>Обработена</option><option>Анулирана</option></select></div>
    <div className="field"><label htmlFor="orders-courier" className="sr-only">Куриер</label><select id="orders-courier" value={filters.courier} onChange={e=>filter('courier',e.target.value)}><option value="">Всички куриери</option><option>Еконт</option><option>Спиди</option></select></div>
    <div className="field"><label htmlFor="orders-city" className="sr-only">Населено място</label><select id="orders-city" aria-label="Населено място" title="Населено място" value={filters.city} onChange={e=>filter('city',e.target.value)}><option value="">Населени места</option>{Array.from(new Set(rows.map(row=>row.city))).map(city=><option key={city}>{city}</option>)}</select></div>
+   <div className="field"><label htmlFor="orders-seller" className="sr-only">Инфлуенсър / Търговец</label><select id="orders-seller" aria-label="Инфлуенсър / Търговец" title="Инфлуенсър / Търговец" value={filters.seller} onChange={e=>filter('seller',e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s=><option key={s.id} value={s.id}>{s.id} · {s.type} · {share[s.id]!.count} {share[s.id]!.count===1?'поръчка':'поръчки'} · {share[s.id]!.pct}%</option>)}</select></div>
   </div>{activeFilters>0&&<div className="delivery-filter-state"><span>{filtered.length} намерени поръчки</span><Button variant="ghost" size="sm" onClick={clear}><X/>Изчисти филтрите</Button></div>}</div>
   <section className="delivery-list" aria-label="Списък с поръчки"><div className="delivery-list-heading"><h2>Списък с поръчки <span>{filtered.length}</span></h2><div className="field"><label className="sr-only" htmlFor="orders-sort">Подреждане</label><select id="orders-sort" value={sort} onChange={e=>{setSort(e.target.value);setPage(1);}}><option value="newest">Най-новите първо</option><option value="oldest">Най-старите първо</option></select></div></div>
    <div className="delivery-table-scroll"><table className="delivery-table orders-table"><thead><tr><th className="row-select-cell"><Checkbox aria-label="Избери всички поръчки на страницата" checked={allSelected?true:someSelected?'indeterminate':false} onCheckedChange={()=>toggleAll()}/></th><th>Поръчка</th><th>Статус</th><th>Клиент</th><th>Инфлуенсър/Търговец</th><th>Доставка</th><th>Общо с ДДС</th><th>Създадена</th><th>Обработена от</th><th className="delivery-head-center">Действия</th><th className="delivery-head-center">Виж</th></tr></thead><tbody>{visible.map(row=><tr key={row.id} data-selected={selection.includes(row.id)}>
