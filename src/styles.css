@@ -429,6 +429,13 @@
 .payments-metric.tone-info .metric-icon { background:var(--info-soft); color:var(--info); }
 .payments-metric.tone-danger .metric-icon { background:var(--destructive-soft); color:var(--destructive); }
 .payments-metric.tone-neutral .metric-icon { background:var(--muted); color:var(--muted-foreground); }
+/* Order status tiles */
+.orders-heading .delivery-overview { flex-wrap:wrap; justify-content:flex-start; }
+.orders-heading .metric-copy strong { font-size:14px; }
+.orders-metric.tone-pending .metric-icon { background:var(--warning-soft); color:var(--warning); }
+.orders-metric.tone-success .metric-icon { background:var(--success-soft); color:var(--success); }
+.orders-metric.tone-danger .metric-icon { background:var(--destructive-soft); color:var(--destructive); }
+.orders-metric.tone-neutral .metric-icon { background:var(--muted); color:var(--muted-foreground); }
 /* Статусът на плащането е оцветен еднакво в плочите, таблицата, редактора и детайлите */
 .pay-status { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; font-size:10px; font-weight:700; border-radius:999px; white-space:nowrap; width:fit-content; }
 .pay-status>span { width:5px; height:5px; background:currentColor; border-radius:50%; }
