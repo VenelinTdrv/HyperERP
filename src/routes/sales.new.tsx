@@ -18,6 +18,10 @@ const catalog = [
  { id: 1, name: 'Rose Élixir', sku: 'PRF-001', stock: 49 },
  { id: 2, name: 'Velvet Bloom', sku: 'PRF-002', stock: 32 },
  { id: 3, name: 'Pure Essence', sku: 'PRF-003', stock: 120 },
+ { id: 4, name: 'Noir Intense', sku: 'PRF-004', stock: 58 },
+ { id: 5, name: 'Aqua Fresco', sku: 'PRF-005', stock: 74 },
+ { id: 6, name: 'Hydra Cream', sku: 'CRM-001', stock: 96 },
+ { id: 7, name: 'Velvet Deo', sku: 'DEO-001', stock: 140 },
 ];
 const DEMO_CLIENT = { name:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. Витоша 15, вход Б, ап. 3', courier:'Еконт' };
 type OrderItem = { id:number; quantity:number; price:number };
