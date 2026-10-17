@@ -411,6 +411,12 @@
 .orders-content .clients-filters { margin-bottom:10px; }
 .orders-content .suppliers-filters { margin-bottom:10px; gap:10px; }
 .orders-content .suppliers-filters>button, .orders-content .suppliers-filters>select { height:38px; }
+.orders-content .delivery-filter-primary { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.orders-content .delivery-filter-primary .search-box { flex:0 1 320px; min-width:200px; }
+.orders-content .delivery-filter-primary .field { flex:0 0 auto; }
+.orders-content .delivery-filter-primary .field input[type="date"] { width:145px; }
+.orders-content .delivery-filter-primary .field select { width:auto; min-width:150px; }
+@media (max-width:700px) { .orders-content .delivery-filter-primary { flex-direction:column; align-items:stretch; } .orders-content .delivery-filter-primary .search-box { min-width:0; } .orders-content .delivery-filter-primary .field input[type="date"], .orders-content .delivery-filter-primary .field select { width:100%; } }
 .orders-content .delivery-table .client-name { font-size:13px; }
 .period-trigger { flex:0 0 auto; gap:8px; padding:0 12px; font-size:13px; font-weight:400; color:var(--foreground); background:var(--card); border:1px solid var(--border); border-radius:var(--radius); }
 .period-trigger>svg { width:15px; height:15px; color:var(--muted-foreground); }
