@@ -1,4 +1,4 @@
-import { type Order, subtotal, total } from '@/lib/orders-store';
+import { type Order, total } from '@/lib/orders-store';
 
 const money = (v: number) => `${v.toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 const date = (v: string) => new Date(`${v}T12:00:00`).toLocaleDateString('bg-BG');
@@ -50,7 +50,7 @@ async function barcode(value: string): Promise<Barcode | undefined> {
 
 
 function pageHtml(o: Order, page: number, pages: number, code?: Barcode) {
-  const rows = o.items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name)}</td><td>${esc(it.sku)}</td><td class="num">${it.quantity}</td><td class="num">${money(it.price)}</td><td class="num">${money(it.quantity * it.price)}</td></tr>`).join('');
+  const rows = o.items.map((it, i) => `<tr><td>${i + 1}</td><td>${esc(it.name)}</td><td>${esc(it.sku)}</td><td class="num">${it.quantity}</td></tr>`).join('');
   return `<section class="page">
     <div class="head"><div class="brand">hyperERP<small>Еcommerce &amp; складова система</small></div>
       <div class="doc"><h1>Бланка на поръчка ${esc(o.id)}</h1><p>Създадена на ${date(o.created)} · Статус: ${esc(o.status)}</p></div></div>
@@ -63,10 +63,8 @@ function pageHtml(o: Order, page: number, pages: number, code?: Barcode) {
       <div class="row"><dt>Метод на плащане</dt><dd>${esc(o.payment)}</dd></div>
     </div>
     <h2>Продукти</h2>
-    <table><thead><tr><th>№</th><th>Продукт</th><th>SKU</th><th class="num">Кол.</th><th class="num">Ед. цена</th><th class="num">Сума</th></tr></thead><tbody>${rows}</tbody></table>
+    <table><thead><tr><th>№</th><th>Продукт</th><th>SKU</th><th class="num">Кол.</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="totals">
-      <div class="row"><span>Междинна сума</span><span>${money(subtotal(o))}</span></div>
-      <div class="row"><span>Доставка</span><span>${money(o.shipping)}</span></div>
       <div class="row grand"><span>Общо с ДДС</span><span>${money(total(o))}</span></div>
     </div>
     ${o.note.trim() ? `<div class="note"><strong>Бележка:</strong> ${esc(o.note)}</div>` : ''}
@@ -195,8 +193,8 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
   // Products table
   doc.setFontSize(8); doc.setTextColor(91, 102, 117);
   doc.text('ПРОДУКТИ', L, y); y += 4;
-  const cols = [10, 78, 34, 14, 24, 24]; // №, Продукт, SKU, Кол., Ед. цена, Сума
-  const heads = ['№', 'Продукт', 'SKU', 'Кол.', 'Ед. цена', 'Сума'];
+  const cols = [10, 108, 40, 24]; // №, Продукт, SKU, Кол.
+  const heads = ['№', 'Продукт', 'SKU', 'Кол.'];
   const drawRow = (cells: string[], cy: number, header = false) => {
     let x = L;
     cells.forEach((c, i) => {
@@ -212,7 +210,7 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
   };
   drawRow(heads, y, true); y += 6.4;
   o.items.forEach((it, i) => {
-    drawRow([String(i + 1), it.name, it.sku, String(it.quantity), money(it.price), money(it.quantity * it.price)], y);
+    drawRow([String(i + 1), it.name, it.sku, String(it.quantity)], y);
     y += 6.4;
   });
   y += 8;
@@ -220,8 +218,6 @@ function drawBlankPage(doc: jsPDF, o: Order, page: number, pages: number, code?:
   // Totals
   const tx = R - 70;
   const totals: [string, string, boolean][] = [
-    ['Междинна сума', money(subtotal(o)), false],
-    ['Доставка', money(o.shipping), false],
     ['Общо с ДДС', money(total(o)), true],
   ];
   totals.forEach(([label, value, grand]) => {
