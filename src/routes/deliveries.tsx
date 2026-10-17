@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, type FormEvent } from 'react';
-import { ArrowDownToLine, Check, CheckCheck, Clock3, Info, MoreVertical, Eye, FileSpreadsheet, FileText, Package, Pencil, Plus, Printer, Search, ShieldCheck, SlidersHorizontal, Truck, Warehouse, X } from 'lucide-react';
+import { ArrowDownToLine, Check, CheckCheck, Clock3, Info, MoreVertical, Eye, FileSpreadsheet, FileText, Package, Pencil, Plus, Printer, Search, ShieldCheck, Truck, Warehouse, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -32,7 +32,10 @@ const initialRows:Delivery[]=[
  {id:'DEL-0010',status:'Получена',supplier:suppliers[2],warehouse:warehouses[0],expected:'2026-10-11',received:'2026-10-11',created:'2026-10-06',createdBy:'Венелин Тодоров',edited:'2026-10-11',editedBy:'Венелин Тодоров',quantity:72,product:products[1],note:'Получена без забележки.'},
  {id:'DEL-0009',status:'Отказана',supplier:suppliers[1],warehouse:warehouses[1],expected:'2026-10-09',received:'',created:'2026-10-05',createdBy:'Венелин Тодоров',edited:'2026-10-08',editedBy:'Венелин Тодоров',quantity:18,product:products[2],note:'Отказана — доставчикът не потвърди наличност.'},
 ];
-const emptyFilters={search:'',status:'',supplier:'',warehouse:'',created:'',expected:'',received:''};
+type DateKind='expected'|'created'|'received';
+type Filters={search:string;status:string;supplier:string;warehouse:string;dateKind:DateKind;from:string;to:string};
+const dateKinds=[{key:'expected' as DateKind,label:'Очаквана'},{key:'created' as DateKind,label:'Създадена'},{key:'received' as DateKind,label:'Получена'}];
+const emptyFilters:Filters={search:'',status:'',supplier:'',warehouse:'',dateKind:'expected',from:'',to:''};
 const emptyForm={supplier:'',warehouse:'',expected:'',product:products[0] as string,quantity:'1',note:'',status:'Очаквана' as Status};
 const date=(value:string)=>value ? new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG') : '—';
 const statusClass=(status:Status)=>status==='Получена'?'received':status==='В транзит'?'transit':status==='Отказана'?'cancelled':'pending';
@@ -46,7 +49,6 @@ function StatusBadge({status}:{status:Status}) { return <span className={`delive
 function Deliveries() {
  const [rows,setRows]=useState(initialRows);
  const [filters,setFilters]=useState(emptyFilters);
- const [advanced,setAdvanced]=useState(false);
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(10);
  const [selected,setSelected]=useState<Delivery|null>(null);
@@ -58,7 +60,8 @@ function Deliveries() {
  const [receive,setReceive]=useState<Delivery|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const [sort,setSort]=useState<'newest'|'expected'>('newest');
- const filtered=rows.filter(row=>(!filters.search||`${row.id} ${row.supplier} ${row.product}`.toLowerCase().includes(filters.search.toLowerCase()))&&(!filters.status||row.status===filters.status)&&(!filters.supplier||row.supplier===filters.supplier)&&(!filters.warehouse||row.warehouse===filters.warehouse)&&(!filters.created||row.created===filters.created)&&(!filters.expected||row.expected===filters.expected)&&(!filters.received||row.received===filters.received)).sort((a,b)=>sort==='expected'?a.expected.localeCompare(b.expected):b.id.localeCompare(a.id));
+ const inDate=(row:Delivery)=>{const value=row[filters.dateKind];if(!filters.from&&!filters.to)return true;return value!==''&&(!filters.from||value>=filters.from)&&(!filters.to||value<=filters.to);};
+ const filtered=rows.filter(row=>(!filters.search||`${row.id} ${row.supplier} ${row.product}`.toLowerCase().includes(filters.search.toLowerCase()))&&(!filters.status||row.status===filters.status)&&(!filters.supplier||row.supplier===filters.supplier)&&(!filters.warehouse||row.warehouse===filters.warehouse)&&inDate(row)).sort((a,b)=>sort==='expected'?a.expected.localeCompare(b.expected):b.id.localeCompare(a.id));
  const pages=Math.max(1,Math.ceil(filtered.length/pageSize));
  const currentPage=Math.min(page,pages);
  const visible=filtered.slice((currentPage-1)*pageSize,currentPage*pageSize);
@@ -67,11 +70,12 @@ function Deliveries() {
  const someSelected=!allSelected&&pageIds.some(id=>selection.includes(id));
  const toggleAll=()=>setSelection(prev=>allSelected?prev.filter(id=>!pageIds.includes(id)):Array.from(new Set([...prev,...pageIds])));
  const toggleRow=(id:string)=>setSelection(prev=>prev.includes(id)?prev.filter(item=>item!==id):[...prev,id]);
- const activeFilters=Object.values(filters).filter(Boolean).length;
+ const activeFilters=Object.entries(filters).filter(([key,value])=>Boolean(value)&&key!=='dateKind').length;
+ const dateKindLabel=dateKinds.find(kind=>kind.key===filters.dateKind)?.label??'Дата';
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='dostavki.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const exportPdf=()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Доставки</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Доставки</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  const exportPrint = exportPdf;
- const filter=(key:keyof typeof filters,value:string)=>{setFilters(prev=>({...prev,[key]:value}));setPage(1);};
+ const filter=(key:keyof Filters,value:string)=>{setFilters(prev=>({...prev,[key]:value}));setPage(1);};
  const startNew=()=>{setEditing(null);setForm(emptyForm);setError('');setEditor(true);};
  const startEdit=(row:Delivery)=>{setEditing(row.id);setForm({supplier:row.supplier,warehouse:row.warehouse,expected:row.expected,product:row.product,quantity:String(row.quantity),note:row.note,status:row.status});setError('');setSelected(null);setEditor(true);};
  const save=(event:FormEvent)=>{
