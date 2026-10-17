@@ -72,7 +72,7 @@ function Payments(){
  const [page,setPage]=useState(1);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Payment|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
- const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);
+ const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);const [float,setFloat]=useState('');
  const [announcement,setAnnouncement]=useState('');
  const base=rows.filter(r=>paymentMatches(r,{q,method,source,status:'',type,agent,from,to}));
  const filtered=base.filter(r=>!status||r.status===status);
@@ -80,6 +80,7 @@ function Payments(){
  const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
  const sum=filtered.filter(r=>r.status==='Получено').reduce((a,r)=>a+Number(r.amount),0);
+ const totalAll=filtered.reduce((a,r)=>a+Number(r.amount),0);const cashTotal=filtered.filter(r=>r.method==='Наложен платеж').reduce((a,r)=>a+Number(r.amount),0);const floatAmount=Number(float)||0;
  const datesChanged=from!==todayISO()||to!==todayISO();
  const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setType('');setAgent('');setFrom(todayISO());setTo(todayISO());setPage(1);};
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
@@ -134,6 +135,7 @@ function Payments(){
     <td className="text-center"><Button variant="ghost" size="icon" aria-label={`Виж ${r.id}`} onClick={()=>setSelected(r)}><Eye/></Button></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><Wallet size={32}/><h3>{rows.length?'Няма намерени плащания':'Все още няма плащания'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Ново плащане</Button>}</div>}
    <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+   <div className="payments-summary"><div className="payments-summary-field"><span>Обща сума</span><strong>{money(totalAll)}</strong><small>{filtered.length} филтрирани плащания · наложен платеж {money(cashTotal)}</small></div><label className="payments-summary-field"><span>Горница</span><input type="number" min="0" step="0.01" aria-label="Горница" placeholder="0.00" value={float} onChange={ev=>setFloat(ev.target.value)}/><small>{float.trim()===''?'Въведете сума в брой за размяна':`Остатък след горницата: ${money(totalAll-floatAmount)}`}</small></label></div>
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни плащания · без реална връзка с Еконт и Pigeon и без реално записване</div>
  </div>
