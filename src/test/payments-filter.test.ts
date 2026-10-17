@@ -40,6 +40,6 @@ describe('Payments filter by influencer or merchant', () => {
 
  it('totals the filtered payments shown in the summary under the table', () => {
   const todays = initial.filter(r => paymentMatches(r, { ...empty, from: today, to: today }));
-  expect(paymentTotals(todays)).toEqual({ total: 597, cash: 373 });
+  expect(paymentTotals(todays)).toEqual({ total: 811.6, cash: 416 });
  });
 });

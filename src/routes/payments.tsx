@@ -59,7 +59,7 @@ export const initial:Payment[]=[
  p(1,'ORD-0015','Ирина Георгиева',123.9,'Банков превод','Pigeon','Получено',day(6),'PG-76902','Козметик Груп ООД'),
 ];
 const PAGE=10;
-export const paymentTotals=(rows:{amount:number|string;method:string}[])=>({total:rows.reduce((a,r)=>a+Number(r.amount),0),cash:rows.filter(r=>r.method==='Наложен платеж').reduce((a,r)=>a+Number(r.amount),0)});
+export const paymentTotals=(rows:{amount:number|string;method:string}[])=>{const sum=(xs:{amount:number|string}[])=>Math.round(xs.reduce((a,r)=>a+Number(r.amount),0)*100)/100;return{total:sum(rows),cash:sum(rows.filter(r=>r.method==='Наложен платеж'))};};
 const money=(v:number|string)=>`${Number(v).toLocaleString('bg-BG',{minimumFractionDigits:2,maximumFractionDigits:2})} €`;
 const tone:Record<string,string>={'Очаквано':'pending','Получено':'success','Частично':'pending','Отказано':'danger','Върнато':'danger'};
 const TILE_ICONS:Record<(typeof STATUSES)[number],typeof Wallet>={'Очаквано':Clock3,'Получено':CheckCheck,'Частично':CircleDollarSign,'Отказано':XCircle,'Върнато':RotateCcw};
