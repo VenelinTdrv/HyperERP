@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { Check, ChevronLeft, ChevronRight, Eye, Globe2, Info, Lock, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -32,20 +33,20 @@ const initial:Country[]=[
  {id:14,code:'ES',name:'Spain',localName:'España'},
  {id:15,code:'PL',name:'Poland',localName:'Polska'},
 ];
-const PAGE=10;
 
 function Countries(){
  const [rows,setRows]=useState(initial);
  const [code,setCode]=useState('');const [nameQ,setNameQ]=useState('');
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Country|null>(null);
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Country|null>(null);const [deleting,setDeleting]=useState<Country|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const c=code.trim().toLocaleUpperCase('bg-BG');const q=nameQ.trim().toLocaleLowerCase('bg-BG');
  const filtered=rows.filter(r=>(!c||r.code.includes(c))&&(!q||r.name.toLocaleLowerCase('bg-BG').includes(q)||r.localName.toLocaleLowerCase('bg-BG').includes(q)));
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const clear=()=>{setCode('');setNameQ('');setPage(1);};
  const open=(s:Country|null)=>{setSelected(null);setEditing(s);setErrors({});setForm(s?{code:s.code,name:s.name,localName:s.localName}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:k==='code'?v.toLocaleUpperCase('bg-BG').replace(/[^A-Z]/g,''):v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
@@ -75,7 +76,7 @@ function Countries(){
     <td>{r.localName||'—'}</td>
     <td className="text-right">{r.locked?<Button variant="ghost" size="icon" aria-label={`${r.name} е системна държава и не може да се променя`} title="Системна държава — не може да се редактира или изтрива"><Lock/></Button>:<DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${r.name}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(r)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}</td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><Globe2 size={32}/><h3>{rows.length?'Няма намерени държави':'Все още няма държави'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави държава</Button>}</div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="countries-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни държави · без реално записване</div>
  </div>

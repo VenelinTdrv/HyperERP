@@ -4,6 +4,7 @@ import { ArrowLeftRight, Check, ChevronLeft, ChevronRight, Eye, FileSpreadsheet,
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { comboProducts } from '@/lib/combo-data';
@@ -34,7 +35,6 @@ const initial:Transfer[]=[
  {id:5,doc:'TR-0000002',created:'2026-10-08T11:00',createdBy:'Венелин Тодоров',from:'Склад Варна',to:'Склад Главен',status:'Завършен',description:'Връщане на излишък.',items:[{productId:5,quantity:6}]},
  {id:6,doc:'TR-0000001',created:'2026-10-05T08:30',createdBy:'Виктория Григорова',from:'Склад Главен',to:'Склад Варна',status:'Завършен',description:'',items:[{productId:6,quantity:4},{productId:9,quantity:2}]},
 ];
-const PAGE=10;
 const fmt=(v:string)=>new Date(v).toLocaleString('bg-BG',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 const cls:Record<Status,string>={'Необработен':'','Потвърден':'neutral','Завършен':'received','Отказан':'cancelled'};
 const product=(id:number)=>comboProducts.find(p=>p.id===id);
@@ -49,6 +49,7 @@ function Transfers(){
  const [rows,setRows]=useState(initial);const [stock,setStock]=useState(initialStock);
  const [docQ,setDocQ]=useState('');const [dateFrom,setDateFrom]=useState('');const [dateTo,setDateTo]=useState('');const [statusQ,setStatusQ]=useState('');const [userQ,setUserQ]=useState('');
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Transfer|null>(null);
  const [form,setForm]=useState({from:'',to:'',description:'',items:[] as Item[]});const [errors,setErrors]=useState<Record<string,string>>({});
  const [picker,setPicker]=useState(false);const [pq,setPq]=useState('');
@@ -57,8 +58,8 @@ function Transfers(){
  const [announcement,setAnnouncement]=useState('');
  const q=docQ.trim().toLowerCase();
  const filtered=rows.filter(r=>(!q||r.doc.toLowerCase().includes(q))&&(!dateFrom||r.created.slice(0,10)>=dateFrom)&&(!dateTo||r.created.slice(0,10)<=dateTo)&&(!statusQ||r.status===statusQ)&&(!userQ||r.createdBy===userQ));
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const pageIds=shown.map(r=>r.id);
  const allSelected=pageIds.length>0&&pageIds.every(id=>selection.includes(id));
  const someSelected=pageIds.some(id=>selection.includes(id));
@@ -125,7 +126,7 @@ function Transfers(){
     </DropdownMenuContent></DropdownMenu></div></td><td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${r.doc}`} title="Преглед" onClick={()=>setSelected(r)}><Eye/></Button></div></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><ArrowLeftRight size={32}/><h3>Няма намерени трансфери</h3>{anyFilter&&<Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button>}</div>}
    {selection.length>0&&<div className="article-selection"><span>{selection.length} {selection.length===1?'избран трансфер':'избрани трансфера'}</span><Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="transfers-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни трансфери · наличностите се променят само в демонстрацията</div>
  </div>

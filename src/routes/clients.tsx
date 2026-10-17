@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Ban, Check, ChevronLeft, ChevronRight, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Undo2, Users, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientEditorDialog, type ClientFormData } from '@/components/client-editor';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -30,20 +31,20 @@ const initial:Client[]=[
 ];
 const addrText=(a?:Address)=>!a?'—':a.kind==='street'?`ул. ${a.street} ${a.number}`:a.place;
 const now=()=>'14.10.2026, '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'});
-const PAGE=10;
 
 function Clients(){
  const [rows,setRows]=useState(initial);
  const [name,setName]=useState('');const [phone,setPhone]=useState('');
  const [page,setPage]=useState(1);
+ const [pageSize,setPageSize]=useState(10);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Client|null>(null);
   const [selected,setSelected]=useState<Client|null>(null);const [deleting,setDeleting]=useState<Client|null>(null);
   const [blacklisting,setBlacklisting]=useState<Client|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const p=phone.replace(/\D/g,'');
  const filtered=rows.filter(r=>(!q||`${r.first} ${r.last}`.toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p)));
- const pages=Math.max(1,Math.ceil(filtered.length/PAGE));const cur=Math.min(page,pages);
- const shown=filtered.slice((cur-1)*PAGE,cur*PAGE);
+ const pages=Math.max(1,Math.ceil(filtered.length/pageSize));const cur=Math.min(page,pages);
+ const shown=filtered.slice((cur-1)*pageSize,cur*pageSize);
  const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
  const saveClient=(data:ClientFormData)=>{
   if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,editedBy:'Венелин Тодоров',editedAt:now()}:r));
@@ -68,7 +69,7 @@ function Clients(){
     <td>{c.editedBy?<><span className="block text-xs">{c.editedBy}</span><span className="delivery-cell-sub">{c.editedAt}</span></>:'—'}</td>
     <td className="text-right"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия за ${c.first} ${c.last}`}><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(c)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(c)}><Pencil/>Редактирай</DropdownMenuItem>{c.blacklisted?<DropdownMenuItem onSelect={()=>toggleBlack(c)}><Undo2/>Премахни от черния списък</DropdownMenuItem>:<DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setBlacklisting(c)}><Ban/>В черен списък</DropdownMenuItem>}<DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(c)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
    </tr>;})}</tbody></table></div>:<div className="delivery-empty"><Users size={32}/><h3>{rows.length?'Няма намерени клиенти':'Все още няма клиенти'}</h3>{rows.length?<Button variant="outline" onClick={()=>{setName('');setPhone('');}}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави клиент</Button>}</div>}
-   <div className="delivery-pagination"><span>{filtered.length?`${(cur-1)*PAGE+1}–${Math.min(cur*PAGE,filtered.length)} от ${filtered.length}`:'0 резултата'}</span><div className="delivery-pagination-controls"><Button variant="ghost" size="icon" aria-label="Предишна страница" disabled={cur<=1} onClick={()=>setPage(cur-1)}><ChevronLeft/></Button><span>{cur} / {pages}</span><Button variant="ghost" size="icon" aria-label="Следваща страница" disabled={cur>=pages} onClick={()=>setPage(cur+1)}><ChevronRight/></Button></div></div>
+      <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="clients-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни клиенти · без реално записване</div>
  </div>
