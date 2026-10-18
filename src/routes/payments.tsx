@@ -12,7 +12,7 @@ import { downloadPaymentsXls, openPaymentsPrint } from '@/lib/payments-export';
 import { SELLERS, sellerType } from '@/lib/sellers';
 
 export const Route = createFileRoute('/payments')({
-  head:()=>({meta:[{title:'HyperERP · Плащания'},{name:'description',content:'Плащания по продажбите от Еконт и Pigeon — наложен платеж и банков превод, със статус и сума.'},{property:'og:title',content:'HyperERP · Плащания'},{property:'og:description',content:'Списък с плащания по продажби, филтри по вид, източник и статус, създаване и редакция.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
+  head:()=>({meta:[{title:'HyperERP · Плащания'},{name:'description',content:'Плащания по продажбите от Еконт и Pigeon — наложен платеж и банков превод, със статус и сума.'},{property:'og:title',content:'HyperERP · Плащания'},{property:'og:description',content:'Списък с плащания по продажби, филтри по вид, куриер и статус, създаване и редакция.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
   component:Payments,
 });
 
@@ -122,11 +122,11 @@ function Payments(){
    <div className="field"><select aria-label="Статус" value={status} onChange={ev=>{setStatus(ev.target.value);setPage(1);}}><option value="">Всички статуси</option>{STATUSES.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Инфлуенсър / Търговец" value={agent} onChange={ev=>{setAgent(ev.target.value);setPage(1);}}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s=><option key={s.id} value={s.id}>{s.id} · {s.type} · {money(share[s.id]!.amount)} · {share[s.id]!.pct}%</option>)}</select></div>
    <div className="field"><select aria-label="Вид плащане" value={method} onChange={ev=>{setMethod(ev.target.value);setPage(1);}}><option value="">Всички видове</option>{METHODS.map(x=><option key={x}>{x}</option>)}</select></div>
-   <div className="field"><select aria-label="Източник" value={source} onChange={ev=>{setSource(ev.target.value);setPage(1);}}><option value="">Всички източници</option>{SOURCES.map(x=><option key={x}>{x}</option>)}</select></div>
+   <div className="field"><select aria-label="Куриер" value={source} onChange={ev=>{setSource(ev.target.value);setPage(1);}}><option value="">Всички куриери</option>{SOURCES.map(x=><option key={x}>{x}</option>)}</select></div>
    <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!agent&&!datesChanged} onClick={clear}><X/>Изчисти</Button></div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с плащания"><div className="delivery-list-heading"><h2>Всички плащания <span>{filtered.length}</span></h2><span className="text-xs text-muted-foreground">Получени: <strong className="text-foreground">{money(String(sum))}</strong></span></div>
-   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Плащане</th><th>Поръчка / Продажба</th><th>Клиент</th><th>Инфлуенсър / Търговец</th><th>Вид</th><th>Източник</th><th className="text-right">Сума</th><th>Дата</th><th>Статус</th><th>Редактирано от</th><th className="text-center">Действия</th><th className="text-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
+   {shown.length?<div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Плащане</th><th>Поръчка / Продажба</th><th>Клиент</th><th>Инфлуенсър / Търговец</th><th>Вид</th><th>Куриер</th><th className="text-right">Сума</th><th>Дата</th><th>Статус</th><th>Редактирано от</th><th className="text-center">Действия</th><th className="text-center">Виж</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
     <td><span className="delivery-id">{r.id}</span></td>
     <td><span className="block">{r.orderId}</span><span className="text-[10px] text-muted-foreground">{r.saleId}</span></td>
     <td>{r.client}</td>
@@ -154,10 +154,10 @@ function Payments(){
     {sel('agent','Инфлуенсър / Търговец',SELLERS.map(s=>s.id))}
     {input('amount','Сума (€)',{req:true,ph:'0.00'})}
     {sel('method','Вид плащане',METHODS)}
-    {sel('source','Източник',SOURCES)}
+    {sel('source','Куриер',SOURCES)}
     {sel('status','Статус',STATUSES,tone[form.status])}
     {input('date','Дата',{req:true,type:'date'})}
-    {input('reference','Референция от източника',{ph:'EC-1048820'})}
+    {input('reference','Референция от куриера',{ph:'EC-1048820'})}
     {input('note','Бележка')}
    </div>
    <div className="flex justify-end gap-2 pt-2"><Button variant="outline" type="button" onClick={()=>setEditor(false)}>Отказ</Button><Button type="submit"><Check/>Запиши</Button></div>
@@ -166,7 +166,7 @@ function Payments(){
  <Dialog open={selected!==null} onOpenChange={o=>{if(!o)setSelected(null);}}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">{selected?.id}</DialogTitle><DialogDescription>Детайли за плащането · примерни данни</DialogDescription></DialogHeader>{selected&&<><dl className="delivery-details">
   <div><dt>Поръчка</dt><dd>{selected.orderId}</dd></div><div><dt>Продажба</dt><dd>{selected.saleId}</dd></div>
   <div><dt>Клиент</dt><dd>{selected.client}</dd></div><div><dt>Инфлуенсър / Търговец</dt><dd>{selected.agent}</dd></div><div><dt>Сума</dt><dd>{money(selected.amount)}</dd></div>
-  <div><dt>Вид</dt><dd>{selected.method}</dd></div><div><dt>Източник</dt><dd>{selected.source}{selected.reference?` · ${selected.reference}`:''}</dd></div>
+  <div><dt>Вид</dt><dd>{selected.method}</dd></div><div><dt>Куриер</dt><dd>{selected.source}{selected.reference?` · ${selected.reference}`:''}</dd></div>
   <div><dt>Статус</dt><dd><span className={`pay-status tone-${tone[selected.status]}`}><span/>{selected.status}</span></dd></div><div><dt>Дата</dt><dd>{selected.date.split('-').reverse().join('.')}</dd></div><div><dt>Редактирано от</dt><dd>{selected.edited?`${dateTime(selected.edited)} · ${selected.editedBy||ADMIN}`:'—'}</dd></div>
   {selected.note&&<div><dt>Бележка</dt><dd>{selected.note}</dd></div>}
  </dl><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button onClick={()=>open(selected)}><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog>
