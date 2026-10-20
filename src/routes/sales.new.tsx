@@ -1,6 +1,6 @@
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Building2, Check, ClipboardList, FileText, Info, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, UserRound, UserRoundPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -61,7 +61,9 @@ function Index() {
  const subtotal = items.reduce((sum,item) => sum + item.price*item.quantity,0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
- const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:0}]); setProductSearch(''); };
+ const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:0}]); };
+ const toggleProduct = (id:number) => { if(items.some(i=>i.id===id)) setItems(prev=>prev.filter(i=>i.id!==id)); else addProduct(id); };
+ const pickerList = catalog.filter(p=>{const s=productSearch.trim().toLowerCase();return !s||`${p.name} ${p.sku}`.toLowerCase().includes(s);});
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,quantity:Math.max(1,Math.min(999,value||1))}:i));
  const price = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,price:Math.max(0,value||0)}:i));
  const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');};
