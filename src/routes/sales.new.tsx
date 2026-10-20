@@ -1,6 +1,6 @@
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Building2, Check, ClipboardList, FileText, Info, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, UserRound, UserRoundPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -51,36 +51,7 @@ function Index() {
  const [form,setForm] = useState({city:'',courier:'Еконт',address:'',note:''});
  const [delivery,setDelivery] = useState<'address'|'office'>('address');
  const [productSearch,setProductSearch] = useState('');
- const productSearchRef = useRef<HTMLInputElement>(null);
- const productResultsRef = useRef<HTMLDivElement>(null);
- const productsTableRef = useRef<HTMLTableElement>(null);
- const revealProductSearch = () => {
-  const input = productSearchRef.current;
-  if (!input) return;
-  const inputBounds = input.getBoundingClientRect();
-  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
-  const tableBounds = productsTableRef.current?.getBoundingClientRect();
-  if (tableBounds) {
-   // Избутваме останалата информация нагоре, така че търсенето и всички
-   // добавени продукти да се виждат удобно по време на въвеждане.
-   const toTop = inputBounds.top - 80;
-   const overflow = tableBounds.bottom - (viewportHeight - 24);
-   const scroll = Math.max(toTop, overflow, 0);
-   if (scroll > 0) window.scrollBy({ top: scroll, behavior });
-   return;
-  }
-  const resultsBounds = productResultsRef.current?.getBoundingClientRect();
-  const bottom = resultsBounds?.bottom ?? inputBounds.bottom + Math.min(260, viewportHeight * 0.4);
-  if (inputBounds.top < 80 || bottom > viewportHeight - 24) {
-   input.scrollIntoView({ block: 'start', behavior });
-  }
- };
- useEffect(() => {
-  if (!productSearch || document.activeElement !== productSearchRef.current) return;
-  const frame = requestAnimationFrame(revealProductSearch);
-  return () => cancelAnimationFrame(frame);
- }, [productSearch]);
+ const [pickerOpen,setPickerOpen] = useState(false);
  const [clientSearch,setClientSearch] = useState('');
  const [client,setClient] = useState<{name:string;phone:string}|null>(null);
  const [error,setError] = useState('');
@@ -90,7 +61,9 @@ function Index() {
  const subtotal = items.reduce((sum,item) => sum + item.price*item.quantity,0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
- const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:0}]); setProductSearch(''); };
+ const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:0}]); };
+ const toggleProduct = (id:number) => { if(items.some(i=>i.id===id)) setItems(prev=>prev.filter(i=>i.id!==id)); else addProduct(id); };
+ const pickerList = catalog.filter(p=>{const s=productSearch.trim().toLowerCase();return !s||`${p.name} ${p.sku}`.toLowerCase().includes(s);});
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,quantity:Math.max(1,Math.min(999,value||1))}:i));
  const price = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,price:Math.max(0,value||0)}:i));
  const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');};
@@ -130,11 +103,10 @@ function Index() {
       <section className="order-section"><div className="section-heading"><div className="section-title"><h2>Продукти</h2></div><span className="text-[10px] text-muted-foreground">{count} артикула</span></div>
        <div className="section-body !pb-0">
         {!influencer && <div className="delivery-notice" role="status"><Info size={16}/><span>Първо изберете инфлуенсър в „Обобщение“: търсенето показва и неговите комбота.</span></div>}
-        <div className="search-box"><Search/><input ref={productSearchRef} aria-label="Търсене на продукт" className="search-input scroll-mt-24" placeholder="Добавете продукт по име или код…" value={productSearch} onFocus={()=>requestAnimationFrame(revealProductSearch)} onChange={e=>setProductSearch(e.target.value)}/></div>
-        {productSearch && <div ref={productResultsRef} className="search-results mt-2 max-h-[50dvh] overflow-y-auto">{catalog.filter(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase())).map(p=><Button key={p.id} type="button" variant="ghost" className="search-result" onClick={()=>addProduct(p.id)}><span>{p.name} · {p.sku}</span><Plus size={14}/></Button>)}{!catalog.some(p=>`${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase()))&&<p className="p-2 text-xs text-muted-foreground">Няма намерени продукти.</p>}</div>}
+        <Button type="button" variant="outline" className="w-full justify-start text-muted-foreground" onClick={()=>{setProductSearch('');setPickerOpen(true);}}><Plus/>Добавете продукт по име или код…</Button>
         {items.length===0 && <p className="text-sm text-muted-foreground py-3">Още няма добавени продукти</p>}
        </div>
-       {items.length>0 && <table ref={productsTableRef} className="product-table"><thead><tr><th>Продукт</th><th>Ед. цена</th><th>Количество</th><th className="text-right">Сума</th><th><span className="sr-only">Премахване</span></th></tr></thead><tbody>{items.map(item=>{const p=catalog.find(p=>p.id===item.id);if(!p)return null;return <tr key={p.id}><td><div><div className="font-semibold">{p.name}</div><div className="text-muted-foreground text-[10px] mt-1">{p.sku} · Наличност: {p.stock}</div></div></td><td><PriceInput value={item.price} label={`Ед. цена ${p.name}`} onValue={v=>price(p.id,v)}/></td><td><div className="quantity-control"><Button type="button" variant="ghost" className="quantity-button" aria-label={`Намали ${p.name}`} onClick={()=>quantity(p.id,item.quantity-1)} disabled={item.quantity===1}><Minus size={12}/></Button><input type="number" min={1} max={999} aria-label={`Количество ${p.name}`} value={item.quantity} onChange={e=>quantity(p.id,Number(e.target.value))}/><Button type="button" variant="ghost" className="quantity-button" aria-label={`Увеличи ${p.name}`} onClick={()=>quantity(p.id,item.quantity+1)}><Plus size={12}/></Button></div></td><td className="font-bold text-right">{money(item.price*item.quantity)}</td><td><Button type="button" variant="ghost" size="icon" className="w-7 text-muted-foreground" aria-label={`Премахни ${p.name}`} title="Премахни продукта" onClick={()=>setItems(prev=>prev.filter(i=>i.id!==p.id))}><Trash2 size={14}/></Button></td></tr>;})}</tbody></table>}
+       {items.length>0 && <table className="product-table"><thead><tr><th>Продукт</th><th>Ед. цена</th><th>Количество</th><th className="text-right">Сума</th><th><span className="sr-only">Премахване</span></th></tr></thead><tbody>{items.map(item=>{const p=catalog.find(p=>p.id===item.id);if(!p)return null;return <tr key={p.id}><td><div><div className="font-semibold">{p.name}</div><div className="text-muted-foreground text-[10px] mt-1">{p.sku} · Наличност: {p.stock}</div></div></td><td><PriceInput value={item.price} label={`Ед. цена ${p.name}`} onValue={v=>price(p.id,v)}/></td><td><div className="quantity-control"><Button type="button" variant="ghost" className="quantity-button" aria-label={`Намали ${p.name}`} onClick={()=>quantity(p.id,item.quantity-1)} disabled={item.quantity===1}><Minus size={12}/></Button><input type="number" min={1} max={999} aria-label={`Количество ${p.name}`} value={item.quantity} onChange={e=>quantity(p.id,Number(e.target.value))}/><Button type="button" variant="ghost" className="quantity-button" aria-label={`Увеличи ${p.name}`} onClick={()=>quantity(p.id,item.quantity+1)}><Plus size={12}/></Button></div></td><td className="font-bold text-right">{money(item.price*item.quantity)}</td><td><Button type="button" variant="ghost" size="icon" className="w-7 text-muted-foreground" aria-label={`Премахни ${p.name}`} title="Премахни продукта" onClick={()=>setItems(prev=>prev.filter(i=>i.id!==p.id))}><Trash2 size={14}/></Button></td></tr>;})}</tbody></table>}
        <div className="product-bottom"><ShieldCheck size={13}/>Цените са с включен ДДС</div>
       </section>
      </div>
@@ -145,6 +117,11 @@ function Index() {
     </form>
    </div>
   <Dialog open={resetOpen} onOpenChange={setResetOpen}><DialogContent><DialogHeader><DialogTitle>Отказ от поръчката?</DialogTitle><DialogDescription>Въведените данни и добавените продукти ще бъдат премахнати.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setResetOpen(false)}>Продължи редакцията</Button><Button variant="destructive" onClick={()=>{reset();setResetOpen(false);}}>Изчисти</Button></div></DialogContent></Dialog>
+  <Dialog open={pickerOpen} onOpenChange={setPickerOpen}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">Избор на продукти</DialogTitle><DialogDescription>Търсете по код или име на продукт</DialogDescription></DialogHeader>
+   <div className="search-box"><Search/><input className="search-input" autoFocus aria-label="Търсене по код или име" placeholder="Код / Име на продукт…" value={productSearch} onChange={e=>setProductSearch(e.target.value)}/></div>
+   <div className="delivery-table-scroll max-h-80 overflow-y-auto">{pickerList.length?<table className="delivery-table"><thead><tr><th>Код</th><th>Продукт</th><th>Наличност</th><th/></tr></thead><tbody>{pickerList.map(p=>{const added=items.some(i=>i.id===p.id);return <tr key={p.id}><td>{p.sku}</td><td>{p.name}</td><td>{p.stock}</td><td className="text-right"><Button type="button" size="sm" variant={added?'outline':'default'} onClick={()=>toggleProduct(p.id)}>{added?<><Check/>Добавен</>:<><Plus/>Добави</>}</Button></td></tr>;})}</tbody></table>:<p className="text-sm text-muted-foreground p-4">Няма намерени продукти.</p>}</div>
+   <div className="flex justify-end"><Button onClick={()=>setPickerOpen(false)}>Готово</Button></div>
+  </DialogContent></Dialog>
   <ClientEditorDialog open={clientOpen} onOpenChange={setClientOpen} editing={null} phones={[]} onSave={data=>{const a=data.addresses.find(x=>x.id===data.primary)??data.addresses[0];setClient({name:`${data.first} ${data.last}`,phone:data.phone});setClientSearch('');if(a){setDelivery('address');setForm(prev=>({...prev,city:a.city,address:a.kind==='street'?`ул. ${a.street} ${a.number}`:a.place}));}}}/>
  </WorkspaceShell>;
 }
