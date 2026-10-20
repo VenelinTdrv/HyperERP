@@ -261,6 +261,7 @@
 .article-table .delivery-row-actions { min-width:36px; }
 .article-selection { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 20px; border-top:1px solid var(--border); background:var(--secondary); color:var(--primary); font-size:11px; }
 .article-dialog-title { padding-right:25px; }
+@media (max-width:700px) { .product-picker .delivery-table th, .product-picker .delivery-table td { padding:10px 6px; } .product-picker .delivery-table th:first-child, .product-picker .delivery-table td:first-child { padding-left:8px; } .product-picker .delivery-table td:last-child { padding-right:8px; } .product-picker .delivery-table button { min-height:40px; min-width:40px; padding:0 10px; } .product-picker .picker-label { display:none; } }
 .combo-filters { display:grid; grid-template-columns:minmax(0,1fr) 230px 41px; gap:12px; margin-bottom:24px; }
 .combo-filters>button { height:41px; }
 .combo-table .combo-description { white-space:normal; min-width:140px; max-width:220px; line-height:1.6; }
