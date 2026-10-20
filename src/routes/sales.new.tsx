@@ -117,6 +117,11 @@ function Index() {
     </form>
    </div>
   <Dialog open={resetOpen} onOpenChange={setResetOpen}><DialogContent><DialogHeader><DialogTitle>Отказ от поръчката?</DialogTitle><DialogDescription>Въведените данни и добавените продукти ще бъдат премахнати.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setResetOpen(false)}>Продължи редакцията</Button><Button variant="destructive" onClick={()=>{reset();setResetOpen(false);}}>Изчисти</Button></div></DialogContent></Dialog>
+  <Dialog open={pickerOpen} onOpenChange={setPickerOpen}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">Избор на продукти</DialogTitle><DialogDescription>Търсете по код или име на продукт</DialogDescription></DialogHeader>
+   <div className="search-box"><Search/><input className="search-input" autoFocus aria-label="Търсене по код или име" placeholder="Код / Име на продукт…" value={productSearch} onChange={e=>setProductSearch(e.target.value)}/></div>
+   <div className="delivery-table-scroll max-h-80 overflow-y-auto">{pickerList.length?<table className="delivery-table"><thead><tr><th>Код</th><th>Продукт</th><th>Наличност</th><th/></tr></thead><tbody>{pickerList.map(p=>{const added=items.some(i=>i.id===p.id);return <tr key={p.id}><td>{p.sku}</td><td>{p.name}</td><td>{p.stock}</td><td className="text-right"><Button type="button" size="sm" variant={added?'outline':'default'} onClick={()=>toggleProduct(p.id)}>{added?<><Check/>Добавен</>:<><Plus/>Добави</>}</Button></td></tr>;})}</tbody></table>:<p className="text-sm text-muted-foreground p-4">Няма намерени продукти.</p>}</div>
+   <div className="flex justify-end"><Button onClick={()=>setPickerOpen(false)}>Готово</Button></div>
+  </DialogContent></Dialog>
   <ClientEditorDialog open={clientOpen} onOpenChange={setClientOpen} editing={null} phones={[]} onSave={data=>{const a=data.addresses.find(x=>x.id===data.primary)??data.addresses[0];setClient({name:`${data.first} ${data.last}`,phone:data.phone});setClientSearch('');if(a){setDelivery('address');setForm(prev=>({...prev,city:a.city,address:a.kind==='street'?`ул. ${a.street} ${a.number}`:a.place}));}}}/>
  </WorkspaceShell>;
 }
