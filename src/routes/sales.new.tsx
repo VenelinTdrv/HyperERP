@@ -51,36 +51,7 @@ function Index() {
  const [form,setForm] = useState({city:'',courier:'Еконт',address:'',note:''});
  const [delivery,setDelivery] = useState<'address'|'office'>('address');
  const [productSearch,setProductSearch] = useState('');
- const productSearchRef = useRef<HTMLInputElement>(null);
- const productResultsRef = useRef<HTMLDivElement>(null);
- const productsTableRef = useRef<HTMLTableElement>(null);
- const revealProductSearch = () => {
-  const input = productSearchRef.current;
-  if (!input) return;
-  const inputBounds = input.getBoundingClientRect();
-  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
-  const tableBounds = productsTableRef.current?.getBoundingClientRect();
-  if (tableBounds) {
-   // Избутваме останалата информация нагоре, така че търсенето и всички
-   // добавени продукти да се виждат удобно по време на въвеждане.
-   const toTop = inputBounds.top - 80;
-   const overflow = tableBounds.bottom - (viewportHeight - 24);
-   const scroll = Math.max(toTop, overflow, 0);
-   if (scroll > 0) window.scrollBy({ top: scroll, behavior });
-   return;
-  }
-  const resultsBounds = productResultsRef.current?.getBoundingClientRect();
-  const bottom = resultsBounds?.bottom ?? inputBounds.bottom + Math.min(260, viewportHeight * 0.4);
-  if (inputBounds.top < 80 || bottom > viewportHeight - 24) {
-   input.scrollIntoView({ block: 'start', behavior });
-  }
- };
- useEffect(() => {
-  if (!productSearch || document.activeElement !== productSearchRef.current) return;
-  const frame = requestAnimationFrame(revealProductSearch);
-  return () => cancelAnimationFrame(frame);
- }, [productSearch]);
+ const [pickerOpen,setPickerOpen] = useState(false);
  const [clientSearch,setClientSearch] = useState('');
  const [client,setClient] = useState<{name:string;phone:string}|null>(null);
  const [error,setError] = useState('');
