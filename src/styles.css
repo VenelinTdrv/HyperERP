@@ -582,3 +582,10 @@
  .order-detail .order-detail-totals { grid-template-columns:minmax(0,1fr); gap:10px; }
  .order-detail .order-detail-totals > div { flex-direction:row; align-items:center; }
 }
+
+/* Courier office search stays usable on phones. */
+@media (max-width:700px) {
+ .new-order .office-option { min-height:44px; }
+ .new-order .office-chip { min-height:44px; }
+ .new-order .office-list { max-height:230px; }
+}
