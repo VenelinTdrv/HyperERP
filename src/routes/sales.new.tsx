@@ -1,7 +1,7 @@
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, type FormEvent } from 'react';
-import { Building2, Check, ClipboardList, FileText, Info, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, UserRound, UserRoundPlus } from 'lucide-react';
+import { Building2, Check, ClipboardList, FileText, Info, MapPin, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, UserRound, UserRoundPlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientEditorDialog } from '@/components/client-editor';
@@ -29,6 +29,7 @@ const DEMO_CLIENT = { name:'Мария Иванова', phone:'0888 123 456', ci
 type OrderItem = { id:number; quantity:number; price:number };
 const INFLUENCERS = ['Виктория Григорова','Елена Петрова','Мария Иванова'];
 const CITIES = ['София','Пловдив','Варна','Бургас','Русе','Стара Загора','Плевен','Ямбол'];
+const OFFICE_AREAS = ['Център','Север','Юг','Изток','Запад','Автогара'];
 const money = (value:number) => `${value.toLocaleString('bg-BG', {minimumFractionDigits:2, maximumFractionDigits:2})} €`;
 function Field({label, id, required, children, className=''}:{label:string;id:string;required?:boolean;children:React.ReactNode;className?:string}) {
  return <div className={`field ${className}`}><label htmlFor={id}>{label}{required && <span className="required">*</span>}</label>{children}</div>;
@@ -58,6 +59,8 @@ function Index() {
  const [resetOpen,setResetOpen] = useState(false);
  const [clientOpen,setClientOpen] = useState(false);
  const [influencer,setInfluencer] = useState('');
+ const [office,setOffice] = useState<string|null>(null);
+ const [officeSearch,setOfficeSearch] = useState('');
  const subtotal = items.reduce((sum,item) => sum + item.price*item.quantity,0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
@@ -66,7 +69,9 @@ function Index() {
  const pickerList = catalog.filter(p=>{const s=productSearch.trim().toLowerCase();return !s||`${p.name} ${p.sku}`.toLowerCase().includes(s);});
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,quantity:Math.max(1,Math.min(999,value||1))}:i));
  const price = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,price:Math.max(0,value||0)}:i));
- const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');};
+ const clearOffice = () => {setOffice(null);setOfficeSearch('');update('address','');};
+ const officeList = !form.city ? [] : OFFICE_AREAS.map(area => `${form.courier} · ${form.city} ${area}`).filter(name => {const s = officeSearch.trim().toLowerCase();return !s || name.toLowerCase().includes(s);});
+ const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');};
  const submit = (event?:FormEvent) => {
   event?.preventDefault();
   if(!client) {setError('Първо изберете клиент от търсенето или добавете нов.');return;}
@@ -95,9 +100,9 @@ function Index() {
         {client && <div className="client-chip mt-3" role="status"><UserRound size={15}/><span className="font-semibold">{client.name}</span>{client.phone && <span className="text-muted-foreground">{client.phone}</span>}<Button type="button" variant="ghost" size="icon" className="ml-auto w-7 h-7 text-muted-foreground" aria-label="Премахни клиента" onClick={()=>setClient(null)}><Trash2 size={13}/></Button></div>}
        {client ? <>
        <div className="form-divider"/><div className="delivery-heading"><Truck size={16}/>Данни за доставка</div>
-       <div className="delivery-grid"><Field label="Куриер" id="courier" required><select id="courier" value={form.courier} onChange={e=>{update('courier',e.target.value);if(delivery==='office')update('address','');}}><option>Еконт</option><option>Спиди</option></select></Field><Field label="Град" id="city" required><div className="search-box"><Search/><input id="city" className="search-input" placeholder="Търсене на град…" value={form.city} onChange={e=>{update('city',e.target.value);if(delivery==='office')update('address','');}} list="city-list"/></div><datalist id="city-list">{CITIES.map(city=><option key={city} value={city}/>)}</datalist></Field></div>
-       <div className="field mt-3"><span className="text-[11px] font-semibold">Доставка до</span><div className="segmented" aria-label="Вид доставка"><Button type="button" variant="ghost" className="segment" aria-pressed={delivery==='address'} onClick={()=>{setDelivery('address');update('address','');}}><Building2 size={14}/>Адрес{delivery==='address'&&<Check size={13}/>}</Button><Button type="button" variant="ghost" className="segment" aria-pressed={delivery==='office'} onClick={()=>{setDelivery('office');update('address','');}}><Package size={14}/>Офис{delivery==='office'&&<Check size={13}/>}</Button></div></div>
-       <div className="mt-3"><Field label={delivery==='address'?'Адрес за доставка':'Офис на куриера'} id="address" required>{delivery==='address'?<input id="address" autoComplete="street-address" placeholder="Улица, номер, блок, вход, етаж, апартамент" value={form.address} onChange={e=>update('address',e.target.value)}/>:<select id="address" value={form.address} onChange={e=>update('address',e.target.value)} disabled={!form.city}><option value="">{form.city?'Изберете офис':'Първо изберете град'}</option><option>{form.courier} · {form.city} Център (примерен офис)</option><option>{form.courier} · {form.city} Север (примерен офис)</option></select>}</Field></div>
+       <div className="delivery-grid"><Field label="Куриер" id="courier" required><select id="courier" value={form.courier} onChange={e=>{update('courier',e.target.value);if(delivery==='office')clearOffice();}}><option>Еконт</option><option>Спиди</option></select></Field><Field label="Град" id="city" required><div className="search-box"><Search/><input id="city" className="search-input" placeholder="Търсене на град…" value={form.city} onChange={e=>{update('city',e.target.value);if(delivery==='office')clearOffice();}} list="city-list"/></div><datalist id="city-list">{CITIES.map(city=><option key={city} value={city}/>)}</datalist></Field></div>
+       <div className="field mt-3"><span className="text-[11px] font-semibold">Доставка до</span><div className="segmented" aria-label="Вид доставка"><Button type="button" variant="ghost" className="segment" aria-pressed={delivery==='address'} onClick={()=>{setDelivery('address');clearOffice();}}><Building2 size={14}/>Адрес{delivery==='address'&&<Check size={13}/>}</Button><Button type="button" variant="ghost" className="segment" aria-pressed={delivery==='office'} onClick={()=>{setDelivery('office');clearOffice();}}><Package size={14}/>Офис{delivery==='office'&&<Check size={13}/>}</Button></div></div>
+       <div className="mt-3"><Field label={delivery==='address'?'Адрес за доставка':'Офис на куриера'} id="address" required>{delivery==='address'?<input id="address" autoComplete="street-address" placeholder="Улица, номер, блок, вход, етаж, апартамент" value={form.address} onChange={e=>update('address',e.target.value)}/>:office&&form.address===office?<div id="address" className="client-chip office-chip" role="status" tabIndex={-1}><MapPin size={15}/><span className="font-semibold truncate">{office}</span><span className="text-muted-foreground text-[10px]">примерен офис</span><Button type="button" variant="ghost" size="icon" className="ml-auto w-7 h-7 text-muted-foreground" aria-label="Премахни офиса" onClick={clearOffice}><X size={13}/></Button></div>:<><div className="search-box"><MapPin/><input id="address" className="search-input" placeholder={form.city?'Търсене на офис на куриера…':'Първо изберете град…'} value={officeSearch} disabled={!form.city} onChange={e=>setOfficeSearch(e.target.value)}/></div><div className="search-results office-list">{form.city?officeList.length?officeList.map(name=><Button type="button" key={name} variant="ghost" className="search-result office-option" onClick={()=>{setOffice(name);setOfficeSearch('');update('address',name);}}><span>{name}</span><small className="text-muted-foreground">примерен офис</small></Button>):<p className="p-2 text-xs text-muted-foreground">Няма намерен офис.</p>:<p className="p-2 text-xs text-muted-foreground">Първо изберете град, за да видите офисите на {form.courier}.</p>}</div></>}</Field></div>
        </> : <div className="delivery-placeholder" role="status"><Truck size={15}/><span>Данните за доставка се попълват след като изберете клиент.</span></div>}
       </div></section>
       <section className="order-section"><div className="section-heading"><div className="section-title"><h2>Продукти</h2></div><span className="text-[10px] text-muted-foreground">{count} артикула</span></div>
