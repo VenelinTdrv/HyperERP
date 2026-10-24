@@ -15,6 +15,13 @@
       "when": 1792825598075,
       "tag": "0001_app_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792828693726,
+      "tag": "0002_private_record_ownership",
+      "breakpoints": true
     }
   ]
 }

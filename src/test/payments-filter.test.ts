@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { initial, paymentMatches, paymentTotals, sellerShare, SELLERS, type PaymentFilter } from '@/routes/payments';
+import { initial, paymentMatches, paymentTotals, sellerShare, SELLERS, type PaymentFilter } from '@/routes/_authenticated/payments';
 import { useOrders } from '@/lib/orders-store';
 
 const empty: PaymentFilter = { q: '', method: '', source: '', status: '', agent: '', from: '', to: '' };

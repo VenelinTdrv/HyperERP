@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ClientEditorDialog } from '@/components/client-editor';
 import { createOrder } from '@/lib/orders-store';
 
-export const Route = createFileRoute('/sales/new')({
+export const Route = createFileRoute('/_authenticated/sales/new')({
  head: () => ({ meta: [
   { title: 'HyperERP · Нова поръчка' },
   { name: 'description', content: 'HyperERP — управление на продажби, клиенти и доставки на козметика.' },
@@ -72,22 +72,7 @@ function Index() {
  const clearOffice = () => {setOffice(null);setOfficeSearch('');update('address','');};
  const officeList = !form.city ? [] : OFFICE_AREAS.map(area => `${form.courier} · ${form.city} ${area}`).filter(name => {const s = officeSearch.trim().toLowerCase();return !s || name.toLowerCase().includes(s);});
  const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');};
- const submit = (event?:FormEvent) => {
-  event?.preventDefault();
-  if(!client) {setError('Първо изберете клиент от търсенето или добавете нов.');return;}
-  if(!form.city||!form.address.trim()) {setError('Попълнете данните за доставка.');document.getElementById(!form.city?'city':'address')?.focus();return;}
-  if(items.length===0) {setError('Добавете поне един продукт към поръчката.');return;}
-  if(!influencer) {setError('Изберете инфлуенсър, към когото да се отнесе поръчката.');document.getElementById('influencer')?.focus();return;}
-  const products = items.flatMap(item => {
-   const product = catalog.find(product => product.id === item.id);
-   return product ? [{ sku: product.sku, name: product.name, quantity: item.quantity, price: item.price }] : [];
-  });
-  if(products.length !== items.length) {setError('Някой от продуктите вече не е наличен. Проверете поръчката.');return;}
-  createOrder({ customer: client.name, phone: client.phone, city: form.city, address: form.address.trim(), courier: form.courier, note: form.note, items: products, shipping: 0, payment: 'Наложен платеж', influencer, deliveryType: delivery });
-  setError('');
-  reset();
-  void navigate({ to: '/orders' });
- };
+ const submit = (event?:FormEvent) => { event?.preventDefault(); setError('Записът на нови поръчки още не е свързан.'); };
  return <WorkspaceShell active="Продажби">
    <div className="page-content new-order">
     <div className="page-heading"><div className="min-w-0"><Link to="/" className="text-sm text-muted-foreground hover:text-primary">← Всички продажби</Link><h1>Нова поръчка</h1></div></div>
@@ -117,8 +102,8 @@ function Index() {
      </div>
      <aside className="summary" aria-label="Обобщение на поръчката"><div className="section-heading"><div className="section-title"><ClipboardList size={17} className="text-primary"/><h2>Обобщение</h2></div></div><div className="summary-body"><Field label="Инфлуенсър" id="influencer" required><select id="influencer" value={influencer} onChange={e=>setInfluencer(e.target.value)}><option value="">Изберете инфлуенсър</option>{INFLUENCERS.map(name=><option key={name}>{name}</option>)}</select></Field><div className="summary-line mt-3"><span>Брой артикули</span><strong>{count}</strong></div></div><div className="total-area" aria-live="polite"><div className="summary-line"><span>Общо</span><strong>{money(subtotal)}</strong></div><p>Крайна сума с включен ДДС</p></div><div className="summary-note"><Field label="Бележка към поръчката" id="note"><textarea id="note" maxLength={500} placeholder="Допълнителни уточнения…" value={form.note} onChange={e=>update('note',e.target.value)}/></Field><div className="note-counter">{form.note.length} / 500</div></div><div className="summary-status"><FileText size={13}/>Поръчката все още не е записана</div></aside>
      </div>
-     <div className="order-footer"><div className="footer-buttons ml-auto"><Button type="button" variant="ghost" className="text-muted-foreground text-xs" onClick={()=>setResetOpen(true)}>Отказ</Button><Button type="submit" className="save h-10 text-xs"><Check/>Запази поръчката</Button></div></div>
-     <div className="demo-caption"><ShieldCheck size={12}/>Демо режим · поръчките се добавят в „Поръчки“ до презареждане на страницата</div>
+     <div className="order-footer"><div className="footer-buttons ml-auto"><Button type="button" variant="ghost" className="text-muted-foreground text-xs" onClick={()=>setResetOpen(true)}>Отказ</Button><Button type="submit" disabled className="save h-10 text-xs"><Check/>Запази поръчката</Button></div></div>
+     <div className="demo-caption"><ShieldCheck size={12}/>Записът на нови поръчки още не е свързан</div>
     </form>
    </div>
   <Dialog open={resetOpen} onOpenChange={setResetOpen}><DialogContent><DialogHeader><DialogTitle>Отказ от поръчката?</DialogTitle><DialogDescription>Въведените данни и добавените продукти ще бъдат премахнати.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setResetOpen(false)}>Продължи редакцията</Button><Button variant="destructive" onClick={()=>{reset();setResetOpen(false);}}>Изчисти</Button></div></DialogContent></Dialog>

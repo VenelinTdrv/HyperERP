@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export const Route = createFileRoute('/suppliers')({
+export const Route = createFileRoute('/_authenticated/suppliers')({
  head:()=>({meta:[{title:'HyperERP · Доставчици'},{name:'description',content:'Управление на доставчици, ЕИК, ДДС номер, адрес и лице за контакт в HyperERP.'},{property:'og:title',content:'HyperERP · Доставчици'},{property:'og:description',content:'Списък с доставчици, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Suppliers,
 });

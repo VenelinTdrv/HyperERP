@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export const Route = createFileRoute('/settlements')({
+export const Route = createFileRoute('/_authenticated/settlements')({
   head:()=>({meta:[{title:'HyperERP · Населени места'},{name:'description',content:'Управление на населени места — държава, име, област и пощенски код в HyperERP.'},{property:'og:title',content:'HyperERP · Населени места'},{property:'og:description',content:'Списък с населени места, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
   component:Settlements,
 });

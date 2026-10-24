@@ -30,3 +30,9 @@
 - Order-detail exports use the current draft, shared order-blank printing/PDF, and browser-generated binary XLS via order-export, so all actions reflect the visible order without changing session data.
 - Render every list footer through the shared Pagination component instead of hand-written pager markup, so paging and the records-per-page choice stay identical across screens and new lists inherit them.
 - Keep the influencer / wholesale-trader nomenclature, and the demo seller credited to each order number, in one shared module that order, sale and payment screens import, so a seller's name, type and assignment stay identical across every screen.
+
+## Cloud transition
+- All workspace routes live under the authenticated layout while preserving their URLs, including sales at /; the only public surface is /auth, so private loaders never execute without a session.
+- Sales, orders and article lists read through authenticated server functions and Query; keep their mutations disabled until persisted actions are connected, so local edits cannot masquerade as saved records.
+- Legacy demonstration stores are used only by screens not yet migrated; do not mix them into the cloud-backed lists.
+- Private operational records use owner_user_id with admin-or-owner RLS; ownerless legacy seeds are admin-only, so names cannot confer access.
