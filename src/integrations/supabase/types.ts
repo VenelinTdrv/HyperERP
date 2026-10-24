@@ -103,6 +103,7 @@ export type Database = {
           id: string
           name: string
           notes: string
+          owner_user_id: string | null
           phone: string
           primary_index: number
           status: string
@@ -116,6 +117,7 @@ export type Database = {
           id?: string
           name: string
           notes?: string
+          owner_user_id?: string | null
           phone?: string
           primary_index?: number
           status?: string
@@ -129,11 +131,20 @@ export type Database = {
           id?: string
           name?: string
           notes?: string
+          owner_user_id?: string | null
           phone?: string
           primary_index?: number
           status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       combo_items: {
         Row: {
@@ -353,6 +364,7 @@ export type Database = {
           id: string
           note: string
           order_number: string
+          owner_user_id: string | null
           payment_method: string
           phone: string
           processed_at: string | null
@@ -375,6 +387,7 @@ export type Database = {
           id?: string
           note?: string
           order_number: string
+          owner_user_id?: string | null
           payment_method?: string
           phone?: string
           processed_at?: string | null
@@ -397,6 +410,7 @@ export type Database = {
           id?: string
           note?: string
           order_number?: string
+          owner_user_id?: string | null
           payment_method?: string
           phone?: string
           processed_at?: string | null
@@ -411,6 +425,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -429,6 +450,7 @@ export type Database = {
           method: string
           note: string
           order_number: string
+          owner_user_id: string | null
           payment_date: string
           payment_number: string
           reference: string
@@ -447,6 +469,7 @@ export type Database = {
           method?: string
           note?: string
           order_number?: string
+          owner_user_id?: string | null
           payment_date?: string
           payment_number: string
           reference?: string
@@ -465,12 +488,21 @@ export type Database = {
           method?: string
           note?: string
           order_number?: string
+          owner_user_id?: string | null
           payment_date?: string
           payment_number?: string
           reference?: string
           status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payments_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -505,6 +537,7 @@ export type Database = {
           created_by: string
           customer: string
           id: string
+          owner_user_id: string | null
           phone: string
           price: number
           processed_at: string | null
@@ -524,6 +557,7 @@ export type Database = {
           created_by?: string
           customer: string
           id?: string
+          owner_user_id?: string | null
           phone?: string
           price?: number
           processed_at?: string | null
@@ -543,6 +577,7 @@ export type Database = {
           created_by?: string
           customer?: string
           id?: string
+          owner_user_id?: string | null
           phone?: string
           price?: number
           processed_at?: string | null
@@ -554,7 +589,15 @@ export type Database = {
           shipping?: number
           status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sales_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       settlements: {
         Row: {
