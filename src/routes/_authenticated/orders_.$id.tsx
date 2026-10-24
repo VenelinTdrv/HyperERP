@@ -1,3 +1,7 @@
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { erpListsQuery } from '@/lib/erp-query';
+import { orderFromDatabase } from '@/lib/erp-adapters';
+import { DataLoadError } from '@/components/data-load-error';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, FileSpreadsheet, FileText, Plus, Printer, Save, ShieldCheck, Trash2 } from 'lucide-react';
@@ -17,6 +21,9 @@ export const Route = createFileRoute('/_authenticated/orders_/$id')({
     { property: 'og:type', content: 'website' },
     { name: 'twitter:card', content: 'summary' },
   ] }),
+  loader: async ({ context }) => { await context.queryClient.ensureQueryData(erpListsQuery); },
+  errorComponent: DataLoadError,
+  notFoundComponent: DataLoadError,
   component: OrderScreen,
 });
 
@@ -26,7 +33,8 @@ const statusClass: Record<OrderStatus, string> = { 'Необработена': '
 function OrderScreen() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const orders = useOrders();
+  const { data } = useSuspenseQuery(erpListsQuery);
+  const orders = data.orders.map(orderFromDatabase);
   const original = orders.find(o => o.id === id);
   const [draft, setDraft] = useState<Order | null>(original ?? null);
   const [errors, setErrors] = useState<Partial<Record<'customer'|'phone'|'city'|'address'|'items'|'shipping', string>>>({});
@@ -34,25 +42,11 @@ function OrderScreen() {
 
   if (!original || !draft) return <WorkspaceShell active="Поръчки"><div className="page-content"><h1>Поръчката не е намерена</h1><Button asChild variant="outline" className="mt-4"><Link to="/orders"><ArrowLeft />Към поръчките</Link></Button></div></WorkspaceShell>;
 
-  const locked = original.status === 'Анулирана';
+  const locked = true;
   const set = <K extends keyof Order>(k: K, v: Order[K]) => setDraft(d => d && { ...d, [k]: v });
   const setItem = (i: number, patch: Partial<Order['items'][number]>) => set('items', draft.items.map((it, n) => n === i ? { ...it, ...patch } : it));
   const addItem = () => { const free = CATALOG.find(c => !draft.items.some(i => i.sku === c.sku)); if (free) set('items', [...draft.items, { ...free, quantity: 1 }]); };
-  const save = () => {
-    const e: typeof errors = {};
-    if (!draft.customer.trim()) e.customer = 'Въведете клиент.';
-    if (!/^[0-9 +]{6,}$/.test(draft.phone.trim())) e.phone = 'Въведете валиден телефон.';
-    if (!draft.city.trim()) e.city = 'Въведете населено място.';
-    if (!draft.address.trim()) e.address = 'Въведете адрес или офис.';
-    if (draft.items.length === 0) e.items = 'Добавете поне един продукт.';
-    if (draft.items.some(i => !(i.quantity >= 1) || !(i.price >= 0))) e.items = 'Количеството трябва да е поне 1, а цената не може да е отрицателна.';
-    if (!(draft.shipping >= 0)) e.shipping = 'Невалидна цена за доставка.';
-    setErrors(e);
-    if (Object.keys(e).length) return;
-    saveOrder(draft);
-    toast.success(`Поръчка ${draft.id} е обновена (демо, без реално записване).`);
-    if (draft.status !== 'Необработена') navigate({ to: '/orders' });
-  };
+  const save = () => {};
   const field = (k: 'customer' | 'phone' | 'city' | 'address', label: string) => <div className="field"><label htmlFor={`o-${k}`}>{label}</label><input id={`o-${k}`} disabled={locked} value={draft[k]} aria-invalid={!!errors[k]} onChange={e => set(k, e.target.value)} />{errors[k] && <span className="text-destructive text-xs">{errors[k]}</span>}</div>;
 
   return <WorkspaceShell active="Поръчки"><div className="page-content deliveries-content order-detail">
@@ -65,7 +59,7 @@ function OrderScreen() {
         <Button variant="outline" asChild><Link to="/orders">Отказ</Link></Button>
         <Button onClick={save} disabled={locked}><Save />Запази</Button>
       </div></div>
-    {locked && <p className="text-sm text-muted-foreground mb-4">Анулираните поръчки не могат да се редактират.</p>}
+    {locked && <p className="text-sm text-muted-foreground mb-4">Записът и редакцията ще бъдат включени в следващата стъпка.</p>}
     <section className="delivery-list order-detail-client" aria-label="Клиент и доставка"><h2 className="font-semibold">Клиент и доставка</h2><div className="delivery-editor-grid">
       {field('customer', 'Клиент')}{field('phone', 'Телефон')}{field('city', 'Населено място')}{field('address', 'Адрес / офис')}
       <div className="field"><label htmlFor="o-courier">Куриер</label><select id="o-courier" disabled={locked} value={draft.courier} onChange={e => set('courier', e.target.value)}><option>Еконт</option><option>Спиди</option></select></div>
@@ -75,7 +69,7 @@ function OrderScreen() {
     <section className="delivery-list" aria-label="Продукти"><div className="delivery-list-heading"><h2>Продукти <span>{draft.items.length}</span></h2><Button variant="outline" size="sm" disabled={locked || draft.items.length >= CATALOG.length} onClick={addItem}><Plus />Добави продукт</Button></div>
       <div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Продукт</th><th>SKU</th><th>Количество</th><th>Ед. цена (€)</th><th className="text-right">Сума</th><th /></tr></thead><tbody>
         {draft.items.map((it, i) => <tr key={i}>
-          <td><select aria-label="Продукт" disabled={locked} className="border rounded px-2 py-1 bg-card" value={it.sku} onChange={e => { const c = CATALOG.find(x => x.sku === e.target.value)!; setItem(i, { sku: c.sku, name: c.name, price: c.price }); }}>{CATALOG.filter(c => c.sku === it.sku || !draft.items.some(x => x.sku === c.sku)).map(c => <option key={c.sku} value={c.sku}>{c.name}</option>)}</select></td>
+          <td><select aria-label="Продукт" disabled={locked} className="border rounded px-2 py-1 bg-card" value={it.sku} onChange={e => { const c = CATALOG.find(x => x.sku === e.target.value); if (!c) return; setItem(i, { sku: c.sku, name: c.name, price: c.price }); }}><option value={it.sku}>{it.name}</option></select></td>
           <td className="text-muted-foreground">{it.sku}</td>
           <td><input aria-label={`Количество ${it.name}`} type="number" min={1} disabled={locked} className="w-20 border rounded px-2 py-1 bg-card" value={it.quantity} onChange={e => setItem(i, { quantity: Number(e.target.value) })} /></td>
           <td><input aria-label={`Цена ${it.name}`} type="number" min={0} step="0.01" disabled={locked} className="w-24 border rounded px-2 py-1 bg-card" value={it.price} onChange={e => setItem(i, { price: Number(e.target.value) })} /></td>
@@ -88,6 +82,6 @@ function OrderScreen() {
         <div><dt><label htmlFor="o-ship">Доставка (€)</label></dt><dd><input id="o-ship" type="number" min={0} step="0.01" disabled={locked} className="w-24 border rounded px-2 py-1 bg-card" value={draft.shipping} onChange={e => set('shipping', Number(e.target.value))} />{errors.shipping && <span className="text-destructive text-xs block">{errors.shipping}</span>}</dd></div>
         <div><dt>Общо с ДДС</dt><dd className="text-base">{money(total(draft))}</dd></div></dl>
     </section>
-    <div className="demo-caption mt-4"><ShieldCheck size={13} />Примерна поръчка · промените не се записват реално</div>
+    <div className="demo-caption mt-4"><ShieldCheck size={13} />Запазена поръчка · само преглед</div>
   </div></WorkspaceShell>;
 }
