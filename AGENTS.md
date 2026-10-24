@@ -32,7 +32,7 @@
 - Keep the influencer / wholesale-trader nomenclature, and the demo seller credited to each order number, in one shared module that order, sale and payment screens import, so a seller's name, type and assignment stay identical across every screen.
 
 ## Cloud transition
-- All workspace routes live under the authenticated layout while preserving their URLs, including sales at /; the only public surface is /auth, so private loaders never execute without a session.
-- Sales, orders and article lists read through authenticated server functions and Query; keep their mutations disabled until persisted actions are connected, so local edits cannot masquerade as saved records.
-- Legacy demonstration stores are used only by screens not yet migrated; do not mix them into the cloud-backed lists.
+- The public demonstration workspace lives under _workspace with unchanged URLs, including sales at /; /auth redirects to /. Never weaken authentication on private server functions or expose operational records to the public preview.
+- Public sales, order and article queries use isolated demo-erp fixtures and demo-prefixed cache keys; private server functions remain authenticated and mutations disabled until persisted actions are connected.
+- Public preview data is always demonstration state regardless of any existing login session; never fall back from a failed cloud read to demo data within a private list.
 - Private operational records use owner_user_id with admin-or-owner RLS; ownerless legacy seeds are admin-only, so names cannot confer access.

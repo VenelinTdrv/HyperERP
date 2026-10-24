@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { SELLERS } from '@/lib/sellers';
 import { useOrders } from '@/lib/orders-store';
-import { emptyFilters, initialRows, saleMatches, sellerShare } from '@/routes/_authenticated/index';
+import { emptyFilters, initialRows, saleMatches, sellerShare } from '@/routes/_workspace/index';
 
 const byId = (rows: { id: string; influencer?: string }[]) => Object.fromEntries(rows.map(r => [r.id, r.influencer]));
 

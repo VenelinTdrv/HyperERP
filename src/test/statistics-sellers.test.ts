@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pickSellers, sellerShareStats } from '@/routes/_authenticated/statistics';
+import { pickSellers, sellerShareStats } from '@/routes/_workspace/statistics';
 
 // The seller dropdown in Статистика covers both roles on its own, so a separate
 // "type" filter is not allowed to narrow it again.

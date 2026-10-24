@@ -12,7 +12,7 @@ import { CATALOG, ORDER_STATUSES, PAYMENT_METHODS, type Order, type OrderStatus,
 import { downloadOrderBlankPdf, openOrderBlank } from '@/lib/order-blank';
 import { downloadOrderXls } from '@/lib/order-export';
 
-export const Route = createFileRoute('/_authenticated/orders_/$id')({
+export const Route = createFileRoute('/_workspace/orders_/$id')({
   head: ({ params }) => ({ meta: [
     { title: `HyperERP · Поръчка ${params.id}` },
     { name: 'description', content: 'Преглед и редакция на поръчка, продукти, цени и статус в HyperERP.' },
@@ -82,6 +82,6 @@ function OrderScreen() {
         <div><dt><label htmlFor="o-ship">Доставка (€)</label></dt><dd><input id="o-ship" type="number" min={0} step="0.01" disabled={locked} className="w-24 border rounded px-2 py-1 bg-card" value={draft.shipping} onChange={e => set('shipping', Number(e.target.value))} />{errors.shipping && <span className="text-destructive text-xs block">{errors.shipping}</span>}</dd></div>
         <div><dt>Общо с ДДС</dt><dd className="text-base">{money(total(draft))}</dd></div></dl>
     </section>
-    <div className="demo-caption mt-4"><ShieldCheck size={13} />Запазена поръчка · само преглед</div>
+    <div className="demo-caption mt-4"><ShieldCheck size={13} />Примерна поръчка · само преглед</div>
   </div></WorkspaceShell>;
 }

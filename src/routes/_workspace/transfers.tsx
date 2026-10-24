@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { comboProducts } from '@/lib/combo-data';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export const Route = createFileRoute('/_authenticated/transfers')({
+export const Route = createFileRoute('/_workspace/transfers')({
   head:()=>({meta:[{title:'HyperERP · Трансфер на стоки'},{name:'description',content:'Трансфери на стока между складове със статуси, артикули, количества и експорт в PDF и XLS.'},{property:'og:title',content:'HyperERP · Трансфер на стоки'},{property:'og:description',content:'Преместване на стока от един склад в друг в HyperERP.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
   component:Transfers,
 });
