@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ClientEditorDialog } from '@/components/client-editor';
 import { createOrder } from '@/lib/orders-store';
 
-export const Route = createFileRoute('/sales/new')({
+export const Route = createFileRoute('/_authenticated/sales/new')({
  head: () => ({ meta: [
   { title: 'HyperERP · Нова поръчка' },
   { name: 'description', content: 'HyperERP — управление на продажби, клиенти и доставки на козметика.' },

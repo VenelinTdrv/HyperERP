@@ -14,7 +14,7 @@ import { type Order, useOrders, setOrderStatus, total, itemCount, ADMIN } from '
 import { openOrderBlank, downloadOrderBlankPdf } from '@/lib/order-blank';
 import { SELLERS, sellerType } from '@/lib/sellers';
 
-export const Route = createFileRoute('/orders')({
+export const Route = createFileRoute('/_authenticated/orders')({
  head: () => ({ meta: [
   { title: 'HyperERP · Необработени поръчки' },
   { name: 'description', content: 'Списък с необработени поръчки за козметика в HyperERP.' },

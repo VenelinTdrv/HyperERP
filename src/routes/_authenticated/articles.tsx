@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import perfume from '@/assets/perfume.jpg';
 
-export const Route = createFileRoute('/articles')({
+export const Route = createFileRoute('/_authenticated/articles')({
  head:()=>({meta:[{title:'HyperERP · Артикули'},{name:'description',content:'Каталог на артикули в HyperERP: SKU, категории и наличности.'},{property:'og:title',content:'HyperERP · Артикули'},{property:'og:description',content:'Управление на артикули по SKU и категория в HyperERP.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Articles,
 });

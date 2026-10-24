@@ -12,7 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import perfume from '@/assets/perfume.jpg';
 import { SELLERS, sellerByOrder } from '@/lib/sellers';
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_authenticated/')({
  head: () => ({ meta: [
   { title: 'HyperERP · Продажби' },
   { name: 'description', content: 'Списък с всички продажби на козметика в HyperERP.' },

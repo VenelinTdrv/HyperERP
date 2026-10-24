@@ -11,7 +11,7 @@ import { useOrders, total } from '@/lib/orders-store';
 import { downloadPaymentsXls, openPaymentsPrint } from '@/lib/payments-export';
 import { SELLERS, sellerType } from '@/lib/sellers';
 
-export const Route = createFileRoute('/payments')({
+export const Route = createFileRoute('/_authenticated/payments')({
   head:()=>({meta:[{title:'HyperERP · Плащания'},{name:'description',content:'Плащания по продажбите от Еконт и Pigeon — наложен платеж и банков превод, със статус и сума.'},{property:'og:title',content:'HyperERP · Плащания'},{property:'og:description',content:'Списък с плащания по продажби, филтри по вид, куриер и статус, създаване и редакция.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
   component:Payments,
 });

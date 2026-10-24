@@ -7,7 +7,7 @@ import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-export const Route = createFileRoute('/warehouses')({
+export const Route = createFileRoute('/_authenticated/warehouses')({
   head:()=>({meta:[{title:'HyperERP · Складове'},{name:'description',content:'Управление на физически и виртуални складове — име, държава, град и адрес в HyperERP.'},{property:'og:title',content:'HyperERP · Складове'},{property:'og:description',content:'Списък със складове, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
   component:Warehouses,
 });

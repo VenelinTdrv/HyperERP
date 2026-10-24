@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export const Route = createFileRoute('/statistics')({
+export const Route = createFileRoute('/_authenticated/statistics')({
   head: () => ({ meta: [
     { title: 'HyperERP · Статистика' },
     { name: 'description', content: 'Статистика за поръчки, продажби, среден брой артикули и средна цена на поръчка с избор на период от календара.' },

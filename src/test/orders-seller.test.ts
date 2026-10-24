@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useOrders } from '@/lib/orders-store';
 import { SELLERS, sellerType } from '@/lib/sellers';
-import { emptyFilters, orderMatches, sellerShare } from '@/routes/orders';
+import { emptyFilters, orderMatches, sellerShare } from '@/routes/_authenticated/orders';
 
 describe('Orders seller column', () => {
   it('gives every demo order a known influencer or wholesale trader', () => {

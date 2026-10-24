@@ -8,7 +8,7 @@ import { CATALOG, ORDER_STATUSES, PAYMENT_METHODS, type Order, type OrderStatus,
 import { downloadOrderBlankPdf, openOrderBlank } from '@/lib/order-blank';
 import { downloadOrderXls } from '@/lib/order-export';
 
-export const Route = createFileRoute('/orders_/$id')({
+export const Route = createFileRoute('/_authenticated/orders_/$id')({
   head: ({ params }) => ({ meta: [
     { title: `HyperERP · Поръчка ${params.id}` },
     { name: 'description', content: 'Преглед и редакция на поръчка, продукти, цени и статус в HyperERP.' },
