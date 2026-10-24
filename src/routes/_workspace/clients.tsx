@@ -9,7 +9,7 @@ import { ClientEditorDialog, type ClientFormData } from '@/components/client-edi
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export const Route = createFileRoute('/_authenticated/clients')({
+export const Route = createFileRoute('/_workspace/clients')({
  head:()=>({meta:[{title:'HyperERP · Клиенти'},{name:'description',content:'Управление на клиенти, телефони и адреси за доставка в HyperERP.'},{property:'og:title',content:'HyperERP · Клиенти'},{property:'og:description',content:'Списък с клиенти, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Clients,
 });

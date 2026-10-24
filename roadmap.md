@@ -1,4 +1,5 @@
 # HyperERP redesign
+- [x] Open the workspace without login using isolated demonstration data; private server protections preserved, all menu pages verified, 41 tests passed.
 - [x] Add and verify print, PDF and XLS controls in the order detail heading.
 - [x] Establish Bulgarian ERP design system and order layout.
 - [x] Implement customer, delivery, product, and order-summary interactions.

@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getErpLists, getCurrentProfile } from './erp.functions';
+import { getDemoErpLists } from './demo-erp';
 
-export const erpListsQuery = queryOptions({ queryKey: ['erp', 'lists'], queryFn: () => getErpLists(), staleTime: 0 });
-export const profileQuery = queryOptions({ queryKey: ['erp', 'profile'], queryFn: () => getCurrentProfile() });
+export const erpListsQuery = queryOptions({ queryKey: ['demo', 'erp', 'lists'], queryFn: getDemoErpLists, staleTime: 0 });
+export const profileQuery = queryOptions({ queryKey: ['demo', 'erp', 'profile'], queryFn: () => ({ name: 'Демо преглед', role: 'Примерни данни' }) });

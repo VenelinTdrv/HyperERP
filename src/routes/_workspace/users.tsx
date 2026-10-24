@@ -7,7 +7,7 @@ import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-export const Route = createFileRoute('/_authenticated/users')({
+export const Route = createFileRoute('/_workspace/users')({
  head:()=>({meta:[{title:'HyperERP · Потребители'},{name:'description',content:'Управление на потребители и роли — администратори, инфлуенсъри и търговци на едро в HyperERP.'},{property:'og:title',content:'HyperERP · Потребители'},{property:'og:description',content:'Списък с потребители, създаване, редакция, роли и статус.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Users,
 });

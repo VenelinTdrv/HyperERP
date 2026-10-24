@@ -9,28 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as WorkspaceRouteRouteImport } from './routes/_workspace/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedArticlesRouteImport } from './routes/_authenticated/articles'
-import { Route as AuthenticatedCategoriesRouteImport } from './routes/_authenticated/categories'
-import { Route as AuthenticatedClientsRouteImport } from './routes/_authenticated/clients'
-import { Route as AuthenticatedCombosRouteImport } from './routes/_authenticated/combos'
-import { Route as AuthenticatedCountriesRouteImport } from './routes/_authenticated/countries'
-import { Route as AuthenticatedDeliveriesRouteImport } from './routes/_authenticated/deliveries'
-import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
-import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
-import { Route as AuthenticatedSettlementsRouteImport } from './routes/_authenticated/settlements'
-import { Route as AuthenticatedStatisticsRouteImport } from './routes/_authenticated/statistics'
-import { Route as AuthenticatedSuppliersRouteImport } from './routes/_authenticated/suppliers'
-import { Route as AuthenticatedTransfersRouteImport } from './routes/_authenticated/transfers'
-import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
-import { Route as AuthenticatedWarehousesRouteImport } from './routes/_authenticated/warehouses'
-import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders_.$id'
-import { Route as AuthenticatedSalesNewRouteImport } from './routes/_authenticated/sales.new'
+import { Route as WorkspaceIndexRouteImport } from './routes/_workspace/index'
+import { Route as WorkspaceArticlesRouteImport } from './routes/_workspace/articles'
+import { Route as WorkspaceCategoriesRouteImport } from './routes/_workspace/categories'
+import { Route as WorkspaceClientsRouteImport } from './routes/_workspace/clients'
+import { Route as WorkspaceCombosRouteImport } from './routes/_workspace/combos'
+import { Route as WorkspaceCountriesRouteImport } from './routes/_workspace/countries'
+import { Route as WorkspaceDeliveriesRouteImport } from './routes/_workspace/deliveries'
+import { Route as WorkspaceOrdersRouteImport } from './routes/_workspace/orders'
+import { Route as WorkspacePaymentsRouteImport } from './routes/_workspace/payments'
+import { Route as WorkspaceSettlementsRouteImport } from './routes/_workspace/settlements'
+import { Route as WorkspaceStatisticsRouteImport } from './routes/_workspace/statistics'
+import { Route as WorkspaceSuppliersRouteImport } from './routes/_workspace/suppliers'
+import { Route as WorkspaceTransfersRouteImport } from './routes/_workspace/transfers'
+import { Route as WorkspaceUsersRouteImport } from './routes/_workspace/users'
+import { Route as WorkspaceWarehousesRouteImport } from './routes/_workspace/warehouses'
+import { Route as WorkspaceOrdersIdRouteImport } from './routes/_workspace/orders_.$id'
+import { Route as WorkspaceSalesNewRouteImport } from './routes/_workspace/sales.new'
 
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const WorkspaceRouteRoute = WorkspaceRouteRouteImport.update({
+  id: '/_workspace',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -38,154 +38,153 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedArticlesRoute = AuthenticatedArticlesRouteImport.update({
+const WorkspaceArticlesRoute = WorkspaceArticlesRouteImport.update({
   id: '/articles',
   path: '/articles',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedCategoriesRoute = AuthenticatedCategoriesRouteImport.update({
+const WorkspaceCategoriesRoute = WorkspaceCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedClientsRoute = AuthenticatedClientsRouteImport.update({
+const WorkspaceClientsRoute = WorkspaceClientsRouteImport.update({
   id: '/clients',
   path: '/clients',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedCombosRoute = AuthenticatedCombosRouteImport.update({
+const WorkspaceCombosRoute = WorkspaceCombosRouteImport.update({
   id: '/combos',
   path: '/combos',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedCountriesRoute = AuthenticatedCountriesRouteImport.update({
+const WorkspaceCountriesRoute = WorkspaceCountriesRouteImport.update({
   id: '/countries',
   path: '/countries',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedDeliveriesRoute = AuthenticatedDeliveriesRouteImport.update({
+const WorkspaceDeliveriesRoute = WorkspaceDeliveriesRouteImport.update({
   id: '/deliveries',
   path: '/deliveries',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
+const WorkspaceOrdersRoute = WorkspaceOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
+const WorkspacePaymentsRoute = WorkspacePaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedSettlementsRoute =
-  AuthenticatedSettlementsRouteImport.update({
-    id: '/settlements',
-    path: '/settlements',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedStatisticsRoute = AuthenticatedStatisticsRouteImport.update({
+const WorkspaceSettlementsRoute = WorkspaceSettlementsRouteImport.update({
+  id: '/settlements',
+  path: '/settlements',
+  getParentRoute: () => WorkspaceRouteRoute,
+} as any)
+const WorkspaceStatisticsRoute = WorkspaceStatisticsRouteImport.update({
   id: '/statistics',
   path: '/statistics',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedSuppliersRoute = AuthenticatedSuppliersRouteImport.update({
+const WorkspaceSuppliersRoute = WorkspaceSuppliersRouteImport.update({
   id: '/suppliers',
   path: '/suppliers',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedTransfersRoute = AuthenticatedTransfersRouteImport.update({
+const WorkspaceTransfersRoute = WorkspaceTransfersRouteImport.update({
   id: '/transfers',
   path: '/transfers',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+const WorkspaceUsersRoute = WorkspaceUsersRouteImport.update({
   id: '/users',
   path: '/users',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedWarehousesRoute = AuthenticatedWarehousesRouteImport.update({
+const WorkspaceWarehousesRoute = WorkspaceWarehousesRouteImport.update({
   id: '/warehouses',
   path: '/warehouses',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
+const WorkspaceOrdersIdRoute = WorkspaceOrdersIdRouteImport.update({
   id: '/orders_/$id',
   path: '/orders/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
-const AuthenticatedSalesNewRoute = AuthenticatedSalesNewRouteImport.update({
+const WorkspaceSalesNewRoute = WorkspaceSalesNewRouteImport.update({
   id: '/sales/new',
   path: '/sales/new',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => WorkspaceRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof WorkspaceIndexRoute
   '/auth': typeof AuthRoute
-  '/articles': typeof AuthenticatedArticlesRoute
-  '/categories': typeof AuthenticatedCategoriesRoute
-  '/clients': typeof AuthenticatedClientsRoute
-  '/combos': typeof AuthenticatedCombosRoute
-  '/countries': typeof AuthenticatedCountriesRoute
-  '/deliveries': typeof AuthenticatedDeliveriesRoute
-  '/orders': typeof AuthenticatedOrdersRoute
-  '/payments': typeof AuthenticatedPaymentsRoute
-  '/settlements': typeof AuthenticatedSettlementsRoute
-  '/statistics': typeof AuthenticatedStatisticsRoute
-  '/suppliers': typeof AuthenticatedSuppliersRoute
-  '/transfers': typeof AuthenticatedTransfersRoute
-  '/users': typeof AuthenticatedUsersRoute
-  '/warehouses': typeof AuthenticatedWarehousesRoute
-  '/orders/$id': typeof AuthenticatedOrdersIdRoute
-  '/sales/new': typeof AuthenticatedSalesNewRoute
+  '/articles': typeof WorkspaceArticlesRoute
+  '/categories': typeof WorkspaceCategoriesRoute
+  '/clients': typeof WorkspaceClientsRoute
+  '/combos': typeof WorkspaceCombosRoute
+  '/countries': typeof WorkspaceCountriesRoute
+  '/deliveries': typeof WorkspaceDeliveriesRoute
+  '/orders': typeof WorkspaceOrdersRoute
+  '/payments': typeof WorkspacePaymentsRoute
+  '/settlements': typeof WorkspaceSettlementsRoute
+  '/statistics': typeof WorkspaceStatisticsRoute
+  '/suppliers': typeof WorkspaceSuppliersRoute
+  '/transfers': typeof WorkspaceTransfersRoute
+  '/users': typeof WorkspaceUsersRoute
+  '/warehouses': typeof WorkspaceWarehousesRoute
+  '/orders/$id': typeof WorkspaceOrdersIdRoute
+  '/sales/new': typeof WorkspaceSalesNewRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
-  '/articles': typeof AuthenticatedArticlesRoute
-  '/categories': typeof AuthenticatedCategoriesRoute
-  '/clients': typeof AuthenticatedClientsRoute
-  '/combos': typeof AuthenticatedCombosRoute
-  '/countries': typeof AuthenticatedCountriesRoute
-  '/deliveries': typeof AuthenticatedDeliveriesRoute
-  '/orders': typeof AuthenticatedOrdersRoute
-  '/payments': typeof AuthenticatedPaymentsRoute
-  '/settlements': typeof AuthenticatedSettlementsRoute
-  '/statistics': typeof AuthenticatedStatisticsRoute
-  '/suppliers': typeof AuthenticatedSuppliersRoute
-  '/transfers': typeof AuthenticatedTransfersRoute
-  '/users': typeof AuthenticatedUsersRoute
-  '/warehouses': typeof AuthenticatedWarehousesRoute
-  '/': typeof AuthenticatedIndexRoute
-  '/orders/$id': typeof AuthenticatedOrdersIdRoute
-  '/sales/new': typeof AuthenticatedSalesNewRoute
+  '/articles': typeof WorkspaceArticlesRoute
+  '/categories': typeof WorkspaceCategoriesRoute
+  '/clients': typeof WorkspaceClientsRoute
+  '/combos': typeof WorkspaceCombosRoute
+  '/countries': typeof WorkspaceCountriesRoute
+  '/deliveries': typeof WorkspaceDeliveriesRoute
+  '/orders': typeof WorkspaceOrdersRoute
+  '/payments': typeof WorkspacePaymentsRoute
+  '/settlements': typeof WorkspaceSettlementsRoute
+  '/statistics': typeof WorkspaceStatisticsRoute
+  '/suppliers': typeof WorkspaceSuppliersRoute
+  '/transfers': typeof WorkspaceTransfersRoute
+  '/users': typeof WorkspaceUsersRoute
+  '/warehouses': typeof WorkspaceWarehousesRoute
+  '/': typeof WorkspaceIndexRoute
+  '/orders/$id': typeof WorkspaceOrdersIdRoute
+  '/sales/new': typeof WorkspaceSalesNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_workspace': typeof WorkspaceRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/articles': typeof AuthenticatedArticlesRoute
-  '/_authenticated/categories': typeof AuthenticatedCategoriesRoute
-  '/_authenticated/clients': typeof AuthenticatedClientsRoute
-  '/_authenticated/combos': typeof AuthenticatedCombosRoute
-  '/_authenticated/countries': typeof AuthenticatedCountriesRoute
-  '/_authenticated/deliveries': typeof AuthenticatedDeliveriesRoute
-  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
-  '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
-  '/_authenticated/settlements': typeof AuthenticatedSettlementsRoute
-  '/_authenticated/statistics': typeof AuthenticatedStatisticsRoute
-  '/_authenticated/suppliers': typeof AuthenticatedSuppliersRoute
-  '/_authenticated/transfers': typeof AuthenticatedTransfersRoute
-  '/_authenticated/users': typeof AuthenticatedUsersRoute
-  '/_authenticated/warehouses': typeof AuthenticatedWarehousesRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/orders_/$id': typeof AuthenticatedOrdersIdRoute
-  '/_authenticated/sales/new': typeof AuthenticatedSalesNewRoute
+  '/_workspace/articles': typeof WorkspaceArticlesRoute
+  '/_workspace/categories': typeof WorkspaceCategoriesRoute
+  '/_workspace/clients': typeof WorkspaceClientsRoute
+  '/_workspace/combos': typeof WorkspaceCombosRoute
+  '/_workspace/countries': typeof WorkspaceCountriesRoute
+  '/_workspace/deliveries': typeof WorkspaceDeliveriesRoute
+  '/_workspace/orders': typeof WorkspaceOrdersRoute
+  '/_workspace/payments': typeof WorkspacePaymentsRoute
+  '/_workspace/settlements': typeof WorkspaceSettlementsRoute
+  '/_workspace/statistics': typeof WorkspaceStatisticsRoute
+  '/_workspace/suppliers': typeof WorkspaceSuppliersRoute
+  '/_workspace/transfers': typeof WorkspaceTransfersRoute
+  '/_workspace/users': typeof WorkspaceUsersRoute
+  '/_workspace/warehouses': typeof WorkspaceWarehousesRoute
+  '/_workspace/': typeof WorkspaceIndexRoute
+  '/_workspace/orders_/$id': typeof WorkspaceOrdersIdRoute
+  '/_workspace/sales/new': typeof WorkspaceSalesNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -230,39 +229,39 @@ export interface FileRouteTypes {
     | '/sales/new'
   id:
     | '__root__'
-    | '/_authenticated'
+    | '/_workspace'
     | '/auth'
-    | '/_authenticated/articles'
-    | '/_authenticated/categories'
-    | '/_authenticated/clients'
-    | '/_authenticated/combos'
-    | '/_authenticated/countries'
-    | '/_authenticated/deliveries'
-    | '/_authenticated/orders'
-    | '/_authenticated/payments'
-    | '/_authenticated/settlements'
-    | '/_authenticated/statistics'
-    | '/_authenticated/suppliers'
-    | '/_authenticated/transfers'
-    | '/_authenticated/users'
-    | '/_authenticated/warehouses'
-    | '/_authenticated/'
-    | '/_authenticated/orders_/$id'
-    | '/_authenticated/sales/new'
+    | '/_workspace/articles'
+    | '/_workspace/categories'
+    | '/_workspace/clients'
+    | '/_workspace/combos'
+    | '/_workspace/countries'
+    | '/_workspace/deliveries'
+    | '/_workspace/orders'
+    | '/_workspace/payments'
+    | '/_workspace/settlements'
+    | '/_workspace/statistics'
+    | '/_workspace/suppliers'
+    | '/_workspace/transfers'
+    | '/_workspace/users'
+    | '/_workspace/warehouses'
+    | '/_workspace/'
+    | '/_workspace/orders_/$id'
+    | '/_workspace/sales/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  WorkspaceRouteRoute: typeof WorkspaceRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_authenticated': {
-      id: '/_authenticated'
+    '/_workspace': {
+      id: '/_workspace'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      preLoaderRoute: typeof WorkspaceRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -272,173 +271,174 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
+    '/_workspace/': {
+      id: '/_workspace/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceIndexRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/articles': {
-      id: '/_authenticated/articles'
+    '/_workspace/articles': {
+      id: '/_workspace/articles'
       path: '/articles'
       fullPath: '/articles'
-      preLoaderRoute: typeof AuthenticatedArticlesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceArticlesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/categories': {
-      id: '/_authenticated/categories'
+    '/_workspace/categories': {
+      id: '/_workspace/categories'
       path: '/categories'
       fullPath: '/categories'
-      preLoaderRoute: typeof AuthenticatedCategoriesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceCategoriesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/clients': {
-      id: '/_authenticated/clients'
+    '/_workspace/clients': {
+      id: '/_workspace/clients'
       path: '/clients'
       fullPath: '/clients'
-      preLoaderRoute: typeof AuthenticatedClientsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceClientsRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/combos': {
-      id: '/_authenticated/combos'
+    '/_workspace/combos': {
+      id: '/_workspace/combos'
       path: '/combos'
       fullPath: '/combos'
-      preLoaderRoute: typeof AuthenticatedCombosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceCombosRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/countries': {
-      id: '/_authenticated/countries'
+    '/_workspace/countries': {
+      id: '/_workspace/countries'
       path: '/countries'
       fullPath: '/countries'
-      preLoaderRoute: typeof AuthenticatedCountriesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceCountriesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/deliveries': {
-      id: '/_authenticated/deliveries'
+    '/_workspace/deliveries': {
+      id: '/_workspace/deliveries'
       path: '/deliveries'
       fullPath: '/deliveries'
-      preLoaderRoute: typeof AuthenticatedDeliveriesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceDeliveriesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/orders': {
-      id: '/_authenticated/orders'
+    '/_workspace/orders': {
+      id: '/_workspace/orders'
       path: '/orders'
       fullPath: '/orders'
-      preLoaderRoute: typeof AuthenticatedOrdersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceOrdersRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/payments': {
-      id: '/_authenticated/payments'
+    '/_workspace/payments': {
+      id: '/_workspace/payments'
       path: '/payments'
       fullPath: '/payments'
-      preLoaderRoute: typeof AuthenticatedPaymentsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspacePaymentsRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/settlements': {
-      id: '/_authenticated/settlements'
+    '/_workspace/settlements': {
+      id: '/_workspace/settlements'
       path: '/settlements'
       fullPath: '/settlements'
-      preLoaderRoute: typeof AuthenticatedSettlementsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceSettlementsRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/statistics': {
-      id: '/_authenticated/statistics'
+    '/_workspace/statistics': {
+      id: '/_workspace/statistics'
       path: '/statistics'
       fullPath: '/statistics'
-      preLoaderRoute: typeof AuthenticatedStatisticsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceStatisticsRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/suppliers': {
-      id: '/_authenticated/suppliers'
+    '/_workspace/suppliers': {
+      id: '/_workspace/suppliers'
       path: '/suppliers'
       fullPath: '/suppliers'
-      preLoaderRoute: typeof AuthenticatedSuppliersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceSuppliersRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/transfers': {
-      id: '/_authenticated/transfers'
+    '/_workspace/transfers': {
+      id: '/_workspace/transfers'
       path: '/transfers'
       fullPath: '/transfers'
-      preLoaderRoute: typeof AuthenticatedTransfersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceTransfersRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/users': {
-      id: '/_authenticated/users'
+    '/_workspace/users': {
+      id: '/_workspace/users'
       path: '/users'
       fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceUsersRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/warehouses': {
-      id: '/_authenticated/warehouses'
+    '/_workspace/warehouses': {
+      id: '/_workspace/warehouses'
       path: '/warehouses'
       fullPath: '/warehouses'
-      preLoaderRoute: typeof AuthenticatedWarehousesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceWarehousesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/orders_/$id': {
-      id: '/_authenticated/orders_/$id'
+    '/_workspace/orders_/$id': {
+      id: '/_workspace/orders_/$id'
       path: '/orders/$id'
       fullPath: '/orders/$id'
-      preLoaderRoute: typeof AuthenticatedOrdersIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceOrdersIdRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
-    '/_authenticated/sales/new': {
-      id: '/_authenticated/sales/new'
+    '/_workspace/sales/new': {
+      id: '/_workspace/sales/new'
       path: '/sales/new'
       fullPath: '/sales/new'
-      preLoaderRoute: typeof AuthenticatedSalesNewRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof WorkspaceSalesNewRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
     }
   }
 }
 
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedArticlesRoute: typeof AuthenticatedArticlesRoute
-  AuthenticatedCategoriesRoute: typeof AuthenticatedCategoriesRoute
-  AuthenticatedClientsRoute: typeof AuthenticatedClientsRoute
-  AuthenticatedCombosRoute: typeof AuthenticatedCombosRoute
-  AuthenticatedCountriesRoute: typeof AuthenticatedCountriesRoute
-  AuthenticatedDeliveriesRoute: typeof AuthenticatedDeliveriesRoute
-  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
-  AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
-  AuthenticatedSettlementsRoute: typeof AuthenticatedSettlementsRoute
-  AuthenticatedStatisticsRoute: typeof AuthenticatedStatisticsRoute
-  AuthenticatedSuppliersRoute: typeof AuthenticatedSuppliersRoute
-  AuthenticatedTransfersRoute: typeof AuthenticatedTransfersRoute
-  AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
-  AuthenticatedWarehousesRoute: typeof AuthenticatedWarehousesRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
-  AuthenticatedSalesNewRoute: typeof AuthenticatedSalesNewRoute
+interface WorkspaceRouteRouteChildren {
+  WorkspaceArticlesRoute: typeof WorkspaceArticlesRoute
+  WorkspaceCategoriesRoute: typeof WorkspaceCategoriesRoute
+  WorkspaceClientsRoute: typeof WorkspaceClientsRoute
+  WorkspaceCombosRoute: typeof WorkspaceCombosRoute
+  WorkspaceCountriesRoute: typeof WorkspaceCountriesRoute
+  WorkspaceDeliveriesRoute: typeof WorkspaceDeliveriesRoute
+  WorkspaceOrdersRoute: typeof WorkspaceOrdersRoute
+  WorkspacePaymentsRoute: typeof WorkspacePaymentsRoute
+  WorkspaceSettlementsRoute: typeof WorkspaceSettlementsRoute
+  WorkspaceStatisticsRoute: typeof WorkspaceStatisticsRoute
+  WorkspaceSuppliersRoute: typeof WorkspaceSuppliersRoute
+  WorkspaceTransfersRoute: typeof WorkspaceTransfersRoute
+  WorkspaceUsersRoute: typeof WorkspaceUsersRoute
+  WorkspaceWarehousesRoute: typeof WorkspaceWarehousesRoute
+  WorkspaceIndexRoute: typeof WorkspaceIndexRoute
+  WorkspaceOrdersIdRoute: typeof WorkspaceOrdersIdRoute
+  WorkspaceSalesNewRoute: typeof WorkspaceSalesNewRoute
 }
 
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedArticlesRoute: AuthenticatedArticlesRoute,
-  AuthenticatedCategoriesRoute: AuthenticatedCategoriesRoute,
-  AuthenticatedClientsRoute: AuthenticatedClientsRoute,
-  AuthenticatedCombosRoute: AuthenticatedCombosRoute,
-  AuthenticatedCountriesRoute: AuthenticatedCountriesRoute,
-  AuthenticatedDeliveriesRoute: AuthenticatedDeliveriesRoute,
-  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
-  AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
-  AuthenticatedSettlementsRoute: AuthenticatedSettlementsRoute,
-  AuthenticatedStatisticsRoute: AuthenticatedStatisticsRoute,
-  AuthenticatedSuppliersRoute: AuthenticatedSuppliersRoute,
-  AuthenticatedTransfersRoute: AuthenticatedTransfersRoute,
-  AuthenticatedUsersRoute: AuthenticatedUsersRoute,
-  AuthenticatedWarehousesRoute: AuthenticatedWarehousesRoute,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
-  AuthenticatedSalesNewRoute: AuthenticatedSalesNewRoute,
+const WorkspaceRouteRouteChildren: WorkspaceRouteRouteChildren = {
+  WorkspaceArticlesRoute: WorkspaceArticlesRoute,
+  WorkspaceCategoriesRoute: WorkspaceCategoriesRoute,
+  WorkspaceClientsRoute: WorkspaceClientsRoute,
+  WorkspaceCombosRoute: WorkspaceCombosRoute,
+  WorkspaceCountriesRoute: WorkspaceCountriesRoute,
+  WorkspaceDeliveriesRoute: WorkspaceDeliveriesRoute,
+  WorkspaceOrdersRoute: WorkspaceOrdersRoute,
+  WorkspacePaymentsRoute: WorkspacePaymentsRoute,
+  WorkspaceSettlementsRoute: WorkspaceSettlementsRoute,
+  WorkspaceStatisticsRoute: WorkspaceStatisticsRoute,
+  WorkspaceSuppliersRoute: WorkspaceSuppliersRoute,
+  WorkspaceTransfersRoute: WorkspaceTransfersRoute,
+  WorkspaceUsersRoute: WorkspaceUsersRoute,
+  WorkspaceWarehousesRoute: WorkspaceWarehousesRoute,
+  WorkspaceIndexRoute: WorkspaceIndexRoute,
+  WorkspaceOrdersIdRoute: WorkspaceOrdersIdRoute,
+  WorkspaceSalesNewRoute: WorkspaceSalesNewRoute,
 }
 
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+const WorkspaceRouteRouteWithChildren = WorkspaceRouteRoute._addFileChildren(
+  WorkspaceRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  WorkspaceRouteRoute: WorkspaceRouteRouteWithChildren,
   AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport

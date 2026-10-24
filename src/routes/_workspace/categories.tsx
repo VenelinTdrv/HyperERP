@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export const Route = createFileRoute('/_authenticated/categories')({
+export const Route = createFileRoute('/_workspace/categories')({
  head:()=>({meta:[{title:'HyperERP · Категории'},{name:'description',content:'Управление на категории и подкатегории в каталога на HyperERP.'},{property:'og:title',content:'HyperERP · Категории'},{property:'og:description',content:'Йерархичен каталог със създаване, преглед и редакция на категории.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Categories,
 });

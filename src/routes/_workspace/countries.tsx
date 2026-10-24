@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export const Route = createFileRoute('/_authenticated/countries')({
+export const Route = createFileRoute('/_workspace/countries')({
   head:()=>({meta:[{title:'HyperERP · Държави'},{name:'description',content:'Управление на държави — код, име и име на местния език в HyperERP.'},{property:'og:title',content:'HyperERP · Държави'},{property:'og:description',content:'Списък с държави, създаване, преглед, редакция и изтриване.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Countries,
 });

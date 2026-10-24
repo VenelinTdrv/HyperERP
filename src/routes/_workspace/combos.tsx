@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { comboDate, comboProducts, influencers, initialCombos, type Combo, type ComboForm } from '@/lib/combo-data';
 import perfume from '@/assets/perfume.jpg';
 
-export const Route=createFileRoute('/_authenticated/combos')({
+export const Route=createFileRoute('/_workspace/combos')({
  head:()=>({meta:[{title:'HyperERP · Комбота'},{name:'description',content:'Комбота от продукти в HyperERP: инфлуенсъри, състав, създаване и редакция.'},{property:'og:title',content:'HyperERP · Комбота'},{property:'og:description',content:'Управление на продуктови комплекти и количества по инфлуенсър.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Combos,
 });

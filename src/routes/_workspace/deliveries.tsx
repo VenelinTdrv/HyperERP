@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import perfume from '@/assets/perfume.jpg';
 
-export const Route = createFileRoute('/_authenticated/deliveries')({
+export const Route = createFileRoute('/_workspace/deliveries')({
  head:()=>({meta:[{title:'HyperERP · Доставки'},{name:'description',content:'Доставки на козметика от доставчици: статуси, складове и очаквани дати в HyperERP.'},{property:'og:title',content:'HyperERP · Доставки'},{property:'og:description',content:'Проследяване на входящи доставки на козметика и получаване в склад.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Deliveries,
 });

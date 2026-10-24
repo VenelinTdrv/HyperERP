@@ -37,6 +37,7 @@ const emit = () => listeners.forEach(l => l());
 const subscribe = (l: () => void) => { listeners.add(l); return () => listeners.delete(l); };
 
 export const useOrders = () => useSyncExternalStore(subscribe, () => orders, () => orders);
+export const getDemoOrders = () => orders;
 export const createOrder = (data: Omit<Order, 'id' | 'status' | 'created' | 'edited' | 'processed' | 'processedBy'>): Order => {
   const nextNumber = orders.reduce((max, order) => Math.max(max, Number(order.id.replace('ORD-', '')) || 0), 0) + 1;
   const created = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Sofia' }).format(new Date());
