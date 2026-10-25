@@ -5,7 +5,7 @@ import { Building2, Check, ClipboardList, FileText, Info, MapPin, Minus, Package
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientEditorDialog } from '@/components/client-editor';
-import { createOrder } from '@/lib/orders-store';
+import { createOrder, PAYMENT_METHODS } from '@/lib/orders-store';
 
 export const Route = createFileRoute('/_workspace/sales/new')({
  head: () => ({ meta: [
@@ -50,7 +50,7 @@ function PriceInput({value, onValue, label}:{value:number;onValue:(v:number)=>vo
 function Index() {
  const navigate = useNavigate();
  const [items,setItems] = useState<OrderItem[]>([]);
- const [form,setForm] = useState({city:'',courier:'Еконт',address:'',note:''});
+ const [form,setForm] = useState({city:'',courier:'Еконт',address:'',note:'',payment:'Наложен платеж'});
  const [delivery,setDelivery] = useState<'address'|'office'>('address');
  const [productSearch,setProductSearch] = useState('');
  const [pickerOpen,setPickerOpen] = useState(false);
@@ -79,7 +79,7 @@ function Index() {
  const gift = (id:number,value:boolean) => setItems(prev=>prev.map(i=>i.id===id?{...i,gift:value}:i));
  const clearOffice = () => {setOffice(null);setOfficeSearch('');update('address','');};
  const officeList = !form.city ? [] : OFFICE_AREAS.map(area => `${form.courier} · ${form.city} ${area}`).filter(name => {const s = officeSearch.trim().toLowerCase();return !s || name.toLowerCase().includes(s);});
- const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');setWarehouse(WAREHOUSES[0]);};
+ const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:'',payment:'Наложен платеж'});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');setWarehouse(WAREHOUSES[0]);};
  const submit = (event?:FormEvent) => { event?.preventDefault(); setError('Записът на нови поръчки още не е свързан.'); };
  return <WorkspaceShell active="Продажби">
    <div className="page-content new-order">
@@ -111,7 +111,7 @@ function Index() {
        <div className="product-bottom"><ShieldCheck size={13}/>Цените са с включен ДДС</div>
       </section>
      </div>
-     <aside className="summary" aria-label="Обобщение на поръчката"><div className="section-heading"><div className="section-title"><ClipboardList size={17} className="text-primary"/><h2>Обобщение</h2></div></div><div className="summary-body"><Field label="Инфлуенсър" id="influencer" required><select id="influencer" value={influencer} onChange={e=>setInfluencer(e.target.value)}><option value="">Изберете инфлуенсър</option>{INFLUENCERS.map(name=><option key={name}>{name}</option>)}</select></Field><div className="summary-line mt-3"><span>Брой артикули</span><strong>{count}</strong></div></div><div className="total-area" aria-live="polite"><div className="summary-line"><span>Общо</span><strong>{money(subtotal)}</strong></div><p>Крайна сума с включен ДДС</p></div><div className="summary-note"><Field label="Бележка към поръчката" id="note"><textarea id="note" maxLength={500} placeholder="Допълнителни уточнения…" value={form.note} onChange={e=>update('note',e.target.value)}/></Field><div className="note-counter">{form.note.length} / 500</div></div><div className="summary-status"><FileText size={13}/>Поръчката все още не е записана</div></aside>
+     <aside className="summary" aria-label="Обобщение на поръчката"><div className="section-heading"><div className="section-title"><ClipboardList size={17} className="text-primary"/><h2>Обобщение</h2></div></div><div className="summary-body"><Field label="Инфлуенсър" id="influencer" required><select id="influencer" value={influencer} onChange={e=>setInfluencer(e.target.value)}><option value="">Изберете инфлуенсър</option>{INFLUENCERS.map(name=><option key={name}>{name}</option>)}</select></Field><Field label="Метод на плащане" id="payment"><select id="payment" value={form.payment} onChange={e=>update('payment',e.target.value)}>{PAYMENT_METHODS.map(name=><option key={name}>{name}</option>)}</select></Field><div className="summary-line mt-3"><span>Брой артикули</span><strong>{count}</strong></div></div><div className="total-area" aria-live="polite"><div className="summary-line"><span>Общо</span><strong>{money(subtotal)}</strong></div><p>Крайна сума с включен ДДС</p></div><div className="summary-note"><Field label="Бележка към поръчката" id="note"><textarea id="note" maxLength={500} placeholder="Допълнителни уточнения…" value={form.note} onChange={e=>update('note',e.target.value)}/></Field><div className="note-counter">{form.note.length} / 500</div></div><div className="summary-status"><FileText size={13}/>Поръчката все още не е записана</div></aside>
      </div>
      <div className="order-footer"><div className="footer-buttons ml-auto"><Button type="button" variant="ghost" className="text-muted-foreground text-xs" onClick={()=>setResetOpen(true)}>Отказ</Button><Button type="submit" disabled className="save h-10 text-xs"><Check/>Запази поръчката</Button></div></div>
      <div className="demo-caption"><ShieldCheck size={12}/>Записът на нови поръчки още не е свързан</div>
