@@ -1,7 +1,7 @@
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, type FormEvent } from 'react';
-import { Building2, Check, ClipboardList, FileText, Info, MapPin, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, UserRound, UserRoundPlus, X } from 'lucide-react';
+import { Building2, Check, ClipboardList, FileText, Info, MapPin, Minus, Package, Plus, Search, ShieldCheck, Trash2, Truck, UserRound, UserRoundPlus, Warehouse, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientEditorDialog } from '@/components/client-editor';
@@ -17,16 +17,17 @@ export const Route = createFileRoute('/_workspace/sales/new')({
  ] }), component: Index,
 });
 const catalog = [
- { id: 1, name: 'Rose Élixir', sku: 'PRF-001', stock: 49 },
- { id: 2, name: 'Velvet Bloom', sku: 'PRF-002', stock: 32 },
- { id: 3, name: 'Pure Essence', sku: 'PRF-003', stock: 120 },
- { id: 4, name: 'Noir Intense', sku: 'PRF-004', stock: 58 },
- { id: 5, name: 'Aqua Fresco', sku: 'PRF-005', stock: 74 },
- { id: 6, name: 'Hydra Cream', sku: 'CRM-001', stock: 96 },
- { id: 7, name: 'Velvet Deo', sku: 'DEO-001', stock: 140 },
+ { id: 1, name: 'Rose Élixir', sku: 'PRF-001', stock: 49, batches: [{ id: 'B-101', price: 24.9, stock: 30 }, { id: 'B-118', price: 26.5, stock: 19 }] },
+ { id: 2, name: 'Velvet Bloom', sku: 'PRF-002', stock: 32, batches: [{ id: 'B-102', price: 31.2, stock: 32 }] },
+ { id: 3, name: 'Pure Essence', sku: 'PRF-003', stock: 120, batches: [{ id: 'B-103', price: 18.75, stock: 80 }, { id: 'B-121', price: 19.4, stock: 40 }] },
+ { id: 4, name: 'Noir Intense', sku: 'PRF-004', stock: 58, batches: [{ id: 'B-104', price: 42.0, stock: 58 }] },
+ { id: 5, name: 'Aqua Fresco', sku: 'PRF-005', stock: 74, batches: [{ id: 'B-105', price: 21.3, stock: 74 }] },
+ { id: 6, name: 'Hydra Cream', sku: 'CRM-001', stock: 96, batches: [{ id: 'B-106', price: 14.9, stock: 60 }, { id: 'B-122', price: 15.5, stock: 36 }] },
+ { id: 7, name: 'Velvet Deo', sku: 'DEO-001', stock: 140, batches: [{ id: 'B-107', price: 6.8, stock: 140 }] },
 ];
+const WAREHOUSES = ['Склад Главен', 'Склад София', 'Склад Варна'];
 const DEMO_CLIENT = { name:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. Витоша 15, вход Б, ап. 3', courier:'Еконт' };
-type OrderItem = { id:number; quantity:number; price:number };
+type OrderItem = { id:number; batch:number; quantity:number; markup:number; gift:boolean };
 const INFLUENCERS = ['Виктория Григорова','Елена Петрова','Мария Иванова'];
 const CITIES = ['София','Пловдив','Варна','Бургас','Русе','Стара Загора','Плевен','Ямбол'];
 const OFFICE_AREAS = ['Център','Север','Юг','Изток','Запад','Автогара'];
