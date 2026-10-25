@@ -7,7 +7,7 @@ const row = {
   saleId: 'SAL-0024',
   client: 'Мария Иванова',
   agent: 'Виктория Григорова',
-  method: 'Банков превод',
+  method: 'Банков път',
   source: 'Pigeon',
   reference: 'PG-77166',
   amount: '73.90',
