@@ -482,7 +482,7 @@
 .payments-content .suppliers-filters .field input[type="date"] { width:124px; }
 .payments-content .suppliers-filters .field select { min-width:0; width:auto; font-size:12px; }
 .payments-content .suppliers-filters .field select[aria-label="Инфлуенсър / Търговец"] { max-width:250px; }
-.payments-content .payments-filters-extra { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)) auto; gap:10px; align-items:end; margin-bottom:14px; }
+.payments-content .payments-filters-extra { display:grid; grid-template-columns:minmax(0,1fr) 112px minmax(0,132px) minmax(0,118px) minmax(0,1fr) minmax(0,1.25fr) auto; gap:10px; align-items:end; margin-bottom:14px; }
 .payments-content .payments-filters-extra .field { gap:4px; }
 .payments-content .payments-filters-extra .field label { font-size:10px; color:var(--muted-foreground); }
 .payments-content .payments-filters-extra .field input, .payments-content .payments-filters-extra .field select { width:100%; min-width:0; min-height:41px; padding:6px 10px; font-size:12px; }
