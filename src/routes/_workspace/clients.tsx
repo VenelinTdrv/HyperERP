@@ -45,21 +45,21 @@ function Clients(){
   const [blacklisting,setBlacklisting]=useState<Client|null>(null);
  const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const p=phone.replace(/\D/g,'');
- const filtered=rows.filter(r=>(!q||`${r.first} ${r.last}`.toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p))&&(!status||(status==='Черен списък'?r.blacklisted:!r.blacklisted)));
+ const filtered=rows.filter(r=>(!q||clientName(r).toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p))&&(!status||(status==='Черен списък'?r.blacklisted:!r.blacklisted)));
  const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
  const saveClient=(data:ClientFormData)=>{
   if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,editedBy:'Венелин Тодоров',editedAt:now()}:r));
   else setRows(prev=>[...prev,{id:Math.max(0,...prev.map(r=>r.id))+1,blacklisted:false,...data,createdBy:'Венелин Тодоров',createdAt:now(),editedBy:'',editedAt:''}]);
-  setEditor(false);setAnnouncement(`${data.first} ${data.last} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
+  setEditor(false);setAnnouncement(`${clientName(data)} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
  };
   const primaryOf=(c:Client)=>c.addresses.find(a=>a.id===c.primary)??c.addresses[0];
   const applyStatus=(c:Client,blacklisted:boolean)=>{
     if(c.blacklisted===blacklisted)return;
     setRows(prev=>prev.map(r=>r.id===c.id?{...r,blacklisted,editedBy:'Венелин Тодоров',editedAt:now()}:r));
     setSelected(prev=>prev&&prev.id===c.id?{...prev,blacklisted}:prev);
-    setAnnouncement(`${c.first} ${c.last} · ${blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);
+    setAnnouncement(`${clientName(c)} · ${blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);
   };
   const toggleBlack=(c:Client)=>applyStatus(c,!c.blacklisted);
  return <WorkspaceShell active="Клиенти"><div className="page-content deliveries-content orders-content">
