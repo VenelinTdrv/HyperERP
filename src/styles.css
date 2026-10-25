@@ -486,7 +486,7 @@
 .payments-content .payments-filters-extra .field { gap:4px; }
 .payments-content .payments-filters-extra .field label { font-size:10px; color:var(--muted-foreground); }
 .payments-content .payments-filters-extra .field input, .payments-content .payments-filters-extra .field select { width:100%; min-width:0; min-height:41px; padding:6px 10px; font-size:12px; }
-.payments-content .payments-filters-extra .range-group { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.payments-content .payments-filters-extra .range-group { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:6px; min-width:0; }
 @media (max-width:1100px) { .payments-content .payments-filters-extra { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media (max-width:700px) { .payments-content .payments-filters-extra { grid-template-columns:1fr; } }
 @media (max-width:700px) { .payments-content .suppliers-filters .field, .payments-content .suppliers-filters .field select { width:100%; } }
