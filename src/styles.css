@@ -482,6 +482,15 @@
 .payments-content .suppliers-filters .field input[type="date"] { width:124px; }
 .payments-content .suppliers-filters .field select { min-width:0; width:auto; font-size:12px; }
 .payments-content .suppliers-filters .field select[aria-label="Инфлуенсър / Търговец"] { max-width:250px; }
+.payments-content .payments-filters-extra .field { gap:4px; }
+.payments-content .payments-filters-extra .field label { font-size:10px; color:var(--muted-foreground); }
+.payments-content .payments-filters-extra .field input, .payments-content .payments-filters-extra .field select { min-height:38px; padding:6px 10px; font-size:12px; }
+.payments-content .payments-filters-extra .payments-wide { width:170px; }
+.payments-content .payments-filters-extra .field input[type="number"] { width:88px; }
+.payments-content .payments-filters-extra .field input[type="date"] { width:124px; }
+.payments-content .payments-filters-extra .field select { width:auto; min-width:160px; }
+.payments-content .payments-filters-extra .range-group { display:flex; gap:6px; }
+@media (max-width:700px) { .payments-content .payments-filters-extra { flex-direction:column; align-items:stretch; } .payments-content .payments-filters-extra .payments-wide, .payments-content .payments-filters-extra .field input, .payments-content .payments-filters-extra .field select { width:100%; } }
 @media (max-width:700px) { .payments-content .suppliers-filters .field, .payments-content .suppliers-filters .field select { width:100%; } }
 @media (max-width:700px) { .payments-content .suppliers-filters .field select { width:100%; } }
 .payments-footrow { align-items:center; gap:10px; }

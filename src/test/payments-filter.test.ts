@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { initial, paymentMatches, paymentTotals, sellerShare, SELLERS, type PaymentFilter } from '@/routes/_workspace/payments';
 import { useOrders } from '@/lib/orders-store';
 
-const empty: PaymentFilter = { q: '', method: '', source: '', status: '', agent: '', from: '', to: '' };
+const empty: PaymentFilter = { q: '', method: '', source: '', status: '', agent: '', from: '', to: '', orderedBy: '', phone: '', settlement: '', warehouse: '', amountFrom: '', amountTo: '', paidFrom: '', paidTo: '' };
 const today = new Date().toLocaleDateString('en-CA');
 
 describe('Payments filter by influencer or merchant', () => {
@@ -54,10 +54,46 @@ describe('Payments seller share labels', () => {
   expect(sellerShare(initial, { ...todays, agent: 'Елена Петрова' })).toEqual(sellerShare(initial, todays));
  });
 
- it('recounts amounts and percentages for another period', () => {
-  const share = sellerShare(initial, { ...empty, from: today, to: today });
-  const week = sellerShare(initial, { ...empty });
-  expect(week['Виктория Григорова']!.amount).toBeGreaterThan(share['Виктория Григорова']!.amount);
-  expect(SELLERS.every(s => Number(week[s.id]!.pct) > 0)).toBe(true);
+  it('recounts amounts and percentages for another period', () => {
+   const share = sellerShare(initial, { ...empty, from: today, to: today });
+   const week = sellerShare(initial, { ...empty });
+   expect(week['Виктория Григорова']!.amount).toBeGreaterThan(share['Виктория Григорова']!.amount);
+   expect(SELLERS.every(s => Number(week[s.id]!.pct) > 0)).toBe(true);
+  });
+});
+
+describe('Payments second filter row', () => {
+ it('filters by the client ordered the payment', () => {
+  const rows = initial.filter(r => paymentMatches(r, { ...empty, orderedBy: 'мария иванова' }));
+  expect(rows.length).toBeGreaterThan(0);
+  expect(rows.every(r => r.client === 'Мария Иванова')).toBe(true);
+ });
+
+ it('matches a phone number typed without formatting', () => {
+  const rows = initial.filter(r => paymentMatches(r, { ...empty, phone: '0877550241' }));
+  expect(rows.length).toBeGreaterThan(0);
+  expect(rows.every(r => r.phone.includes('0877550241'))).toBe(true);
+ });
+
+ it('keeps only payments from the chosen settlement and warehouse', () => {
+  const varna = initial.filter(r => paymentMatches(r, { ...empty, settlement: 'варна' }));
+  expect(varna.length).toBeGreaterThan(0);
+  expect(varna.every(r => r.settlement.includes('Варна'))).toBe(true);
+  const sofia = initial.filter(r => paymentMatches(r, { ...empty, warehouse: 'Склад София' }));
+  expect(sofia.length).toBeGreaterThan(0);
+  expect(sofia.every(r => r.warehouse === 'Склад София')).toBe(true);
+ });
+
+ it('bounds the amount with the От/До inputs', () => {
+  const rows = initial.filter(r => paymentMatches(r, { ...empty, amountFrom: '80', amountTo: '120' }));
+  expect(rows.length).toBeGreaterThan(0);
+  expect(rows.every(r => Number(r.amount) >= 80 && Number(r.amount) <= 120)).toBe(true);
+ });
+
+ it('keeps only payments paid inside the Платено на range', () => {
+  const rows = initial.filter(r => paymentMatches(r, { ...empty, paidFrom: today, paidTo: today }));
+  expect(rows.length).toBeGreaterThan(0);
+  expect(rows.every(r => r.paid && r.paid >= today && r.paid <= today)).toBe(true);
+  expect(rows.every(r => ['Получено', 'Частично'].includes(r.status))).toBe(true);
  });
 });
