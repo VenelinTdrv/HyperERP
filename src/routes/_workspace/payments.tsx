@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Check, CheckCheck, CircleDollarSign, Clock3, Eye, FileSpreadsheet, FileText, Info, MoreVertical, Pencil, Plus, Printer, RotateCcw, Search, ShieldCheck, Trash2, Wallet, X, XCircle } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,10 @@ const ADMIN='Венелин Тодоров';
 type Form={orderId:string;saleId:string;client:string;agent:string;amount:string;method:string;source:string;status:string;date:string;reference:string;note:string};
 export type Payment=Form&{id:string;phone:string;settlement:string;warehouse:string;paid:string;edited?:string;editedBy?:string};
 export type PaymentFilter={q:string;method:string;source:string;status:string;agent:string;from:string;to:string;orderedBy:string;phone:string;settlement:string;warehouse:string;amountFrom:string;amountTo:string;paidFrom:string;paidTo:string};
+export const EXTRA_KEYS=['orderedBy','phone','settlement','warehouse','amountFrom','amountTo','paidFrom','paidTo'] as const;
+export type ExtraFilter=Pick<PaymentFilter,typeof EXTRA_KEYS[number]>;
+export const emptyExtra:ExtraFilter=Object.fromEntries(EXTRA_KEYS.map(k=>[k,''])) as ExtraFilter;
+export const extraChanged=(draft:ExtraFilter,applied:ExtraFilter)=>EXTRA_KEYS.some(k=>draft[k]!==applied[k]);
 const blank:Form={orderId:'',saleId:'',client:'',agent:'Виктория Григорова',amount:'',method:'Наложен платеж',source:'Еконт',status:'Очаквано',date:todayISO(),reference:'',note:''};
 const p=(n:number,o:string,c:string,a:number,m:string,s:string,st:string,d:string,r:string,agent:string,edited?:string,editedBy?:string):Payment=>({id:`PAY-${String(n).padStart(5,'0')}`,orderId:o,saleId:o.replace('ORD','SAL'),client:c,agent,amount:a.toFixed(2),method:m,source:s,status:st,date:d,reference:r,note:'',...meta(c),paid:(st==='Получено'||st==='Частично')?d:'',edited:edited??'',editedBy:editedBy??''});
 export const paymentMatches=(r:Payment,f:PaymentFilter)=>{const s=f.q.trim().toLocaleLowerCase('bg-BG');const who=f.orderedBy.trim().toLocaleLowerCase('bg-BG');const tel=f.phone.trim().replace(/\D/g,'');const town=f.settlement.trim().toLocaleLowerCase('bg-BG');const amt=Number(r.amount);return(!s||[r.id,r.orderId,r.saleId,r.client,r.reference,r.agent].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!f.method||r.method===f.method)&&(!f.source||r.source===f.source)&&(!f.agent||r.agent===f.agent)&&(!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to)&&(!f.status||r.status===f.status)&&(!who||r.client.toLocaleLowerCase('bg-BG').includes(who))&&(!tel||r.phone.replace(/\D/g,'').includes(tel))&&(!town||r.settlement.toLocaleLowerCase('bg-BG').includes(town))&&(!f.warehouse||r.warehouse===f.warehouse)&&(f.amountFrom===''||amt>=Number(f.amountFrom.replace(',','.')))&&(f.amountTo===''||amt<=Number(f.amountTo.replace(',','.')))&&(!f.paidFrom||r.paid>=f.paidFrom)&&(!f.paidTo||r.paid<=f.paidTo);};
@@ -83,7 +87,10 @@ function Payments(){
  const orders=useOrders();
  const [rows,setRows]=useState(initial);
  const [q,setQ]=useState('');const [method,setMethod]=useState('');const [source,setSource]=useState('');const [status,setStatus]=useState('');const [agent,setAgent]=useState('');
- const [orderedBy,setOrderedBy]=useState('');const [phone,setPhone]=useState('');const [settlement,setSettlement]=useState('');const [warehouse,setWarehouse]=useState('');const [amountFrom,setAmountFrom]=useState('');const [amountTo,setAmountTo]=useState('');const [paidFrom,setPaidFrom]=useState('');const [paidTo,setPaidTo]=useState('');
+ const [extra,setExtra]=useState<ExtraFilter>(emptyExtra);const [applied,setApplied]=useState<ExtraFilter>(emptyExtra);
+ const setExtraKey=(k:keyof ExtraFilter,v:string)=>setExtra(prev=>({...prev,[k]:v}));
+ const runSearch=()=>{setApplied(extra);setPage(1);};
+ const enterToSearch=(ev:KeyboardEvent)=>{if(ev.key==='Enter'){ev.preventDefault();runSearch();}};
  const [from,setFrom]=useState(todayISO());const [to,setTo]=useState(todayISO());
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(25);
@@ -91,19 +98,19 @@ function Payments(){
  const [form,setForm]=useState<Form>(blank);const [errors,setErrors]=useState<Record<string,string>>({});
  const [selected,setSelected]=useState<Payment|null>(null);const [deleting,setDeleting]=useState<Payment|null>(null);
  const [announcement,setAnnouncement]=useState('');
- const base=rows.filter(r=>paymentMatches(r,{q,method,source,status:'',agent,from,to,orderedBy,phone,settlement,warehouse,amountFrom,amountTo,paidFrom,paidTo}));
- const share=sellerShare(rows,{q,method,source,status:'',agent:'',from,to,orderedBy,phone,settlement,warehouse,amountFrom,amountTo,paidFrom,paidTo});
+ const base=rows.filter(r=>paymentMatches(r,{q,method,source,status:'',agent,from,to,...applied}));
+ const share=sellerShare(rows,{q,method,source,status:'',agent:'',from,to,...applied});
  const filtered=base.filter(r=>!status||r.status===status);
  const tiles=[{label:'Всички',Icon:Wallet,value:base.length,status:'',tone:'info'},...STATUSES.map(st=>({label:st,Icon:TILE_ICONS[st],value:base.filter(r=>r.status===st).length,status:st,tone:TILE_TONE[st]}))];
  const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const sum=filtered.filter(r=>r.status==='Получено').reduce((a,r)=>a+Number(r.amount),0);
  const shippingByOrder=Object.fromEntries(orders.map(o=>[o.id,o.shipping]));const { total: totalAll, cash: cashTotal, shipping: shippingTotal, margin: marginTotal } = paymentTotals(filtered, shippingByOrder);
- const datesChanged=from!==todayISO()||to!==todayISO();const extraChanged=Boolean(orderedBy||phone||settlement||warehouse||amountFrom||amountTo||paidFrom||paidTo);
+ const datesChanged=from!==todayISO()||to!==todayISO();const extraDirty=Object.values(applied).some(Boolean)||extraChanged(extra,applied);
  const exportXls=()=>downloadPaymentsXls(filtered);
  const exportPdf=()=>openPaymentsPrint(filtered,'Плащания');
  const exportPrint=exportPdf;
- const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setAgent('');setOrderedBy('');setPhone('');setSettlement('');setWarehouse('');setAmountFrom('');setAmountTo('');setPaidFrom('');setPaidTo('');setFrom(todayISO());setTo(todayISO());setPage(1);};
+ const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setAgent('');setExtra(emptyExtra);setApplied(emptyExtra);setFrom(todayISO());setTo(todayISO());setPage(1);};
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(e=>{const n={...e};delete n[k];return n;});};
  const pickOrder=(id:string)=>{const o=orders.find(x=>x.id===id);const own=o?.influencer&&SELLERS.some(x=>x.id===o.influencer)?o.influencer:'';setForm(f=>({...f,orderId:id,saleId:id?id.replace('ORD','SAL'):'',client:o?.customer??f.client,agent:own||f.agent,amount:o?total(o).toFixed(2):f.amount,method:o?.payment==='Банков път'?'Банков път':o?'Наложен платеж':f.method,source:o?(o.courier==='Еконт'?'Еконт':'Pigeon'):f.source}));setErrors({});};
@@ -138,14 +145,15 @@ function Payments(){
    <div className="field"><select aria-label="Инфлуенсър / Търговец" value={agent} onChange={ev=>{setAgent(ev.target.value);setPage(1);}}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s=><option key={s.id} value={s.id}>{s.id} · {s.type} · {money(share[s.id]!.amount)} · {share[s.id]!.pct}%</option>)}</select></div>
    <div className="field"><select aria-label="Вид плащане" value={method} onChange={ev=>{setMethod(ev.target.value);setPage(1);}}><option value="">Всички видове</option>{METHODS.map(x=><option key={x}>{x}</option>)}</select></div>
    <div className="field"><select aria-label="Куриер" value={source} onChange={ev=>{setSource(ev.target.value);setPage(1);}}><option value="">Всички куриери</option>{SOURCES.map(x=><option key={x}>{x}</option>)}</select></div>
-   <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!agent&&!datesChanged&&!extraChanged} onClick={clear}><X/>Изчисти</Button></div>
+   <Button variant="outline" disabled={!q&&!method&&!source&&!status&&!agent&&!datesChanged&&!extraDirty} onClick={clear}><X/>Изчисти</Button></div>
   <div className="suppliers-filters transfers-filters payments-filters-extra">
-   <div className="field"><label htmlFor="pay-f-ordered">Поръчана от</label><input id="pay-f-ordered" placeholder="Име на поръчителя" value={orderedBy} onChange={ev=>{setOrderedBy(ev.target.value);setPage(1);}}/></div>
-   <div className="field"><label htmlFor="pay-f-phone">Телефон</label><input id="pay-f-phone" type="tel" placeholder="Телефон на клиента" value={phone} onChange={ev=>{setPhone(ev.target.value);setPage(1);}}/></div>
-   <div className="field"><label htmlFor="pay-f-settlement">Населено място</label><input id="pay-f-settlement" placeholder="Име на населеното място" value={settlement} onChange={ev=>{setSettlement(ev.target.value);setPage(1);}}/></div>
-   <div className="field"><label htmlFor="pay-f-warehouse">Склад</label><select id="pay-f-warehouse" value={warehouse} onChange={ev=>{setWarehouse(ev.target.value);setPage(1);}}><option value="">Всички складове</option>{WAREHOUSES.map(x=><option key={x}>{x}</option>)}</select></div>
-   <div className="field"><label htmlFor="pay-f-amount-from">Сума (€)</label><div className="range-group"><input id="pay-f-amount-from" type="number" min="0" step="0.01" placeholder="От" aria-label="Сума от" value={amountFrom} onChange={ev=>{setAmountFrom(ev.target.value);setPage(1);}}/><input type="number" min="0" step="0.01" placeholder="До" aria-label="Сума до" value={amountTo} onChange={ev=>{setAmountTo(ev.target.value);setPage(1);}}/></div></div>
-   <div className="field"><label htmlFor="pay-f-paid-from">Платено на</label><div className="range-group"><input id="pay-f-paid-from" type="date" aria-label="Платено от" value={paidFrom} onChange={ev=>{setPaidFrom(ev.target.value);setPage(1);}}/><input type="date" aria-label="Платено до" value={paidTo} onChange={ev=>{setPaidTo(ev.target.value);setPage(1);}}/></div></div>
+   <div className="field"><label htmlFor="pay-f-ordered">Поръчана от</label><input id="pay-f-ordered" placeholder="Име на поръчителя" value={extra.orderedBy} onChange={ev=>setExtraKey('orderedBy',ev.target.value)} onKeyDown={enterToSearch}/></div>
+   <div className="field"><label htmlFor="pay-f-phone">Телефон</label><input id="pay-f-phone" type="tel" placeholder="Телефон на клиента" value={extra.phone} onChange={ev=>setExtraKey('phone',ev.target.value)} onKeyDown={enterToSearch}/></div>
+   <div className="field"><label htmlFor="pay-f-settlement">Населено място</label><input id="pay-f-settlement" placeholder="Име на населеното място" value={extra.settlement} onChange={ev=>setExtraKey('settlement',ev.target.value)} onKeyDown={enterToSearch}/></div>
+   <div className="field"><label htmlFor="pay-f-warehouse">Склад</label><select id="pay-f-warehouse" value={extra.warehouse} onChange={ev=>setExtraKey('warehouse',ev.target.value)} onKeyDown={enterToSearch}><option value="">Всички складове</option>{WAREHOUSES.map(x=><option key={x}>{x}</option>)}</select></div>
+   <div className="field"><label htmlFor="pay-f-amount-from">Сума (€)</label><div className="range-group"><input id="pay-f-amount-from" type="number" min="0" step="0.01" placeholder="От" aria-label="Сума от" value={extra.amountFrom} onChange={ev=>setExtraKey('amountFrom',ev.target.value)} onKeyDown={enterToSearch}/><input type="number" min="0" step="0.01" placeholder="До" aria-label="Сума до" value={extra.amountTo} onChange={ev=>setExtraKey('amountTo',ev.target.value)} onKeyDown={enterToSearch}/></div></div>
+   <div className="field"><label htmlFor="pay-f-paid-from">Платено на</label><div className="range-group"><input id="pay-f-paid-from" type="date" aria-label="Платено от" value={extra.paidFrom} onChange={ev=>setExtraKey('paidFrom',ev.target.value)} onKeyDown={enterToSearch}/><input type="date" aria-label="Платено до" value={extra.paidTo} onChange={ev=>setExtraKey('paidTo',ev.target.value)} onKeyDown={enterToSearch}/></div></div>
+   <Button type="button" variant="outline" className="payments-run-search" aria-label="Търси" title="Търси — прилага филтрите от втория ред" onClick={runSearch}><Search/></Button>
   </div>
   {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с плащания"><div className="delivery-list-heading"><h2>Всички плащания <span>{filtered.length}</span></h2><span className="text-xs text-muted-foreground">Получени: <strong className="text-foreground">{money(String(sum))}</strong></span></div>
