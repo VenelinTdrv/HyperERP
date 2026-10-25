@@ -16,9 +16,12 @@ export const Route = createFileRoute('/_workspace/clients')({
 
 const cities=['София','Пловдив','Варна','Бургас','Ямбол','Стара Загора','Русе'];
 type Address={id:number;city:string;kind:'street'|'place';street:string;number:string;place:string};
-type Client={id:number;first:string;last:string;phone:string;blacklisted:boolean;notes:string;addresses:Address[];primary:number;createdBy:string;createdAt:string;editedBy:string;editedAt:string};
+type Client={id:number;kind:'person'|'company';first:string;last:string;company:string;eik:string;vat:string;mol:string;email:string;iban:string;phone:string;blacklisted:boolean;notes:string;addresses:Address[];primary:number;createdBy:string;createdAt:string;editedBy:string;editedAt:string};
+const person={kind:'person' as const,company:'',eik:'',vat:'',mol:'',email:'',iban:''};
+const clientName=(c:Pick<Client,'kind'|'first'|'last'|'company'>)=>c.kind==='company'?c.company:`${c.first} ${c.last}`;
 const initial:Client[]=[
- {id:1,first:'Мария',last:'Георгиева',phone:'0891234567',blacklisted:false,notes:'Предпочита доставка следобед',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Стара планина',number:'1А',place:''}],primary:1,createdBy:'Master Admin',createdAt:'14.10.2026, 11:03',editedBy:'',editedAt:''},
+ {id:11,...person,kind:'company',first:'',last:'',company:'Козметик Груп ООД',eik:'205987654',vat:'BG205987654',mol:'Ивана Петрова',email:'office@kozmetikgroup.bg',iban:'BG80BNBG96611020345678',phone:'029888777',blacklisted:false,notes:'Фактура на фирмата, доставка до офиса',addresses:[{id:1,city:'София',kind:'street',street:'България',number:'102',place:''}],primary:1,createdBy:'Master Admin',createdAt:'14.10.2026, 10:20',editedBy:'',editedAt:''},
+ {id:1,...person,first:'Мария',last:'Георгиева',phone:'0891234567',blacklisted:false,notes:'Предпочита доставка следобед',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Стара планина',number:'1А',place:''}],primary:1,createdBy:'Master Admin',createdAt:'14.10.2026, 11:03',editedBy:'',editedAt:''},
  {id:2,first:'Иван',last:'Иванов',phone:'0895055199',blacklisted:false,notes:'Спешно',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Ангел Кънчев',number:'10',place:''},{id:2,city:'София',kind:'place',street:'',number:'',place:'Бизнес парк, сграда 4'}],primary:1,createdBy:'Виктория Григорова',createdAt:'14.10.2026, 11:21',editedBy:'',editedAt:''},
  {id:3,first:'Елена',last:'Петрова',phone:'0887112233',blacklisted:false,notes:'',addresses:[{id:1,city:'Пловдив',kind:'street',street:'Капитан Райчо',number:'56',place:''}],primary:1,createdBy:'Master Admin',createdAt:'13.10.2026, 16:40',editedBy:'Master Admin',editedAt:'14.10.2026, 09:12'},
  {id:4,first:'Георги',last:'Димитров',phone:'0897654321',blacklisted:false,notes:'Плаща с банков превод',addresses:[{id:1,city:'София',kind:'street',street:'Витоша',number:'15',place:''}],primary:1,createdBy:'Виктория Григорова',createdAt:'13.10.2026, 10:15',editedBy:'',editedAt:''},
