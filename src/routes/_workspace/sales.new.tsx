@@ -62,17 +62,23 @@ function Index() {
  const [influencer,setInfluencer] = useState('');
  const [office,setOffice] = useState<string|null>(null);
  const [officeSearch,setOfficeSearch] = useState('');
- const subtotal = items.reduce((sum,item) => sum + item.price*item.quantity,0);
+ const [warehouse,setWarehouse] = useState(WAREHOUSES[0]);
+ const batchOf = (item:OrderItem) => { const p = catalog.find(p=>p.id===item.id); return p?.batches[item.batch] ?? p?.batches[0]; };
+ const unitPrice = (item:OrderItem) => (batchOf(item)?.price ?? 0) + item.markup;
+ const lineTotal = (item:OrderItem) => item.gift ? 0 : unitPrice(item)*item.quantity;
+ const subtotal = items.reduce((sum,item) => sum + lineTotal(item),0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
- const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:0}]); };
+ const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,batch:0,quantity:1,markup:0,gift:false}]); };
  const toggleProduct = (id:number) => { if(items.some(i=>i.id===id)) setItems(prev=>prev.filter(i=>i.id!==id)); else addProduct(id); };
  const pickerList = catalog.filter(p=>{const s=productSearch.trim().toLowerCase();return !s||`${p.name} ${p.sku}`.toLowerCase().includes(s);});
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,quantity:Math.max(1,Math.min(999,value||1))}:i));
- const price = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,price:Math.max(0,value||0)}:i));
+ const markup = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,markup:Math.max(0,value||0)}:i));
+ const batch = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,batch:value}:i));
+ const gift = (id:number,value:boolean) => setItems(prev=>prev.map(i=>i.id===id?{...i,gift:value}:i));
  const clearOffice = () => {setOffice(null);setOfficeSearch('');update('address','');};
  const officeList = !form.city ? [] : OFFICE_AREAS.map(area => `${form.courier} · ${form.city} ${area}`).filter(name => {const s = officeSearch.trim().toLowerCase();return !s || name.toLowerCase().includes(s);});
- const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');};
+ const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');setWarehouse(WAREHOUSES[0]);};
  const submit = (event?:FormEvent) => { event?.preventDefault(); setError('Записът на нови поръчки още не е свързан.'); };
  return <WorkspaceShell active="Продажби">
    <div className="page-content new-order">
@@ -94,10 +100,13 @@ function Index() {
       <section className="order-section"><div className="section-heading"><div className="section-title"><h2>Продукти</h2></div><span className="text-[10px] text-muted-foreground">{count} артикула</span></div>
        <div className="section-body !pb-0">
         {!influencer && <div className="delivery-notice" role="status"><Info size={16}/><span>Първо изберете инфлуенсър в „Обобщение“: търсенето показва и неговите комбота.</span></div>}
-        <Button type="button" variant="outline" className="w-full justify-start text-muted-foreground" onClick={()=>{setProductSearch('');setPickerOpen(true);}}><Plus/>Добавете продукт по име или код…</Button>
+        <div className="product-toolbar !p-0 !pb-3">
+         <Button type="button" variant="outline" className="w-full justify-start text-muted-foreground" onClick={()=>{setProductSearch('');setPickerOpen(true);}}><Plus/>Добавете продукт по име или код…</Button>
+         <div className="warehouse-select"><Warehouse size={15} className="text-muted-foreground"/><select aria-label="Склад" value={warehouse} onChange={e=>setWarehouse(e.target.value)}>{WAREHOUSES.map(name=><option key={name}>{name}</option>)}</select></div>
+        </div>
         {items.length===0 && <p className="text-sm text-muted-foreground py-3">Още няма добавени продукти</p>}
        </div>
-       {items.length>0 && <table className="product-table"><thead><tr><th>Продукт</th><th>Ед. цена</th><th>Количество</th><th className="text-right">Сума</th><th><span className="sr-only">Премахване</span></th></tr></thead><tbody>{items.map(item=>{const p=catalog.find(p=>p.id===item.id);if(!p)return null;return <tr key={p.id}><td><div><div className="font-semibold">{p.name}</div><div className="text-muted-foreground text-[10px] mt-1">{p.sku} · Наличност: {p.stock}</div></div></td><td><PriceInput value={item.price} label={`Ед. цена ${p.name}`} onValue={v=>price(p.id,v)}/></td><td><div className="quantity-control"><Button type="button" variant="ghost" className="quantity-button" aria-label={`Намали ${p.name}`} onClick={()=>quantity(p.id,item.quantity-1)} disabled={item.quantity===1}><Minus size={12}/></Button><input type="number" min={1} max={999} aria-label={`Количество ${p.name}`} value={item.quantity} onChange={e=>quantity(p.id,Number(e.target.value))}/><Button type="button" variant="ghost" className="quantity-button" aria-label={`Увеличи ${p.name}`} onClick={()=>quantity(p.id,item.quantity+1)}><Plus size={12}/></Button></div></td><td className="font-bold text-right">{money(item.price*item.quantity)}</td><td><Button type="button" variant="ghost" size="icon" className="w-7 text-muted-foreground" aria-label={`Премахни ${p.name}`} title="Премахни продукта" onClick={()=>setItems(prev=>prev.filter(i=>i.id!==p.id))}><Trash2 size={14}/></Button></td></tr>;})}</tbody></table>}
+       {items.length>0 && <table className="product-table"><thead><tr><th>Продукт</th><th>Партида</th><th>Количество</th><th>Наценка</th><th>Подарък</th><th className="text-right">Сума</th><th><span className="sr-only">Премахване</span></th></tr></thead><tbody>{items.map(item=>{const p=catalog.find(p=>p.id===item.id);if(!p)return null;const b=batchOf(item);return <tr key={p.id}><td><div><div className="font-semibold">{p.name}</div><div className="text-muted-foreground text-[10px] mt-1">{p.sku} · Наличност: {p.stock}</div></div></td><td><select className="batch-select" aria-label={`Партида ${p.name}`} value={item.batch} onChange={e=>batch(p.id,Number(e.target.value))}>{p.batches.map((batch,bi)=><option key={batch.id} value={bi}>{money(batch.price)} ({batch.stock} бр.)</option>)}</select>{b && <div className="text-muted-foreground text-[10px] mt-1">Партида {b.id}</div>}</td><td><div className="quantity-control"><Button type="button" variant="ghost" className="quantity-button" aria-label={`Намали ${p.name}`} onClick={()=>quantity(p.id,item.quantity-1)} disabled={item.quantity===1}><Minus size={12}/></Button><input type="number" min={1} max={999} aria-label={`Количество ${p.name}`} value={item.quantity} onChange={e=>quantity(p.id,Number(e.target.value))}/><Button type="button" variant="ghost" className="quantity-button" aria-label={`Увеличи ${p.name}`} onClick={()=>quantity(p.id,item.quantity+1)}><Plus size={12}/></Button></div></td><td><PriceInput value={item.markup} label={`Наценка ${p.name}`} onValue={v=>markup(p.id,v)}/></td><td className="text-center"><input type="checkbox" className="gift-check" aria-label={`Подарък ${p.name}`} checked={item.gift} onChange={e=>gift(p.id,e.target.checked)}/></td><td className="font-bold text-right">{money(lineTotal(item))}</td><td><Button type="button" variant="ghost" size="icon" className="w-7 text-muted-foreground" aria-label={`Премахни ${p.name}`} title="Премахни продукта" onClick={()=>setItems(prev=>prev.filter(i=>i.id!==p.id))}><Trash2 size={14}/></Button></td></tr>;})}</tbody></table>}
        <div className="product-bottom"><ShieldCheck size={13}/>Цените са с включен ДДС</div>
       </section>
      </div>
