@@ -119,8 +119,8 @@ function Payments(){
   if(Object.keys(er).length){document.getElementById(`pay-${Object.keys(er)[0]}`)?.focus();return;}
   const data={...form,orderId:form.orderId.trim(),saleId:form.saleId.trim()||form.orderId.trim().replace('ORD','SAL'),client:form.client.trim(),amount:a.toFixed(2),reference:form.reference.trim(),note:form.note.trim()};
   let id=editing?.id??'';
-  if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...data,id:editing.id,edited:now(),editedBy:ADMIN}:r));
-  else{const n=Math.max(0,...rows.map(r=>Number(r.id.slice(4))))+1;id=`PAY-${String(n).padStart(5,'0')}`;setRows(prev=>[{...data,id},...prev]);}
+  if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,id:editing.id,paid:(data.status==='Получено'||data.status==='Частично')?(r.paid||data.date):'',edited:now(),editedBy:ADMIN}:r));
+  else{const n=Math.max(0,...rows.map(r=>Number(r.id.slice(4))))+1;id=`PAY-${String(n).padStart(5,'0')}`;setRows(prev=>[{...data,id,phone:'',settlement:'',warehouse:'',paid:(data.status==='Получено'||data.status==='Частично')?data.date:''},...prev]);}
   setEditor(false);setAnnouncement(`${id} · ${editing?'Промените са приложени':'Плащането е добавено'} само в демонстрацията.`);
  };
  const remove=()=>{if(!deleting)return;setRows(prev=>prev.filter(r=>r.id!==deleting.id));setAnnouncement(`${deleting.id} · Плащането е изтрито само в демонстрацията.`);setDeleting(null);};
