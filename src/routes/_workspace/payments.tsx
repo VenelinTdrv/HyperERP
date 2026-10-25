@@ -19,13 +19,27 @@ export const Route = createFileRoute('/_workspace/payments')({
 const STATUSES=['Очаквано','Получено','Частично','Отказано','Върнато'] as const;
 const METHODS=['Наложен платеж','Банков път'] as const;
 const SOURCES=['Еконт','Pigeon'] as const;
+const WAREHOUSES=['Склад Главен','Склад София','Склад Варна'] as const;
+const CLIENT_META:Record<string,{phone:string;settlement:string;warehouse:string}>={
+ 'Мария Иванова':{phone:'0888214305',settlement:'Ямбол',warehouse:'Склад Главен'},
+ 'Иван Георгиев':{phone:'0899630112',settlement:'София',warehouse:'Склад София'},
+ 'Анна Стоянова':{phone:'0885472918',settlement:'Пловдив',warehouse:'Склад София'},
+ 'Румяна Дончева':{phone:'0877550241',settlement:'Варна',warehouse:'Склад Варна'},
+ 'Елена Петрова':{phone:'0898116734',settlement:'Ямбол',warehouse:'Склад Главен'},
+ 'Десислава Николова':{phone:'0876903552',settlement:'Бургас',warehouse:'Склад Варна'},
+ 'Петър Димитров':{phone:'0884276118',settlement:'София',warehouse:'Склад София'},
+ 'Стефан Колев':{phone:'0893641870',settlement:'Ямбол',warehouse:'Склад Главен'},
+ 'Кирил Атанасов':{phone:'0882308445',settlement:'Пловдив',warehouse:'Склад София'},
+ 'Ирина Георгиева':{phone:'0887952613',settlement:'Варна',warehouse:'Склад Варна'},
+};
+const meta=(c:string)=>CLIENT_META[c]??{phone:'',settlement:'',warehouse:''};
 export { SELLERS, sellerType };
 const todayISO=()=>new Date().toLocaleDateString('en-CA');
 const day=(back:number)=>{const d=new Date();d.setDate(d.getDate()-back);return d.toLocaleDateString('en-CA');};
 const ADMIN='Венелин Тодоров';
 type Form={orderId:string;saleId:string;client:string;agent:string;amount:string;method:string;source:string;status:string;date:string;reference:string;note:string};
-export type Payment=Form&{id:string;edited?:string;editedBy?:string};
-export type PaymentFilter={q:string;method:string;source:string;status:string;agent:string;from:string;to:string};
+export type Payment=Form&{id:string;phone:string;settlement:string;warehouse:string;paid:string;edited?:string;editedBy?:string};
+export type PaymentFilter={q:string;method:string;source:string;status:string;agent:string;from:string;to:string;orderedBy:string;phone:string;settlement:string;warehouse:string;amountFrom:string;amountTo:string;paidFrom:string;paidTo:string};
 const blank:Form={orderId:'',saleId:'',client:'',agent:'Виктория Григорова',amount:'',method:'Наложен платеж',source:'Еконт',status:'Очаквано',date:todayISO(),reference:'',note:''};
 const p=(n:number,o:string,c:string,a:number,m:string,s:string,st:string,d:string,r:string,agent:string,edited?:string,editedBy?:string):Payment=>({id:`PAY-${String(n).padStart(5,'0')}`,orderId:o,saleId:o.replace('ORD','SAL'),client:c,agent,amount:a.toFixed(2),method:m,source:s,status:st,date:d,reference:r,note:'',edited:edited??'',editedBy:editedBy??''});
 export const paymentMatches=(r:Payment,f:PaymentFilter)=>{const s=f.q.trim().toLocaleLowerCase('bg-BG');return(!s||[r.id,r.orderId,r.saleId,r.client,r.reference,r.agent].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!f.method||r.method===f.method)&&(!f.source||r.source===f.source)&&(!f.agent||r.agent===f.agent)&&(!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to)&&(!f.status||r.status===f.status);};
