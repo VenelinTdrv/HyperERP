@@ -97,3 +97,30 @@ describe('Payments second filter row', () => {
   expect(rows.every(r => ['Получено', 'Частично'].includes(r.status))).toBe(true);
  });
 });
+
+describe('Payments second row starts searching on the magnifier', () => {
+ it('covers exactly the second-row controls', () => {
+  expect(EXTRA_KEYS).toEqual(['orderedBy', 'phone', 'settlement', 'warehouse', 'amountFrom', 'amountTo', 'paidFrom', 'paidTo']);
+  expect(emptyExtra).toEqual({ orderedBy: '', phone: '', settlement: '', warehouse: '', amountFrom: '', amountTo: '', paidFrom: '', paidTo: '' });
+ });
+
+ it('leaves the list untouched while typed values are not applied', () => {
+  const draft = { ...emptyExtra, settlement: 'варна' };
+  expect(extraChanged(draft, emptyExtra)).toBe(true);
+  expect(initial.filter(r => paymentMatches(r, { ...empty, ...emptyExtra })).length).toBe(initial.length);
+ });
+
+ it('narrows the list once the typed values are applied', () => {
+  const draft = { ...emptyExtra, settlement: 'варна' };
+  const rows = initial.filter(r => paymentMatches(r, { ...empty, ...draft }));
+  expect(rows.length).toBeGreaterThan(0);
+  expect(rows.length).toBeLessThan(initial.length);
+  expect(rows.every(r => r.settlement === 'Варна')).toBe(true);
+ });
+
+ it('has nothing pending once the applied values equal the typed ones', () => {
+  const draft = { ...emptyExtra, warehouse: 'Склад София' };
+  expect(extraChanged(draft, draft)).toBe(false);
+  expect(extraChanged(draft, emptyExtra)).toBe(true);
+ });
+});
