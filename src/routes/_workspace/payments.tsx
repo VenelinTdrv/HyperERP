@@ -12,12 +12,12 @@ import { downloadPaymentsXls, openPaymentsPrint } from '@/lib/payments-export';
 import { SELLERS, sellerType } from '@/lib/sellers';
 
 export const Route = createFileRoute('/_workspace/payments')({
-  head:()=>({meta:[{title:'HyperERP · Плащания'},{name:'description',content:'Плащания по продажбите от Еконт и Pigeon — наложен платеж и банков превод, със статус и сума.'},{property:'og:title',content:'HyperERP · Плащания'},{property:'og:description',content:'Списък с плащания по продажби, филтри по вид, куриер и статус, създаване и редакция.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
+  head:()=>({meta:[{title:'HyperERP · Плащания'},{name:'description',content:'Плащания по продажбите от Еконт и Pigeon — наложен платеж и банков път, със статус и сума.'},{property:'og:title',content:'HyperERP · Плащания'},{property:'og:description',content:'Списък с плащания по продажби, филтри по вид, куриер и статус, създаване и редакция.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
   component:Payments,
 });
 
 const STATUSES=['Очаквано','Получено','Частично','Отказано','Върнато'] as const;
-const METHODS=['Наложен платеж','Банков превод'] as const;
+const METHODS=['Наложен платеж','Банков път'] as const;
 const SOURCES=['Еконт','Pigeon'] as const;
 export { SELLERS, sellerType };
 const todayISO=()=>new Date().toLocaleDateString('en-CA');
@@ -30,29 +30,29 @@ const blank:Form={orderId:'',saleId:'',client:'',agent:'Виктория Гри�
 const p=(n:number,o:string,c:string,a:number,m:string,s:string,st:string,d:string,r:string,agent:string,edited?:string,editedBy?:string):Payment=>({id:`PAY-${String(n).padStart(5,'0')}`,orderId:o,saleId:o.replace('ORD','SAL'),client:c,agent,amount:a.toFixed(2),method:m,source:s,status:st,date:d,reference:r,note:'',edited:edited??'',editedBy:editedBy??''});
 export const paymentMatches=(r:Payment,f:PaymentFilter)=>{const s=f.q.trim().toLocaleLowerCase('bg-BG');return(!s||[r.id,r.orderId,r.saleId,r.client,r.reference,r.agent].some(v=>v.toLocaleLowerCase('bg-BG').includes(s)))&&(!f.method||r.method===f.method)&&(!f.source||r.source===f.source)&&(!f.agent||r.agent===f.agent)&&(!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to)&&(!f.status||r.status===f.status);};
 export const initial:Payment[]=[
- p(23,'ORD-0024','Мария Иванова',73.9,'Банков превод','Pigeon','Получено',todayISO(),'PG-77166','Виктория Григорова',`${todayISO()}T11:20`,ADMIN),
+ p(23,'ORD-0024','Мария Иванова',73.9,'Банков път','Pigeon','Получено',todayISO(),'PG-77166','Виктория Григорова',`${todayISO()}T11:20`,ADMIN),
  p(22,'ORD-0022','Иван Георгиев',88.9,'Наложен платеж','Еконт','Получено',todayISO(),'EC-1048941','Елена Петрова'),
  p(21,'ORD-0019','Анна Стоянова',56.9,'Наложен платеж','Pigeon','Очаквано',todayISO(),'PG-77163','Мария Иванова',`${day(1)}T15:42`,ADMIN),
- p(20,'ORD-0017','Румяна Дончева',112.9,'Банков превод','Pigeon','Частично',todayISO(),'PG-77161','Козметик Груп ООД'),
+ p(20,'ORD-0017','Румяна Дончева',112.9,'Банков път','Pigeon','Частично',todayISO(),'PG-77161','Козметик Груп ООД'),
  p(19,'ORD-0024','Мария Иванова',48.9,'Наложен платеж','Еконт','Получено',todayISO(),'EC-1048933','Виктория Григорова'),
- p(18,'ORD-0023','Елена Петрова',118.9,'Банков превод','Pigeon','Очаквано',todayISO(),'PG-77160','Козметик Груп ООД'),
+ p(18,'ORD-0023','Елена Петрова',118.9,'Банков път','Pigeon','Очаквано',todayISO(),'PG-77160','Козметик Груп ООД'),
  p(17,'ORD-0022','Иван Георгиев',65.5,'Наложен платеж','Еконт','Частично',todayISO(),'EC-1048927','Елена Петрова',`${day(2)}T09:05`,ADMIN),
- p(16,'ORD-0021','Десислава Николова',89.9,'Банков превод','Pigeon','Отказано',todayISO(),'PG-77158','Мария Иванова'),
+ p(16,'ORD-0021','Десислава Николова',89.9,'Банков път','Pigeon','Отказано',todayISO(),'PG-77158','Мария Иванова'),
  p(15,'ORD-0020','Петър Димитров',52.9,'Наложен платеж','Pigeon','Върнато',todayISO(),'PG-77153','Виктория Григорова'),
  p(14,'ORD-0019','Анна Стоянова',134.9,'Наложен платеж','Еконт','Получено',day(1),'EC-1048822','Козметик Груп ООД'),
- p(13,'ORD-0018','Стефан Колев',76.9,'Банков превод','Pigeon','Очаквано',day(1),'PG-77119','Елена Петрова'),
+ p(13,'ORD-0018','Стефан Колев',76.9,'Банков път','Pigeon','Очаквано',day(1),'PG-77119','Елена Петрова'),
  p(12,'ORD-0017','Румяна Дончева',99.9,'Наложен платеж','Еконт','Получено',day(2),'EC-1048688','Мария Иванова'),
- p(11,'ORD-0016','Кирил Атанасов',145.9,'Банков превод','Pigeon','Частично',day(3),'PG-77066','Козметик Груп ООД'),
+ p(11,'ORD-0016','Кирил Атанасов',145.9,'Банков път','Pigeon','Частично',day(3),'PG-77066','Козметик Груп ООД'),
  p(10,'ORD-0024','Мария Иванова',102.9,'Наложен платеж','Еконт','Очаквано',todayISO(),'EC-1048820','Виктория Григорова'),
- p(9,'ORD-0023','Елена Петрова',73.9,'Банков превод','Pigeon','Получено',day(1),'PG-77120','Мария Иванова'),
+ p(9,'ORD-0023','Елена Петрова',73.9,'Банков път','Pigeon','Получено',day(1),'PG-77120','Мария Иванова'),
  p(8,'ORD-0022','Иван Георгиев',109.9,'Наложен платеж','Еконт','Получено',day(1),'EC-1048711','Козметик Груп ООД'),
- p(7,'ORD-0021','Десислава Николова',53.9,'Банков превод','Pigeon','Частично',day(2),'PG-77098','Елена Петрова'),
+ p(7,'ORD-0021','Десислава Николова',53.9,'Банков път','Pigeon','Частично',day(2),'PG-77098','Елена Петрова'),
  p(6,'ORD-0020','Петър Димитров',142.9,'Наложен платеж','Еконт','Отказано',day(2),'EC-1048602','Козметик Груп ООД'),
  p(5,'ORD-0019','Анна Стоянова',39.9,'Наложен платеж','Pigeon','Получено',day(3),'PG-77031','Виктория Григорова'),
  p(4,'ORD-0018','Стефан Колев',62.9,'Наложен платеж','Еконт','Върнато',day(4),'EC-1048455','Мария Иванова'),
- p(3,'ORD-0017','Румяна Дончева',82.9,'Банков превод','Pigeon','Получено',day(4),'PG-76980','Елена Петрова'),
+ p(3,'ORD-0017','Румяна Дончева',82.9,'Банков път','Pigeon','Получено',day(4),'PG-76980','Елена Петрова'),
  p(2,'ORD-0016','Кирил Атанасов',211.9,'Наложен платеж','Еконт','Очаквано',day(5),'EC-1048301','Козметик Груп ООД'),
- p(1,'ORD-0015','Ирина Георгиева',123.9,'Банков превод','Pigeon','Получено',day(6),'PG-76902','Козметик Груп ООД'),
+ p(1,'ORD-0015','Ирина Георгиева',123.9,'Банков път','Pigeon','Получено',day(6),'PG-76902','Козметик Груп ООД'),
 ];
 export const paymentTotals=(rows:{amount:number|string;method:string;orderId?:string}[],shipping:Record<string,number>={})=>{const sum=(xs:{amount:number|string}[])=>Math.round(xs.reduce((a,r)=>a+Number(r.amount),0)*100)/100;const ship=Math.round(rows.reduce((a,r)=>a+Number(shipping[r.orderId??'']||0),0)*100)/100;const total=sum(rows);return{total,cash:sum(rows.filter(r=>r.method==='Наложен платеж')),shipping:ship,margin:Math.round((total-ship)*100)/100};};
 // Sales per seller for the „Всички инфлуенсъри и търговци“ labels: amount and share of
@@ -91,7 +91,7 @@ function Payments(){
  const clear=()=>{setQ('');setMethod('');setSource('');setStatus('');setAgent('');setFrom(todayISO());setTo(todayISO());setPage(1);};
  const open=(x:Payment|null)=>{setSelected(null);setEditing(x);setErrors({});setForm(x?{...x}:{...blank});setEditor(true);};
  const set=(k:keyof Form,v:string)=>{setForm(f=>({...f,[k]:v}));setErrors(e=>{const n={...e};delete n[k];return n;});};
- const pickOrder=(id:string)=>{const o=orders.find(x=>x.id===id);const own=o?.influencer&&SELLERS.some(x=>x.id===o.influencer)?o.influencer:'';setForm(f=>({...f,orderId:id,saleId:id?id.replace('ORD','SAL'):'',client:o?.customer??f.client,agent:own||f.agent,amount:o?total(o).toFixed(2):f.amount,method:o?.payment==='Банков превод'?'Банков превод':o?'Наложен платеж':f.method,source:o?(o.courier==='Еконт'?'Еконт':'Pigeon'):f.source}));setErrors({});};
+ const pickOrder=(id:string)=>{const o=orders.find(x=>x.id===id);const own=o?.influencer&&SELLERS.some(x=>x.id===o.influencer)?o.influencer:'';setForm(f=>({...f,orderId:id,saleId:id?id.replace('ORD','SAL'):'',client:o?.customer??f.client,agent:own||f.agent,amount:o?total(o).toFixed(2):f.amount,method:o?.payment==='Банков път'?'Банков път':o?'Наложен платеж':f.method,source:o?(o.courier==='Еконт'?'Еконт':'Pigeon'):f.source}));setErrors({});};
  const changeStatus=(id:string,st:string)=>{setRows(prev=>prev.map(r=>r.id===id?{...r,status:st,edited:now(),editedBy:ADMIN}:r));setAnnouncement(`${id} · Статусът е сменен на „${st}“ само в демонстрацията.`);};
  const save=(ev:FormEvent)=>{
   ev.preventDefault();const er:Record<string,string>={};
@@ -113,7 +113,7 @@ function Payments(){
  const input=(k:keyof Form,label:string,o:{req?:boolean;ph?:string;type?:string}={})=><div className="field"><label htmlFor={`pay-${k}`}>{label}{o.req&&<span className="required">*</span>}</label><input id={`pay-${k}`} type={o.type??'text'} placeholder={o.ph} value={form[k]} aria-invalid={Boolean(errors[k])} aria-describedby={errors[k]?`pay-${k}-error`:undefined} onChange={ev=>set(k,ev.target.value)}/>{err(k)}</div>;
  const sel=(k:keyof Form,label:string,opts:readonly string[],toneValue?:string)=><div className="field"><label htmlFor={`pay-${k}`}>{label}</label><select id={`pay-${k}`} data-tone={toneValue} value={form[k]} onChange={ev=>set(k,ev.target.value)}>{opts.map(x=><option key={x} value={x}>{x}</option>)}</select></div>;
  return <WorkspaceShell active="Плащания"><div className="page-content deliveries-content orders-content payments-content">
-  <div className="page-heading deliveries-heading payments-heading"><div className="heading-title"><h1>Плащания<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Плащания по продажбите, получени от Еконт и Pigeon — наложен платеж или банков превод. По подразбиране се показват само плащанията за настоящия ден — променете периода „От/До дата“, за да видите повече. Броячите горе филтрират по статус в рамките на избрания период. Филтрирай и по инфлуенсър или търговец. Статусът се сменя директно от реда.</TooltipContent></Tooltip></TooltipProvider></h1></div>
+  <div className="page-heading deliveries-heading payments-heading"><div className="heading-title"><h1>Плащания<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Плащания по продажбите, получени от Еконт и Pigeon — наложен платеж или банков път. По подразбиране се показват само плащанията за настоящия ден — променете периода „От/До дата“, за да видите повече. Броячите горе филтрират по статус в рамките на избрания период. Филтрирай и по инфлуенсър или търговец. Статусът се сменя директно от реда.</TooltipContent></Tooltip></TooltipProvider></h1></div>
   <div className="delivery-overview" aria-label="Броячи по статус">{tiles.map(t=><Button key={t.label} variant="ghost" className={`delivery-metric payments-metric tone-${t.tone} ${status===t.status?'is-selected':''}`} aria-pressed={status===t.status} onClick={()=>{setStatus(t.status);setPage(1);}}><span className="metric-icon"><t.Icon size={14}/></span><span className="metric-copy"><span>{t.label}</span><strong>{t.value}</strong></span></Button>)}</div>
   <div className="flex gap-2 flex-wrap"><Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={exportPrint}><Printer/></Button><Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF" onClick={exportPdf}><FileText className="text-destructive"/></Button><Button variant="outline" size="icon" aria-label="Експорт в XLS" title="Експорт в XLS" onClick={exportXls}><FileSpreadsheet className="text-primary"/></Button><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Ново плащане</Button></div></div>
   <div className="suppliers-filters transfers-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Търсене" placeholder="Плащане, поръчка, клиент…" value={q} onChange={ev=>{setQ(ev.target.value);setPage(1);}}/></div>
