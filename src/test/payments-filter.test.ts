@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { initial, paymentMatches, paymentTotals, sellerShare, SELLERS, type PaymentFilter } from '@/routes/_workspace/payments';
+import { emptyExtra, EXTRA_KEYS, extraChanged, initial, paymentMatches, paymentTotals, sellerShare, SELLERS, type PaymentFilter } from '@/routes/_workspace/payments';
 import { useOrders } from '@/lib/orders-store';
 
 const empty: PaymentFilter = { q: '', method: '', source: '', status: '', agent: '', from: '', to: '', orderedBy: '', phone: '', settlement: '', warehouse: '', amountFrom: '', amountTo: '', paidFrom: '', paidTo: '' };
