@@ -62,17 +62,23 @@ function Index() {
  const [influencer,setInfluencer] = useState('');
  const [office,setOffice] = useState<string|null>(null);
  const [officeSearch,setOfficeSearch] = useState('');
- const subtotal = items.reduce((sum,item) => sum + item.price*item.quantity,0);
+ const [warehouse,setWarehouse] = useState(WAREHOUSES[0]);
+ const batchOf = (item:OrderItem) => { const p = catalog.find(p=>p.id===item.id); return p?.batches[item.batch] ?? p?.batches[0]; };
+ const unitPrice = (item:OrderItem) => (batchOf(item)?.price ?? 0) + item.markup;
+ const lineTotal = (item:OrderItem) => item.gift ? 0 : unitPrice(item)*item.quantity;
+ const subtotal = items.reduce((sum,item) => sum + lineTotal(item),0);
  const count = items.reduce((sum,item)=>sum+item.quantity,0);
  const update = (key:keyof typeof form, value:string) => setForm(prev=>({...prev,[key]:value}));
- const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,quantity:1,price:0}]); };
+ const addProduct = (id:number) => { const p=catalog.find(p=>p.id===id); if(!p)return; setItems(prev=>prev.some(i=>i.id===id)?prev.map(i=>i.id===id?{...i,quantity:i.quantity+1}:i):[...prev,{id,batch:0,quantity:1,markup:0,gift:false}]); };
  const toggleProduct = (id:number) => { if(items.some(i=>i.id===id)) setItems(prev=>prev.filter(i=>i.id!==id)); else addProduct(id); };
  const pickerList = catalog.filter(p=>{const s=productSearch.trim().toLowerCase();return !s||`${p.name} ${p.sku}`.toLowerCase().includes(s);});
  const quantity = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,quantity:Math.max(1,Math.min(999,value||1))}:i));
- const price = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,price:Math.max(0,value||0)}:i));
+ const markup = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,markup:Math.max(0,value||0)}:i));
+ const batch = (id:number,value:number) => setItems(prev=>prev.map(i=>i.id===id?{...i,batch:value}:i));
+ const gift = (id:number,value:boolean) => setItems(prev=>prev.map(i=>i.id===id?{...i,gift:value}:i));
  const clearOffice = () => {setOffice(null);setOfficeSearch('');update('address','');};
  const officeList = !form.city ? [] : OFFICE_AREAS.map(area => `${form.courier} · ${form.city} ${area}`).filter(name => {const s = officeSearch.trim().toLowerCase();return !s || name.toLowerCase().includes(s);});
- const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');};
+ const reset = () => {setForm({city:'',courier:'Еконт',address:'',note:''});setItems([]);setClientSearch('');setClient(null);setProductSearch('');setError('');setDelivery('address');setInfluencer('');setOffice(null);setOfficeSearch('');setWarehouse(WAREHOUSES[0]);};
  const submit = (event?:FormEvent) => { event?.preventDefault(); setError('Записът на нови поръчки още не е свързан.'); };
  return <WorkspaceShell active="Продажби">
    <div className="page-content new-order">
