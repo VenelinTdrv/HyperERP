@@ -18,6 +18,7 @@ export function ReportsWorkspace({ kind }: { kind: ReportKind }) {
   const size = pageSize || rows.length || 1;
   const cur = Math.min(page, Math.max(1, Math.ceil(rows.length / size)));
   const shown = rows.slice((cur - 1) * size, cur * size);
+  const warehouseProducts = kind === 'warehouses' && selected ? reportRows('articles', '', selected.name) : [];
   const batches = kind === 'batches' || kind === 'exhausted';
   const profit = kind === 'profit';
   const headers = [...(kind === 'articles' || batches ? ['SKU', 'Артикул'] : ['Склад']), ...(batches ? ['Склад', 'Партида'] : []), profit ? 'Продадени бройки' : 'Наличност (бр.)', ...(profit ? ['Продажби', 'Доставни цени'] : []), profit ? 'Печалба' : 'Доставна стойност'];
@@ -36,6 +37,14 @@ export function ReportsWorkspace({ kind }: { kind: ReportKind }) {
       {!rows.length && <div className="delivery-empty"><Search size={28} /><h3>Няма намерени резултати</h3><Button variant="outline" onClick={clear}>Изчисти</Button></div>}
       <Pagination total={rows.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id={`reports-${kind}-page-size`} />
     </section><div className="demo-caption mt-4"><ShieldCheck size={13} />Примерни данни · не отразяват реални наличности или печалба</div>
-    <Dialog open={selected !== null} onOpenChange={open => { if (!open) setSelected(null); }}><DialogContent><DialogHeader><DialogTitle>{selected?.name}</DialogTitle><DialogDescription>{REPORTS[kind]} · примерни данни</DialogDescription></DialogHeader>{selected && <dl className="delivery-details">{values(selected).map((value, index) => <div key={headers[index]}><dt>{headers[index]}</dt><dd>{value}</dd></div>)}</dl>}<div className="flex justify-end"><Button variant="outline" onClick={() => setSelected(null)}>Затвори</Button></div></DialogContent></Dialog>
+    <Dialog open={selected !== null} onOpenChange={open => { if (!open) setSelected(null); }}><DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto"><DialogHeader><DialogTitle>{selected?.name}</DialogTitle><DialogDescription>{REPORTS[kind]} · примерни данни</DialogDescription></DialogHeader>{selected && <dl className="delivery-details">{values(selected).map((value, index) => <div key={headers[index]}><dt>{headers[index]}</dt><dd>{value}</dd></div>)}</dl>}
+      {kind === 'warehouses' && selected && <section className="min-w-0 border-t border-border pt-4" aria-label="Продукти в склада">
+        <h3 className="mb-3 text-sm font-semibold">Продукти <span className="text-muted-foreground">({warehouseProducts.length})</span></h3>
+        <div className="max-h-40 overflow-y-auto overscroll-contain rounded-md border border-border" role="region" aria-label="Наличности на продуктите" tabIndex={0}>
+          <table className="w-full border-collapse text-xs"><thead className="sticky top-0 bg-muted text-muted-foreground"><tr><th className="px-3 py-2 text-left font-medium">Продукт / SKU</th><th className="px-3 py-2 text-right font-medium">Наличност (бр.)</th></tr></thead><tbody>{warehouseProducts.map(product => <tr key={product.id} className="border-t border-border"><td className="px-3 py-3"><div className="font-semibold">{product.name}</div><div className="mt-1 break-all text-muted-foreground">{product.sku}</div></td><td className="px-3 py-3 text-right font-semibold tabular-nums">{product.quantity}</td></tr>)}</tbody></table>
+          {!warehouseProducts.length && <p className="p-3 text-muted-foreground">Няма продукти в този склад.</p>}
+        </div>
+      </section>}
+      <div className="flex justify-end"><Button variant="outline" onClick={() => setSelected(null)}>Затвори</Button></div></DialogContent></Dialog>
   </div></WorkspaceShell>;
 }
