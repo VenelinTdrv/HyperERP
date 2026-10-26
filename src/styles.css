@@ -76,7 +76,7 @@
 .reports-filters { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto; gap:10px; margin-bottom:14px; }
 @media (max-width:700px) { .reports-filters { grid-template-columns:1fr; } }
 /* Warehouse details: the product list must show ten rows at once */
-.report-products-scroll { height:552px; max-height:calc(100dvh - 300px); }
+.report-products-scroll { height:566px; max-height:calc(100dvh - 300px); }
 @media (max-width:700px) { .report-products-scroll { height:auto; max-height:60dvh; } }
 .nav-item .nav-count { margin-left:auto; font-size:10px; background:var(--card); border-radius:4px; padding:2px 6px; }
 .sidebar-bottom { margin-top:auto; padding:15px 17px; border-top:1px solid var(--border); }
