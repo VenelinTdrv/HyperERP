@@ -78,6 +78,9 @@
 /* Warehouse details: the product list must show ten rows at once */
 .report-products-scroll { height:566px; max-height:calc(100dvh - 300px); }
 @media (max-width:700px) { .report-products-scroll { height:auto; max-height:60dvh; } }
+/* Report summary keeps every field on one row, so "Доставна стойност" sits next to "Склад" and "Наличност" */
+dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media (max-width:700px) { dl.reports-summary { grid-template-columns:1fr 1fr; } }
 .nav-item .nav-count { margin-left:auto; font-size:10px; background:var(--card); border-radius:4px; padding:2px 6px; }
 .sidebar-bottom { margin-top:auto; padding:15px 17px; border-top:1px solid var(--border); }
 .user-avatar { background:var(--secondary); color:var(--primary); width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:700; flex-shrink:0; }
