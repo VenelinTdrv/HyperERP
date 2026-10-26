@@ -23,7 +23,7 @@ export function reportRows(kind: ReportKind, query = '', warehouse = ''): Report
   const grouped = new Map<string, ReportRow>();
   for (const row of batches) {
     const key = kind === 'articles' ? row.sku : row.warehouse;
-    const group = grouped.get(key) ?? { id: key, name: kind === 'articles' ? row.name : row.warehouse, sku: kind === 'articles' ? row.sku : undefined, quantity: 0, value: 0, revenue: 0, cost: 0 };
+    const group: ReportRow = grouped.get(key) ?? { id: key, name: kind === 'articles' ? row.name : row.warehouse, ...(kind === 'articles' ? { sku: row.sku } : {}), quantity: 0, value: 0, revenue: 0, cost: 0 };
     group.quantity += kind === 'profit' ? row.sold : row.quantity;
     group.revenue = (group.revenue ?? 0) + row.sold * row.price;
     group.cost = (group.cost ?? 0) + row.sold * row.cost;

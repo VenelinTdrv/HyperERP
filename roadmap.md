@@ -1,7 +1,7 @@
 # HyperERP redesign
 ## Справки
-- [ ] Add the five reference reports to shared navigation with separate demonstration screens.
-- [ ] Verify navigation, filtering, details and pagination.
+- [x] Add the five reference reports to shared navigation with separate demonstration screens.
+- [x] Verify navigation, filtering, details and pagination.
 
 - [x] Open the workspace without login using isolated demonstration data; private server protections preserved, all menu pages verified, 41 tests passed.
 - [x] Add and verify print, PDF and XLS controls in the order detail heading.
