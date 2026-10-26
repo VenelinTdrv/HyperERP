@@ -27,6 +27,11 @@ import { Route as WorkspaceTransfersRouteImport } from './routes/_workspace/tran
 import { Route as WorkspaceUsersRouteImport } from './routes/_workspace/users'
 import { Route as WorkspaceWarehousesRouteImport } from './routes/_workspace/warehouses'
 import { Route as WorkspaceOrdersIdRouteImport } from './routes/_workspace/orders_.$id'
+import { Route as WorkspaceReportsArticlesRouteImport } from './routes/_workspace/reports.articles'
+import { Route as WorkspaceReportsBatchesRouteImport } from './routes/_workspace/reports.batches'
+import { Route as WorkspaceReportsExhaustedBatchesRouteImport } from './routes/_workspace/reports.exhausted-batches'
+import { Route as WorkspaceReportsWarehouseProfitRouteImport } from './routes/_workspace/reports.warehouse-profit'
+import { Route as WorkspaceReportsWarehousesRouteImport } from './routes/_workspace/reports.warehouses'
 import { Route as WorkspaceSalesNewRouteImport } from './routes/_workspace/sales.new'
 
 const WorkspaceRouteRoute = WorkspaceRouteRouteImport.update({
@@ -118,6 +123,35 @@ const WorkspaceOrdersIdRoute = WorkspaceOrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => WorkspaceRouteRoute,
 } as any)
+const WorkspaceReportsArticlesRoute =
+  WorkspaceReportsArticlesRouteImport.update({
+    id: '/reports/articles',
+    path: '/reports/articles',
+    getParentRoute: () => WorkspaceRouteRoute,
+  } as any)
+const WorkspaceReportsBatchesRoute = WorkspaceReportsBatchesRouteImport.update({
+  id: '/reports/batches',
+  path: '/reports/batches',
+  getParentRoute: () => WorkspaceRouteRoute,
+} as any)
+const WorkspaceReportsExhaustedBatchesRoute =
+  WorkspaceReportsExhaustedBatchesRouteImport.update({
+    id: '/reports/exhausted-batches',
+    path: '/reports/exhausted-batches',
+    getParentRoute: () => WorkspaceRouteRoute,
+  } as any)
+const WorkspaceReportsWarehouseProfitRoute =
+  WorkspaceReportsWarehouseProfitRouteImport.update({
+    id: '/reports/warehouse-profit',
+    path: '/reports/warehouse-profit',
+    getParentRoute: () => WorkspaceRouteRoute,
+  } as any)
+const WorkspaceReportsWarehousesRoute =
+  WorkspaceReportsWarehousesRouteImport.update({
+    id: '/reports/warehouses',
+    path: '/reports/warehouses',
+    getParentRoute: () => WorkspaceRouteRoute,
+  } as any)
 const WorkspaceSalesNewRoute = WorkspaceSalesNewRouteImport.update({
   id: '/sales/new',
   path: '/sales/new',
@@ -142,6 +176,11 @@ export interface FileRoutesByFullPath {
   '/users': typeof WorkspaceUsersRoute
   '/warehouses': typeof WorkspaceWarehousesRoute
   '/orders/$id': typeof WorkspaceOrdersIdRoute
+  '/reports/articles': typeof WorkspaceReportsArticlesRoute
+  '/reports/batches': typeof WorkspaceReportsBatchesRoute
+  '/reports/exhausted-batches': typeof WorkspaceReportsExhaustedBatchesRoute
+  '/reports/warehouse-profit': typeof WorkspaceReportsWarehouseProfitRoute
+  '/reports/warehouses': typeof WorkspaceReportsWarehousesRoute
   '/sales/new': typeof WorkspaceSalesNewRoute
 }
 export interface FileRoutesByTo {
@@ -162,6 +201,11 @@ export interface FileRoutesByTo {
   '/warehouses': typeof WorkspaceWarehousesRoute
   '/': typeof WorkspaceIndexRoute
   '/orders/$id': typeof WorkspaceOrdersIdRoute
+  '/reports/articles': typeof WorkspaceReportsArticlesRoute
+  '/reports/batches': typeof WorkspaceReportsBatchesRoute
+  '/reports/exhausted-batches': typeof WorkspaceReportsExhaustedBatchesRoute
+  '/reports/warehouse-profit': typeof WorkspaceReportsWarehouseProfitRoute
+  '/reports/warehouses': typeof WorkspaceReportsWarehousesRoute
   '/sales/new': typeof WorkspaceSalesNewRoute
 }
 export interface FileRoutesById {
@@ -184,6 +228,11 @@ export interface FileRoutesById {
   '/_workspace/warehouses': typeof WorkspaceWarehousesRoute
   '/_workspace/': typeof WorkspaceIndexRoute
   '/_workspace/orders_/$id': typeof WorkspaceOrdersIdRoute
+  '/_workspace/reports/articles': typeof WorkspaceReportsArticlesRoute
+  '/_workspace/reports/batches': typeof WorkspaceReportsBatchesRoute
+  '/_workspace/reports/exhausted-batches': typeof WorkspaceReportsExhaustedBatchesRoute
+  '/_workspace/reports/warehouse-profit': typeof WorkspaceReportsWarehouseProfitRoute
+  '/_workspace/reports/warehouses': typeof WorkspaceReportsWarehousesRoute
   '/_workspace/sales/new': typeof WorkspaceSalesNewRoute
 }
 export interface FileRouteTypes {
@@ -206,6 +255,11 @@ export interface FileRouteTypes {
     | '/users'
     | '/warehouses'
     | '/orders/$id'
+    | '/reports/articles'
+    | '/reports/batches'
+    | '/reports/exhausted-batches'
+    | '/reports/warehouse-profit'
+    | '/reports/warehouses'
     | '/sales/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -226,6 +280,11 @@ export interface FileRouteTypes {
     | '/warehouses'
     | '/'
     | '/orders/$id'
+    | '/reports/articles'
+    | '/reports/batches'
+    | '/reports/exhausted-batches'
+    | '/reports/warehouse-profit'
+    | '/reports/warehouses'
     | '/sales/new'
   id:
     | '__root__'
@@ -247,6 +306,11 @@ export interface FileRouteTypes {
     | '/_workspace/warehouses'
     | '/_workspace/'
     | '/_workspace/orders_/$id'
+    | '/_workspace/reports/articles'
+    | '/_workspace/reports/batches'
+    | '/_workspace/reports/exhausted-batches'
+    | '/_workspace/reports/warehouse-profit'
+    | '/_workspace/reports/warehouses'
     | '/_workspace/sales/new'
   fileRoutesById: FileRoutesById
 }
@@ -383,6 +447,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrdersIdRouteImport
       parentRoute: typeof WorkspaceRouteRoute
     }
+    '/_workspace/reports/articles': {
+      id: '/_workspace/reports/articles'
+      path: '/reports/articles'
+      fullPath: '/reports/articles'
+      preLoaderRoute: typeof WorkspaceReportsArticlesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
+    '/_workspace/reports/batches': {
+      id: '/_workspace/reports/batches'
+      path: '/reports/batches'
+      fullPath: '/reports/batches'
+      preLoaderRoute: typeof WorkspaceReportsBatchesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
+    '/_workspace/reports/exhausted-batches': {
+      id: '/_workspace/reports/exhausted-batches'
+      path: '/reports/exhausted-batches'
+      fullPath: '/reports/exhausted-batches'
+      preLoaderRoute: typeof WorkspaceReportsExhaustedBatchesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
+    '/_workspace/reports/warehouse-profit': {
+      id: '/_workspace/reports/warehouse-profit'
+      path: '/reports/warehouse-profit'
+      fullPath: '/reports/warehouse-profit'
+      preLoaderRoute: typeof WorkspaceReportsWarehouseProfitRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
+    '/_workspace/reports/warehouses': {
+      id: '/_workspace/reports/warehouses'
+      path: '/reports/warehouses'
+      fullPath: '/reports/warehouses'
+      preLoaderRoute: typeof WorkspaceReportsWarehousesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
     '/_workspace/sales/new': {
       id: '/_workspace/sales/new'
       path: '/sales/new'
@@ -410,6 +509,11 @@ interface WorkspaceRouteRouteChildren {
   WorkspaceWarehousesRoute: typeof WorkspaceWarehousesRoute
   WorkspaceIndexRoute: typeof WorkspaceIndexRoute
   WorkspaceOrdersIdRoute: typeof WorkspaceOrdersIdRoute
+  WorkspaceReportsArticlesRoute: typeof WorkspaceReportsArticlesRoute
+  WorkspaceReportsBatchesRoute: typeof WorkspaceReportsBatchesRoute
+  WorkspaceReportsExhaustedBatchesRoute: typeof WorkspaceReportsExhaustedBatchesRoute
+  WorkspaceReportsWarehouseProfitRoute: typeof WorkspaceReportsWarehouseProfitRoute
+  WorkspaceReportsWarehousesRoute: typeof WorkspaceReportsWarehousesRoute
   WorkspaceSalesNewRoute: typeof WorkspaceSalesNewRoute
 }
 
@@ -430,6 +534,11 @@ const WorkspaceRouteRouteChildren: WorkspaceRouteRouteChildren = {
   WorkspaceWarehousesRoute: WorkspaceWarehousesRoute,
   WorkspaceIndexRoute: WorkspaceIndexRoute,
   WorkspaceOrdersIdRoute: WorkspaceOrdersIdRoute,
+  WorkspaceReportsArticlesRoute: WorkspaceReportsArticlesRoute,
+  WorkspaceReportsBatchesRoute: WorkspaceReportsBatchesRoute,
+  WorkspaceReportsExhaustedBatchesRoute: WorkspaceReportsExhaustedBatchesRoute,
+  WorkspaceReportsWarehouseProfitRoute: WorkspaceReportsWarehouseProfitRoute,
+  WorkspaceReportsWarehousesRoute: WorkspaceReportsWarehousesRoute,
   WorkspaceSalesNewRoute: WorkspaceSalesNewRoute,
 }
 
