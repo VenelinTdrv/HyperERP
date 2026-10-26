@@ -1,4 +1,3 @@
-import { CATALOG } from './orders-store';
 
 export const REPORTS = {
   warehouses: 'Наличност по складове',
@@ -9,8 +8,21 @@ export const REPORTS = {
 } as const;
 export type ReportKind = keyof typeof REPORTS;
 export const REPORT_WAREHOUSES = ['Склад Главен', 'Склад София', 'Склад Варна'];
+// Isolated demonstration catalogue for the reports, independent from order entry.
+export const REPORT_ARTICLES = [
+  { sku: 'PRF-ROSE-50', name: 'Rose Élixir', price: 49 },
+  { sku: 'PRF-VELV-50', name: 'Velvet Bloom', price: 69 },
+  { sku: 'PRF-PURE-30', name: 'Pure Essence', price: 35 },
+  { sku: 'CRM-HYDR-50', name: 'Hydra Cream', price: 29 },
+  { sku: 'CRM-NIGH-50', name: 'Night Repair', price: 59 },
+  { sku: 'SER-VITA-30', name: 'Vitamin C Serum', price: 45 },
+  { sku: 'OIL-ARGA-100', name: 'Argan Oil', price: 39 },
+  { sku: 'MLS-SPF-50', name: 'Sun Fluid SPF 50', price: 33 },
+  { sku: 'MST-BODY-200', name: 'Body Butter', price: 24 },
+  { sku: 'TON-MICE-250', name: 'Micellar Water', price: 19 },
+];
 // Isolated demonstration allocations and costs, not operational inventory.
-export const REPORT_BATCHES = CATALOG.flatMap((article, index) => REPORT_WAREHOUSES.map((warehouse, position) => ({
+export const REPORT_BATCHES = REPORT_ARTICLES.flatMap((article, index) => REPORT_WAREHOUSES.map((warehouse, position) => ({
   ...article, id: `${article.sku}-${position}`, batch: `B-${101 + index * 3 + position}`,
   warehouse, quantity: position === 2 && index % 2 === 0 ? 0 : 10 + index * 5 + position * 3,
   cost: Math.round(article.price * 0.6 * 100) / 100, sold: 3 + index + position,
