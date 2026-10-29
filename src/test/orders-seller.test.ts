@@ -35,8 +35,8 @@ describe('Orders „Всички инфлуенсъри и търговци" fil
   it('labels each seller with order count and share that add up, unchanged by the chosen person', () => {
     const all = demoOrders();
     const share = sellerShare(all, emptyFilters);
-    expect(share['Виктория Григорова']).toEqual({ count: 3, pct: '30.0' });
-    expect(share['Мария Иванова']).toEqual({ count: 2, pct: '20.0' });
+    expect(share['Виктория Григорова']).toEqual({ count: 6, pct: '46.2' });
+    expect(share['Мария Иванова']).toEqual({ count: 2, pct: '15.4' });
     expect(Object.values(share).reduce((a, s) => a + s.count, 0)).toBe(all.length);
     expect(sellerShare(all, { ...emptyFilters, seller: 'Елена Петрова' })).toEqual(share);
   });

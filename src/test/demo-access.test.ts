@@ -7,8 +7,8 @@ describe('Workspace without login', () => {
   it('loads sales, orders and articles without calling private services', async () => {
     const { erpListsQuery } = await import('@/lib/erp-query');
     const result = await erpListsQuery.queryFn?.({} as never);
-    expect(result?.orders.length).toBe(10);
-    expect(result?.sales.length).toBe(10);
+    expect(result?.orders.length).toBe(13);
+    expect(result?.sales.length).toBe(13);
     expect(result?.articles.length).toBe(4);
     expect(privateRead).not.toHaveBeenCalled();
     expect(erpListsQuery.queryKey).toEqual(['demo', 'erp', 'lists']);

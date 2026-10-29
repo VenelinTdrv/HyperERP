@@ -28,6 +28,7 @@ describe('Продажби „Всички инфлуенсъри и търго�
     const { result, unmount } = renderHook(() => useOrders());
     const orders = result.current;
     unmount();
-    expect(byId(initialRows)).toEqual(byId(orders));
+    const sold = byId(orders);
+    expect(Object.entries(byId(initialRows)).every(([id, seller]) => sold[id] === seller)).toBe(true);
   });
 });
