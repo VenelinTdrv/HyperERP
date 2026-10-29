@@ -16,7 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from 'sonner';
 import { type Order, useOrders, setOrderStatus, total, itemCount, ADMIN } from '@/lib/orders-store';
 import { openOrderBlank, downloadOrderBlankPdf } from '@/lib/order-blank';
-import { SELLERS, sellerType } from '@/lib/sellers';
+import { SELLERS, sellerType, ASSISTANTS, assistantWorksFor } from '@/lib/sellers';
 
 export const Route = createFileRoute('/_workspace/orders')({
  head: () => ({ meta: [
@@ -35,11 +35,14 @@ export const Route = createFileRoute('/_workspace/orders')({
 
 export type OrderFilter = { search:string; city:string; courier:string; from:string; to:string; seller:string };
 export const emptyFilters: OrderFilter = { search:'', city:'', courier:'', from:'', to:'', seller:'' };
-// Who the screen is previewed as: „Админ" sees every order, „Инфлуенсър" sees only the orders credited to the chosen person.
-export type OrderView = 'admin' | 'influencer';
+// Who the screen is previewed as: „Админ" sees every order, „Инфлуенсър" sees only the orders
+// credited to the chosen person, „Асистент" sees the orders of the influencer they work for.
+export type OrderView = 'admin' | 'influencer' | 'assistant';
 export const INFLUENCERS = SELLERS.filter(s => s.type === 'Инфлуенсър').map(s => s.id);
-// The person whose orders the list keeps: nobody in particular for the admin, the chosen influencer otherwise.
-export const viewSeller = (view: OrderView, influencer: string) => view === 'admin' ? '' : influencer;
+// The person whose orders the list keeps: nobody in particular for the admin,
+// the chosen influencer — or the influencer behind the chosen assistant — otherwise.
+export const viewSeller = (view: OrderView, person: string) =>
+  view === 'admin' ? '' : view === 'assistant' ? assistantWorksFor(person) : person;
 // A row passes when the free-text search, settlement, courier and date range all match — and,
 // once a person is picked in „Всички инфлуенсъри и търговци", the order is credited to them.
 export const orderMatches = (row: Order, f: OrderFilter) =>
