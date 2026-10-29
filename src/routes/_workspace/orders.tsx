@@ -76,13 +76,15 @@ function Orders() {
   const [selection, setSelection] = useState<string[]>([]);
   const [view, setView] = useState<OrderView>('admin');
   const [asInfluencer, setAsInfluencer] = useState(INFLUENCERS[0] ?? '');
+  const [asAssistant, setAsAssistant] = useState(ASSISTANTS[0]?.id ?? '');
   const admin = view === 'admin';
+  const asPerson = view === 'assistant' ? asAssistant : asInfluencer;
   const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
   const clear = () => { setFilters(emptyFilters); setPage(1); };
   // Changing the previewed role is a new screen: drop the previous person's selection and go back to the first page.
-  const switchView = (next:OrderView) => { setView(next); if (next==='influencer') setFilters(prev => ({...prev, seller:''})); setSelection([]); setPage(1); };
-  const pickInfluencer = (id:string) => { setAsInfluencer(id); setSelection([]); setPage(1); };
-  const base = rows.filter(row => orderMatches(row, { ...filters, seller: viewSeller(view, asInfluencer) }));
+   const switchView = (next:OrderView) => { setView(next); if (next!=='admin') setFilters(prev => ({...prev, seller:''})); setSelection([]); setPage(1); };
+  const pickPerson = (id:string) => { if (view==='assistant') setAsAssistant(id); else setAsInfluencer(id); setSelection([]); setPage(1); };
+  const base = rows.filter(row => orderMatches(row, { ...filters, seller: viewSeller(view, asPerson) }));
  const filtered = base.filter(row => !statusFilter || row.status === statusFilter)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
  const pages = Math.max(1, Math.ceil(filtered.length/(pageSize||filtered.length||1)));
