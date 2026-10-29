@@ -76,7 +76,7 @@ function Orders() {
   const [selection, setSelection] = useState<string[]>([]);
   const [view, setView] = useState<OrderView>('admin');
   const [asInfluencer, setAsInfluencer] = useState(INFLUENCERS[0] ?? '');
-  const [asAssistant, setAsAssistant] = useState(ASSISTANTS[0]?.id ?? '');
+  const [asAssistant, setAsAssistant] = useState<string>(ASSISTANTS[0]?.id ?? '');
   const admin = view === 'admin';
   const asPerson = view === 'assistant' ? asAssistant : asInfluencer;
   const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
