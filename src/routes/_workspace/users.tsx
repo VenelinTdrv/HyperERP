@@ -4,6 +4,7 @@ import { Check, Eye, EyeOff, MoreVertical, Pencil, Plus, Search, ShieldCheck, Tr
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
+import { USER_ROLES, assistantAssignmentError, hasAssignedAssistants, type UserRole } from '@/lib/demo-users';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -12,11 +13,11 @@ export const Route = createFileRoute('/_workspace/users')({
  component:Users,
 });
 
-const ROLES=['Администратор','Инфлуенсър','Търговец на едро'] as const;
-type Role=typeof ROLES[number];
-type Form={email:string;firstName:string;lastName:string;role:Role|'';active:boolean;password:string;confirm:string};
-type User={id:number;email:string;firstName:string;lastName:string;role:Role;active:boolean};
-const blank:Form={email:'',firstName:'',lastName:'',role:'',active:true,password:'',confirm:''};
+const ROLES=USER_ROLES;
+type Role=UserRole;
+type Form={email:string;firstName:string;lastName:string;role:Role|'';influencerId:string;active:boolean;password:string;confirm:string};
+type User={id:number;email:string;firstName:string;lastName:string;role:Role;influencerId?:number|undefined;active:boolean};
+const blank:Form={email:'',firstName:'',lastName:'',role:'',influencerId:'',active:true,password:'',confirm:''};
 const initial:User[]=[
  {id:1,email:'admin@codeatelier.io',firstName:'Венелин',lastName:'Тодоров',role:'Администратор',active:true},
  {id:2,email:'grigorovaaaaa@gmail.com',firstName:'Виктория',lastName:'Григорова',role:'Инфлуенсър',active:true},
@@ -37,20 +38,25 @@ function Users(){
  const [showPw,setShowPw]=useState(false);
  const [selected,setSelected]=useState<User|null>(null);const [deleting,setDeleting]=useState<User|null>(null);
  const [announcement,setAnnouncement]=useState('');
+ const influencers=rows.filter(r=>r.role==='Инфлуенсър'&&r.id!==editing?.id);
+ const influencerName=(id?:number)=>{const u=rows.find(r=>r.id===id);return u?`${u.firstName} ${u.lastName}`:'—';};
  const t=q.trim().toLocaleLowerCase('bg-BG');
  const filtered=rows.filter(r=>(!t||`${r.firstName} ${r.lastName} ${r.email}`.toLocaleLowerCase('bg-BG').includes(t))&&(!role||r.role===role)&&(!status||(status==='active')===r.active));
  const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setQ('');setRole('');setStatus('');setPage(1);};
- const open=(u:User|null)=>{setSelected(null);setEditing(u);setErrors({});setShowPw(false);setForm(u?{...blank,email:u.email,firstName:u.firstName,lastName:u.lastName,role:u.role,active:u.active}:{...blank});setEditor(true);};
- const set=<K extends keyof Form>(k:K,v:Form[K])=>{setForm(f=>({...f,[k]:v}));setErrors(x=>{const n={...x};delete n[k];return n;});};
+ const open=(u:User|null)=>{setSelected(null);setEditing(u);setErrors({});setShowPw(false);setForm(u?{...blank,email:u.email,firstName:u.firstName,lastName:u.lastName,role:u.role,influencerId:u.influencerId?String(u.influencerId):'',active:u.active}:{...blank});setEditor(true);};
+ const set=<K extends keyof Form>(k:K,v:Form[K])=>{setForm(f=>({...f,[k]:v,...(k==='role'&&v!=='Асистент'?{influencerId:''}:{})}));setErrors(x=>{const n={...x};delete n[k];if(k==='role')delete n['influencerId'];return n;});};
  const save=(ev:FormEvent)=>{
-  ev.preventDefault();const er:Partial<Record<'email'|'firstName'|'lastName'|'role'|'password'|'confirm',string>>={};const email=form.email.trim().toLowerCase();
+  ev.preventDefault();const er:Partial<Record<'email'|'firstName'|'lastName'|'role'|'influencerId'|'password'|'confirm',string>>={};const email=form.email.trim().toLowerCase();
   if(!email)er.email='Въведете имейл';else if(!EMAIL.test(email))er.email='Невалиден имейл адрес';
   else if(rows.some(r=>r.id!==editing?.id&&r.email===email))er.email='Вече има потребител с този имейл';
   if(!form.firstName.trim())er.firstName='Въведете име';
   if(!form.lastName.trim())er.lastName='Въведете фамилия';
   if(!form.role)er.role='Изберете роля';
+  const assignmentError=assistantAssignmentError(form.role,form.influencerId?Number(form.influencerId):undefined,rows,editing?.id);
+  if(assignmentError)er.influencerId=assignmentError;
+  if(editing&&hasAssignedAssistants(editing.id,rows)&&form.role!=='Инфлуенсър')er.role='Първо прехвърлете асистентите към друг инфлуенсър';
   const needPw=!editing||form.password||form.confirm;
   if(needPw){
    if(!form.password)er.password='Въведете парола';else if(form.password.length<8)er.password='Паролата трябва да е поне 8 символа';
@@ -59,12 +65,12 @@ function Users(){
   if(editing&&editing.id===1&&(!form.active||form.role!=='Администратор'))er.role='Основният администратор трябва да остане активен администратор';
   setErrors(er);
   if(Object.keys(er).length){document.getElementById(`usr-${Object.keys(er)[0]}`)?.focus();return;}
-  const data={email,firstName:form.firstName.trim(),lastName:form.lastName.trim(),role:form.role as Role,active:form.active};
+  const data={email,firstName:form.firstName.trim(),lastName:form.lastName.trim(),role:form.role as Role,influencerId:form.role==='Асистент'?Number(form.influencerId):undefined,active:form.active};
   if(editing)setRows(p=>p.map(r=>r.id===editing.id?{...r,...data}:r));
   else setRows(p=>[...p,{...data,id:Math.max(0,...p.map(r=>r.id))+1}]);
   setEditor(false);setAnnouncement(`${data.email} · ${editing?'Промените са приложени':'Потребителят е добавен'} само в демонстрацията.`);
  };
- const remove=()=>{if(!deleting)return;setRows(p=>p.filter(r=>r.id!==deleting.id));setAnnouncement(`${deleting.email} · Потребителят е изтрит само в демонстрацията.`);setDeleting(null);};
+ const remove=()=>{if(!deleting)return;if(hasAssignedAssistants(deleting.id,rows)){setAnnouncement('Първо прехвърлете асистентите към друг инфлуенсър.');setDeleting(null);return;}setRows(p=>p.filter(r=>r.id!==deleting.id));setAnnouncement(`${deleting.email} · Потребителят е изтрит само в демонстрацията.`);setDeleting(null);};
  const err=(k:string,hint?:string)=>errors[k]?<p id={`usr-${k}-error`} className="text-xs text-destructive" role="alert">{errors[k]}</p>:hint?<p id={`usr-${k}-hint`} className="text-xs text-muted-foreground">{hint}</p>:null;
  const aria=(k:string,hint?:boolean)=>({'aria-invalid':Boolean(errors[k]),'aria-describedby':errors[k]?`usr-${k}-error`:hint?`usr-${k}-hint`:undefined});
  const txt=(k:'email'|'firstName'|'lastName',label:string,o:{wide?:boolean;type?:string;ph?:string}={})=><div className={`field ${o.wide?'col-span-2':''}`}><label htmlFor={`usr-${k}`}>{label}<span className="required">*</span></label><input id={`usr-${k}`} type={o.type??'text'} placeholder={o.ph} maxLength={k==='email'?255:60} autoComplete="off" value={form[k]} {...aria(k)} onChange={ev=>set(k,ev.target.value)}/>{err(k)}</div>;
@@ -80,7 +86,7 @@ function Users(){
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table orders-table"><thead><tr><th>Имейл</th><th>Име</th><th>Фамилия</th><th>Роля</th><th>Статус</th><th className="delivery-head-center">Действия</th></tr></thead><tbody>{shown.map(r=><tr key={r.id}>
     <td><Button variant="ghost" className="client-name" onClick={()=>setSelected(r)}>{r.email}</Button></td>
     <td>{r.firstName}</td><td>{r.lastName}</td>
-    <td><span className={`delivery-status ${r.role==='Администратор'?'neutral':''}`}>{r.role}</span></td>
+    <td><span className={`delivery-status ${r.role==='Администратор'?'neutral':''}`}>{r.role}</span>{r.role==='Асистент'&&<div className="mt-1 text-xs text-muted-foreground">Към: {influencerName(r.influencerId)}</div>}</td>
     <td><span className={`delivery-status ${r.active?'received':'cancelled'}`}>{r.active?'Активен':'Неактивен'}</span></td>
     <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="text-primary" aria-label={`Действия за ${r.email}`} title="Действия за потребителя"><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>setSelected(r)}><Eye/>Детайли</DropdownMenuItem><DropdownMenuItem onSelect={()=>open(r)}><Pencil/>Редактирай</DropdownMenuItem>{r.id!==1&&<><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(r)}><Trash2/>Изтрий</DropdownMenuItem></>}</DropdownMenuContent></DropdownMenu></div></td>
    </tr>)}</tbody></table></div>:<div className="delivery-empty"><UserCog size={32}/><h3>{rows.length?'Няма намерени потребители':'Все още няма потребители'}</h3>{rows.length?<Button variant="outline" onClick={clear}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави потребител</Button>}</div>}
@@ -96,6 +102,7 @@ function Users(){
     {txt('firstName','Име')}
     {txt('lastName','Фамилия')}
     <div className="field col-span-2"><label htmlFor="usr-role">Роля<span className="required">*</span></label><select id="usr-role" value={form.role} {...aria('role')} onChange={ev=>set('role',ev.target.value as Role)}><option value="">Изберете роля</option>{ROLES.map(r=><option key={r}>{r}</option>)}</select>{err('role')}</div>
+    {form.role==='Асистент'&&<div className="field col-span-2"><label htmlFor="usr-influencerId">Инфлуенсър<span className="required">*</span></label><select id="usr-influencerId" value={form.influencerId} {...aria('influencerId')} onChange={ev=>set('influencerId',ev.target.value)}><option value="">Изберете инфлуенсър</option>{influencers.map(u=><option key={u.id} value={u.id}>{u.firstName} {u.lastName}</option>)}</select>{err('influencerId',influencers.length?undefined:'Няма налични инфлуенсъри')}</div>}
     {pw('password',editing?'Нова парола':'Парола',editing?'Оставете празно, за да не се променя':'Поне 8 символа')}
     {pw('confirm','Повторете паролата')}
     <label className="col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={ev=>set('active',ev.target.checked)}/>Активен потребител</label>
@@ -106,6 +113,7 @@ function Users(){
  <Dialog open={selected!==null} onOpenChange={o=>{if(!o)setSelected(null);}}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">{selected?`${selected.firstName} ${selected.lastName}`:''}</DialogTitle><DialogDescription>Детайли за потребителя · примерни данни</DialogDescription></DialogHeader>{selected&&<><dl className="delivery-details">
   <div className="col-span-2"><dt>Имейл</dt><dd>{selected.email}</dd></div>
   <div><dt>Роля</dt><dd>{selected.role}</dd></div>
+  {selected.role==='Асистент'&&<div><dt>Инфлуенсър</dt><dd>{influencerName(selected.influencerId)}</dd></div>}
   <div><dt>Статус</dt><dd>{selected.active?'Активен':'Неактивен'}</dd></div>
  </dl><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button onClick={()=>open(selected)}><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog>
 
