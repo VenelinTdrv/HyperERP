@@ -4,7 +4,7 @@ import { DataLoadError } from '@/components/data-load-error';
 import { orderFromDatabase, saleFromDatabase, categoryPathFromDatabase } from '@/lib/erp-adapters';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { CheckCircle2, ClipboardList, Clock3, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, X } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Clock3, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, User, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
@@ -35,6 +35,11 @@ export const Route = createFileRoute('/_workspace/orders')({
 
 export type OrderFilter = { search:string; city:string; courier:string; from:string; to:string; seller:string };
 export const emptyFilters: OrderFilter = { search:'', city:'', courier:'', from:'', to:'', seller:'' };
+// Who the screen is previewed as: „Админ" sees every order, „Инфлуенсър" sees only the orders credited to the chosen person.
+export type OrderView = 'admin' | 'influencer';
+export const INFLUENCERS = SELLERS.filter(s => s.type === 'Инфлуенсър').map(s => s.id);
+// The person whose orders the list keeps: nobody in particular for the admin, the chosen influencer otherwise.
+export const viewSeller = (view: OrderView, influencer: string) => view === 'admin' ? '' : influencer;
 // A row passes when the free-text search, settlement, courier and date range all match — and,
 // once a person is picked in „Всички инфлуенсъри и търговци", the order is credited to them.
 export const orderMatches = (row: Order, f: OrderFilter) =>
@@ -49,9 +54,10 @@ const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFracti
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG'); const dateTime = (value:string) => { const d = new Date(value); return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'})}`; };
 function OrderStatus({status='Необработена'}:{status?:string}) { const cls = status==='Обработена'?'received':status==='Анулирана'?'cancelled':'pending'; return <span className={`delivery-status ${cls}`}><span/>{status}</span>; }
 const esc=(s:string)=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]??c));
-function tableHtml(list:Order[]){
- const head=['Поръчка','Статус','Клиент','Инфлуенсър/Търговец','Телефон','Доставка','Общо с ДДС','Създадена','Обработена от'];
- return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(r=>`<tr><td>${esc(r.id)}</td><td>${r.status}</td><td>${esc(r.customer)}</td><td>${esc(r.influencer||'—')}${r.influencer?' · '+sellerType(r.influencer):''}</td><td>${esc(r.phone)}</td><td>${esc(r.city)} · ${esc(r.courier)} · ${esc(r.address)}</td><td>${money(total(r))}</td><td>${date(r.created)}</td><td>${r.processed?`${dateTime(r.processed)} / ${r.processedBy||ADMIN}`:'—'}</td></tr>`).join('')}</tbody></table>`;
+function tableHtml(list:Order[], admin=true){
+ const head=['Поръчка','Статус','Клиент',...(admin?['Инфлуенсър/Търговец']:[]),'Телефон','Доставка','Общо с ДДС','Създадена',...(admin?['Обработена от']:[])];
+ const cells=(r:Order)=>`<td>${esc(r.id)}</td><td>${r.status}</td><td>${esc(r.customer)}</td>${admin?`<td>${esc(r.influencer||'—')}${r.influencer?' · '+sellerType(r.influencer):''}</td>`:''}<td>${esc(r.phone)}</td><td>${esc(r.city)} · ${esc(r.courier)} · ${esc(r.address)}</td><td>${money(total(r))}</td><td>${date(r.created)}</td>${admin?`<td>${r.processed?`${dateTime(r.processed)} / ${r.processedBy||ADMIN}`:'—'}</td>`:''}`;
+ return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(r=>`<tr>${cells(r)}</tr>`).join('')}</tbody></table>`;
 }
 
 function Orders() {
@@ -64,10 +70,16 @@ function Orders() {
  const [page, setPage] = useState(1);
  const [pageSize, setPageSize] = useState(25);
  const [selected, setSelected] = useState<Order|null>(null);
- const [selection, setSelection] = useState<string[]>([]);
- const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
- const clear = () => { setFilters(emptyFilters); setPage(1); };
- const base = rows.filter(row => orderMatches(row, filters));
+  const [selection, setSelection] = useState<string[]>([]);
+  const [view, setView] = useState<OrderView>('admin');
+  const [asInfluencer, setAsInfluencer] = useState(INFLUENCERS[0] ?? '');
+  const admin = view === 'admin';
+  const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
+  const clear = () => { setFilters(emptyFilters); setPage(1); };
+  // Changing the previewed role is a new screen: drop the previous person's selection and go back to the first page.
+  const switchView = (next:OrderView) => { setView(next); if (next==='influencer') setFilters(prev => ({...prev, seller:''})); setSelection([]); setPage(1); };
+  const pickInfluencer = (id:string) => { setAsInfluencer(id); setSelection([]); setPage(1); };
+  const base = rows.filter(row => orderMatches(row, { ...filters, seller: viewSeller(view, asInfluencer) }));
  const filtered = base.filter(row => !statusFilter || row.status === statusFilter)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
  const pages = Math.max(1, Math.ceil(filtered.length/(pageSize||filtered.length||1)));
