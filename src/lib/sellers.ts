@@ -19,6 +19,9 @@ export const assistantWorksFor = (id: string) => ASSISTANTS.find(a => a.id === i
 // Which seller each demo order and sale is credited to. The same map backs „Поръчки" and „Продажби",
 // so both screens agree about who sold what.
 export const sellerByOrder: Record<string, string> = {
+  'ORD-0027': 'Виктория Григорова',
+  'ORD-0026': 'Виктория Григорова',
+  'ORD-0025': 'Виктория Григорова',
   'ORD-0024': 'Виктория Григорова',
   'ORD-0023': 'Елена Петрова',
   'ORD-0022': 'Козметик Груп ООД',

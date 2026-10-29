@@ -28,7 +28,7 @@ export const Route = createFileRoute('/_workspace/orders_/$id')({
 });
 
 const money = (v: number) => `${v.toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
-const statusClass: Record<OrderStatus, string> = { 'Необработена': 'pending', 'Обработена': 'received', 'Анулирана': 'cancelled' };
+const statusClass: Record<OrderStatus, string> = { 'Записана': 'transit', 'Необработена': 'pending', 'Обработена': 'received', 'Анулирана': 'cancelled' };
 
 function OrderScreen() {
   const { id } = Route.useParams();

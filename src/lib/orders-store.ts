@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
-export const ORDER_STATUSES = ['Необработена', 'Обработена', 'Анулирана'] as const;
+// „Записана" = entered but not submitted for processing yet; „Необработена" = waiting in the admin's queue.
+export const ORDER_STATUSES = ['Записана', 'Необработена', 'Обработена', 'Анулирана'] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export type OrderItem = { sku: string; name: string; quantity: number; price: number };
 export const PAYMENT_METHODS = ['Наложен платеж', 'Банков път'] as const;
@@ -21,6 +22,9 @@ const item = (i: number, quantity: number): OrderItem => {
 };
 
 let orders: Order[] = [
+  { id:'ORD-0027', status:'Записана', customer:'Надежда Василева', phone:'0888 111 222', city:'София', address:'ул. „Пиротска“ 24', courier:'Еконт', created:'2026-10-15', items:[item(0,1)], shipping:4.9, note:'', payment:'Наложен платеж', influencer:'Виктория Григорова' },
+  { id:'ORD-0026', status:'Записана', customer:'Тодор Пенев', phone:'0888 333 444', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-15', items:[item(1,1), item(3,1)], shipping:4.9, note:'', payment:'Банков път', influencer:'Виктория Григорова' },
+  { id:'ORD-0025', status:'Записана', customer:'Габриела Радева', phone:'0888 555 666', city:'Варна', address:'ул. „Княз Борис I“ 9', courier:'Еконт', created:'2026-10-16', items:[item(2,2)], shipping:4.9, note:'', payment:'Наложен платеж', influencer:'Виктория Григорова' },
   { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', items:[item(0,2)], shipping:4.9, note:'', payment:'Наложен платеж', influencer:'Виктория Григорова', edited:'2026-10-15T09:41', processed:'2026-10-14T15:10' },
   { id:'ORD-0023', status:'Необработена', customer:'Елена Петрова', phone:'0888 234 567', city:'Пловдив', address:'Офис · Център', courier:'Спиди', created:'2026-10-14', items:[item(1,1)], shipping:4.9, note:'', payment:'Банков път', influencer:'Елена Петрова', processed:'2026-10-14T16:05' },
   { id:'ORD-0022', status:'Необработена', customer:'Иван Георгиев', phone:'0888 345 678', city:'Варна', address:'Офис · Център', courier:'Еконт', created:'2026-10-13', items:[item(2,3)], shipping:4.9, note:'', payment:'Наложен платеж', influencer:'Козметик Груп ООД', edited:'2026-10-14T11:05', processed:'2026-10-13T14:30' },
