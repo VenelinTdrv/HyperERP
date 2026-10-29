@@ -43,6 +43,10 @@ export const INFLUENCERS = SELLERS.filter(s => s.type === 'Инфлуенсър'
 // the chosen influencer — or the influencer behind the chosen assistant — otherwise.
 export const viewSeller = (view: OrderView, person: string) =>
   view === 'admin' ? '' : view === 'assistant' ? assistantWorksFor(person) : person;
+// Orders an assistant enters are not submitted for processing yet: in the assistant preview
+// every „Необработена" order reads „Записана" instead.
+export const displayStatus = (view: OrderView, status: string) =>
+  view === 'assistant' && status === 'Необработена' ? 'Записана' : status;
 // A row passes when the free-text search, settlement, courier and date range all match — and,
 // once a person is picked in „Всички инфлуенсъри и търговци", the order is credited to them.
 export const orderMatches = (row: Order, f: OrderFilter) =>
@@ -79,13 +83,14 @@ function Orders() {
   const [asAssistant, setAsAssistant] = useState<string>(ASSISTANTS[0]?.id ?? '');
   const admin = view === 'admin';
   const asPerson = view === 'assistant' ? asAssistant : asInfluencer;
+  const pendingLabel = view === 'assistant' ? 'Записана' : 'Необработена';
   const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
   const clear = () => { setFilters(emptyFilters); setPage(1); };
   // Changing the previewed role is a new screen: drop the previous person's selection and go back to the first page.
-   const switchView = (next:OrderView) => { setView(next); if (next!=='admin') setFilters(prev => ({...prev, seller:''})); setSelection([]); setPage(1); };
+   const switchView = (next:OrderView) => { setView(next); if (next!=='admin') setFilters(prev => ({...prev, seller:''})); setStatusFilter(next==='assistant' ? 'Записана' : 'Необработена'); setSelection([]); setPage(1); };
   const pickPerson = (id:string) => { if (view==='assistant') setAsAssistant(id); else setAsInfluencer(id); setSelection([]); setPage(1); };
   const base = rows.filter(row => orderMatches(row, { ...filters, seller: viewSeller(view, asPerson) }));
- const filtered = base.filter(row => !statusFilter || row.status === statusFilter)
+ const filtered = base.filter(row => !statusFilter || displayStatus(view, row.status) === statusFilter)
   .sort((a,b) => sort === 'oldest' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id));
  const pages = Math.max(1, Math.ceil(filtered.length/(pageSize||filtered.length||1)));
  const current = Math.min(page, pages);
