@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useOrders } from '@/lib/orders-store';
-import { SELLERS } from '@/lib/sellers';
+import { SELLERS, ASSISTANTS, assistantWorksFor } from '@/lib/sellers';
 import { INFLUENCERS, emptyFilters, orderMatches, viewSeller } from '@/routes/_workspace/orders';
 
 const demoOrders = () => { const { result, unmount } = renderHook(() => useOrders()); const rows = result.current; unmount(); return rows; };
@@ -23,5 +23,18 @@ describe('Orders preview as Админ / Инфлуенсър', () => {
   it('keeps the other filters working inside the influencer preview', () => {
     const asInfluencer = demoOrders().filter(row => orderMatches(row, { ...emptyFilters, city: 'София', seller: viewSeller('influencer', 'Виктория Григорова') }));
     expect(asInfluencer.map(row => row.id)).toEqual(['ORD-0024', 'ORD-0021', 'ORD-0018']);
+  });
+
+  it('every assistant works for a real influencer', () => {
+    expect(ASSISTANTS.length).toBeGreaterThan(0);
+    expect(ASSISTANTS.every(a => INFLUENCERS.includes(a.worksFor))).toBe(true);
+  });
+
+  it('the assistant preview shows the orders of the influencer they work for', () => {
+    const all = demoOrders();
+    const asAssistant = all.filter(row => orderMatches(row, { ...emptyFilters, seller: viewSeller('assistant', 'Десислава Колева') }));
+    expect(assistantWorksFor('Десислава Колева')).toBe('Виктория Григорова');
+    expect(asAssistant.map(row => row.id)).toEqual(['ORD-0024', 'ORD-0021', 'ORD-0018']);
+    expect(asAssistant.every(row => row.influencer === 'Виктория Григорова')).toBe(true);
   });
 });
