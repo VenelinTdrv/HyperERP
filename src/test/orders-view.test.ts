@@ -22,6 +22,6 @@ describe('Orders preview as Админ / Инфлуенсър', () => {
 
   it('keeps the other filters working inside the influencer preview', () => {
     const asInfluencer = demoOrders().filter(row => orderMatches(row, { ...emptyFilters, city: 'София', seller: viewSeller('influencer', 'Виктория Григорова') }));
-    expect(asInfluencer.map(row => row.id)).toEqual(['ORD-0024', 'ORD-0018']);
+    expect(asInfluencer.map(row => row.id)).toEqual(['ORD-0024', 'ORD-0021', 'ORD-0018']);
   });
 });
