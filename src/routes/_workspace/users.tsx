@@ -16,7 +16,7 @@ export const Route = createFileRoute('/_workspace/users')({
 const ROLES=USER_ROLES;
 type Role=UserRole;
 type Form={email:string;firstName:string;lastName:string;role:Role|'';influencerId:string;active:boolean;password:string;confirm:string};
-type User={id:number;email:string;firstName:string;lastName:string;role:Role;influencerId?:number;active:boolean};
+type User={id:number;email:string;firstName:string;lastName:string;role:Role;influencerId?:number|undefined;active:boolean};
 const blank:Form={email:'',firstName:'',lastName:'',role:'',influencerId:'',active:true,password:'',confirm:''};
 const initial:User[]=[
  {id:1,email:'admin@codeatelier.io',firstName:'Венелин',lastName:'Тодоров',role:'Администратор',active:true},
