@@ -613,3 +613,8 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
  .new-order .office-chip { min-height:44px; }
  .new-order .office-list { max-height:230px; }
 }
+
+/* Role preview (Админ / Инфлуенсър) in Поръчки */
+.orders-view { flex:0 0 auto; }
+.orders-view .segment { min-width:96px; height:33px; gap:6px; }
+@media (max-width:700px) { .orders-view { width:100%; } .orders-view .segment { flex:1; } }
