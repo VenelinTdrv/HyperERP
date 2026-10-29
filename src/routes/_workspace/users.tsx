@@ -46,7 +46,7 @@ function Users(){
  const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const clear=()=>{setQ('');setRole('');setStatus('');setPage(1);};
  const open=(u:User|null)=>{setSelected(null);setEditing(u);setErrors({});setShowPw(false);setForm(u?{...blank,email:u.email,firstName:u.firstName,lastName:u.lastName,role:u.role,influencerId:u.influencerId?String(u.influencerId):'',active:u.active}:{...blank});setEditor(true);};
- const set=<K extends keyof Form>(k:K,v:Form[K])=>{setForm(f=>({...f,[k]:v,...(k==='role'&&v!=='Асистент'?{influencerId:''}:{})}));setErrors(x=>{const n={...x};delete n[k];if(k==='role')delete n.influencerId;return n;});};
+ const set=<K extends keyof Form>(k:K,v:Form[K])=>{setForm(f=>({...f,[k]:v,...(k==='role'&&v!=='Асистент'?{influencerId:''}:{})}));setErrors(x=>{const n={...x};delete n[k];if(k==='role')delete n['influencerId'];return n;});};
  const save=(ev:FormEvent)=>{
   ev.preventDefault();const er:Partial<Record<'email'|'firstName'|'lastName'|'role'|'influencerId'|'password'|'confirm',string>>={};const email=form.email.trim().toLowerCase();
   if(!email)er.email='Въведете имейл';else if(!EMAIL.test(email))er.email='Невалиден имейл адрес';
