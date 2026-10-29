@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useOrders } from '@/lib/orders-store';
 import { SELLERS, ASSISTANTS, assistantWorksFor } from '@/lib/sellers';
-import { INFLUENCERS, emptyFilters, orderMatches, viewSeller } from '@/routes/_workspace/orders';
+import { INFLUENCERS, emptyFilters, orderMatches, viewSeller, displayStatus } from '@/routes/_workspace/orders';
 
 const demoOrders = () => { const { result, unmount } = renderHook(() => useOrders()); const rows = result.current; unmount(); return rows; };
 
@@ -36,5 +36,13 @@ describe('Orders preview as Админ / Инфлуенсър', () => {
     expect(assistantWorksFor('Десислава Колева')).toBe('Виктория Григорова');
     expect(asAssistant.map(row => row.id)).toEqual(['ORD-0024', 'ORD-0021', 'ORD-0018']);
     expect(asAssistant.every(row => row.influencer === 'Виктория Григорова')).toBe(true);
+  });
+
+  it('shows unprocessed orders as „Записана" only in the assistant preview', () => {
+    expect(displayStatus('assistant', 'Необработена')).toBe('Записана');
+    expect(displayStatus('assistant', 'Обработена')).toBe('Обработена');
+    expect(displayStatus('assistant', 'Анулирана')).toBe('Анулирана');
+    expect(displayStatus('influencer', 'Необработена')).toBe('Необработена');
+    expect(displayStatus('admin', 'Необработена')).toBe('Необработена');
   });
 });
