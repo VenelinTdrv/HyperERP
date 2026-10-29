@@ -4,7 +4,7 @@ import { DataLoadError } from '@/components/data-load-error';
 import { orderFromDatabase, saleFromDatabase, categoryPathFromDatabase } from '@/lib/erp-adapters';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { CheckCircle2, ClipboardList, Clock3, Info, MoreVertical, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, User, X } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Clock3, Info, MoreVertical, NotebookPen, Pencil, Ban, Eye, FileSpreadsheet, FileText, Plus, Printer, Search, ShieldCheck, User, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import perfume from '@/assets/perfume.jpg';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { type Order, useOrders, setOrderStatus, total, itemCount, ADMIN } from '@/lib/orders-store';
+import { ORDER_STATUSES, type Order, type OrderStatus, useOrders, setOrderStatus, total, itemCount, ADMIN } from '@/lib/orders-store';
 import { openOrderBlank, downloadOrderBlankPdf } from '@/lib/order-blank';
 import { SELLERS, sellerType, ASSISTANTS, assistantWorksFor } from '@/lib/sellers';
 
@@ -47,6 +47,18 @@ export const viewSeller = (view: OrderView, person: string) =>
 // every „Необработена" order reads „Записана" instead.
 export const displayStatus = (view: OrderView, status: string) =>
   view === 'assistant' && status === 'Необработена' ? 'Записана' : status;
+// The status choices the screen offers: the assistant's queue has no „Необработена" — what they
+// saved already reads „Записана" — while the admin and the influencer can pick any of the four.
+export const statusOptions = (view: OrderView): OrderStatus[] =>
+  view === 'assistant' ? ORDER_STATUSES.filter(s => s !== 'Необработена') : [...ORDER_STATUSES];
+// Tile look per status: „Записана" is an order that is only saved so far, so it reads blue
+// rather than the yellow warning of an order waiting in the queue.
+const TILE_META: Record<OrderStatus, { Icon: typeof ClipboardList; tone: string }> = {
+  'Записана': { Icon: NotebookPen, tone: 'info' },
+  'Необработена': { Icon: Clock3, tone: 'pending' },
+  'Обработена': { Icon: CheckCircle2, tone: 'success' },
+  'Анулирана': { Icon: Ban, tone: 'danger' },
+};
 // A row passes when the free-text search, settlement, courier and date range all match — and,
 // once a person is picked in „Всички инфлуенсъри и търговци", the order is credited to them.
 export const orderMatches = (row: Order, f: OrderFilter) =>
@@ -59,7 +71,7 @@ export const orderMatches = (row: Order, f: OrderFilter) =>
 export const sellerShare = (rows: Order[], f: OrderFilter) => { const st = rows.filter(r => orderMatches(r, { ...f, seller: '' })); const totals = SELLERS.map(s => ({ id: s.id, count: st.filter(r => r.influencer === s.id).length })); const all = totals.reduce((a, r) => a + r.count, 0); return Object.fromEntries(totals.map(r => [r.id, { count: r.count, pct: all ? (r.count / all * 100).toFixed(1) : '0' }])) as Record<string, { count: number; pct: string }>; };
 const money = (value:number) => `${value.toLocaleString('bg-BG', { minimumFractionDigits:2, maximumFractionDigits:2 })} €`;
 const date = (value:string) => new Date(`${value}T12:00:00`).toLocaleDateString('bg-BG'); const dateTime = (value:string) => { const d = new Date(value); return `${d.toLocaleDateString('bg-BG')} · ${d.toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'})}`; };
-function OrderStatus({status='Необработена'}:{status?:string}) { const cls = status==='Обработена'?'received':status==='Анулирана'?'cancelled':'pending'; return <span className={`delivery-status ${cls}`}><span/>{status}</span>; }
+function OrderStatus({status='Необработена'}:{status?:string}) { const cls = status==='Обработена'?'received':status==='Анулирана'?'cancelled':status==='Записана'?'transit':'pending'; return <span className={`delivery-status ${cls}`}><span/>{status}</span>; }
 const esc=(s:string)=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]??c));
 function tableHtml(list:Order[], admin=true){
  const head=['Поръчка','Статус','Клиент',...(admin?['Инфлуенсър/Търговец']:[]),'Телефон','Доставка','Общо с ДДС','Създадена',...(admin?['Обработена от']:[])];
@@ -83,11 +95,11 @@ function Orders() {
   const [asAssistant, setAsAssistant] = useState<string>(ASSISTANTS[0]?.id ?? '');
   const admin = view === 'admin';
   const asPerson = view === 'assistant' ? asAssistant : asInfluencer;
-  const pendingLabel = view === 'assistant' ? 'Записана' : 'Необработена';
+  const statuses = statusOptions(view);
   const filter = (key:keyof typeof filters, value:string) => { setFilters(prev => ({...prev, [key]:value})); setPage(1); };
   const clear = () => { setFilters(emptyFilters); setPage(1); };
   // Changing the previewed role is a new screen: drop the previous person's selection and go back to the first page.
-   const switchView = (next:OrderView) => { setView(next); if (next!=='admin') setFilters(prev => ({...prev, seller:''})); setStatusFilter(next==='assistant' ? 'Записана' : 'Необработена'); setSelection([]); setPage(1); };
+   const switchView = (next:OrderView) => { setView(next); if (next!=='admin') setFilters(prev => ({...prev, seller:''})); setStatusFilter(next==='admin' ? 'Необработена' : 'Записана'); setSelection([]); setPage(1); };
   const pickPerson = (id:string) => { if (view==='assistant') setAsAssistant(id); else setAsInfluencer(id); setSelection([]); setPage(1); };
   const base = rows.filter(row => orderMatches(row, { ...filters, seller: viewSeller(view, asPerson) }));
  const filtered = base.filter(row => !statusFilter || displayStatus(view, row.status) === statusFilter)
@@ -102,12 +114,10 @@ function Orders() {
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
  const activeFilters = Object.values(filters).filter(Boolean).length;
  const share = sellerShare(rows, filters);
- const tiles = [
-  { label:'Всички', status:'', Icon:ClipboardList, tone:'neutral' },
-  { label:pendingLabel, status:pendingLabel, Icon:Clock3, tone:'pending' },
-  { label:'Обработена', status:'Обработена', Icon:CheckCircle2, tone:'success' },
-  { label:'Анулирана', status:'Анулирана', Icon:Ban, tone:'danger' },
- ] as const;
+  const tiles = [
+    { label:'Всички', status:'', Icon:ClipboardList, tone:'neutral' },
+    ...statuses.map(s => ({ label:s, status:s, ...TILE_META[s] })),
+  ];
  const tileValue = (status:string) => status ? base.filter(row=>displayStatus(view,row.status)===status).length : base.length;
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered, admin)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='porachki.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
  const selectedOrders=()=>{ const orders = selection.map(id=>rows.find(r=>r.id===id)).filter((o): o is NonNullable<typeof o> => !!o); if (orders.length) return orders; toast.error(selection.length ? 'Избраните поръчки вече не са в списъка.' : 'Изберете поръчки с чекбокса.'); return null; };
@@ -119,7 +129,7 @@ function Orders() {
    <div className="search-box"><Search/><input aria-label="Търси поръчка" className="search-input" placeholder="Номер, клиент, телефон или продукт…" value={filters.search} onChange={e=>filter('search',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-from-top" className="sr-only">Създадена от</label><input id="orders-from-top" type="date" aria-label="Създадена от дата" title="От дата" value={filters.from} max={filters.to||undefined} onChange={e=>filter('from',e.target.value)}/></div>
    <div className="field"><label htmlFor="orders-to-top" className="sr-only">Създадена до</label><input id="orders-to-top" type="date" aria-label="Създадена до дата" title="До дата" value={filters.to} min={filters.from||undefined} onChange={e=>filter('to',e.target.value)}/></div>
-   <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setPage(1);}}><option>{pendingLabel}</option><option>Обработена</option><option>Анулирана</option></select></div>
+   <div className="field"><label htmlFor="orders-status" className="sr-only">Статус</label><select id="orders-status" value={statusFilter} onChange={e=>{setStatusFilter(e.target.value);setPage(1);}}>{statuses.map(s=><option key={s}>{s}</option>)}</select></div>
    <div className="field"><label htmlFor="orders-courier" className="sr-only">Куриер</label><select id="orders-courier" value={filters.courier} onChange={e=>filter('courier',e.target.value)}><option value="">Всички куриери</option><option>Еконт</option><option>Спиди</option></select></div>
    <div className="field"><label htmlFor="orders-city" className="sr-only">Населено място</label><select id="orders-city" aria-label="Населено място" title="Населено място" value={filters.city} onChange={e=>filter('city',e.target.value)}><option value="">Населени места</option>{Array.from(new Set(rows.map(row=>row.city))).map(city=><option key={city}>{city}</option>)}</select></div>
    {admin&&<div className="field"><label htmlFor="orders-seller" className="sr-only">Инфлуенсър / Търговец</label><select id="orders-seller" aria-label="Инфлуенсър / Търговец" title="Инфлуенсър / Търговец" value={filters.seller} onChange={e=>filter('seller',e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s=><option key={s.id} value={s.id}>{s.id} · {s.type} · {(share[s.id]?.count ?? 0)} {(share[s.id]?.count ?? 0)===1?'поръчка':'поръчки'} · {(share[s.id]?.pct ?? '0')}%</option>)}</select></div>}
@@ -129,7 +139,7 @@ function Orders() {
     <td className="row-select-cell"><Checkbox aria-label={`Избери поръчка ${row.id}`} checked={selection.includes(row.id)} onCheckedChange={()=>toggleRow(row.id)}/></td><td><Button variant="link" className="delivery-id" onClick={()=>setSelected(row)}>{row.id}</Button><span className="delivery-cell-sub">{itemCount(row)} бр. · {row.items.map(i=>i.name).join(', ')}</span></td><td><OrderStatus status={displayStatus(view,row.status)}/></td><td><strong className="delivery-supplier">{row.customer}</strong><span className="delivery-cell-sub">{row.phone}</span></td>{admin&&<td>{row.influencer?<><strong className="delivery-supplier">{row.influencer}</strong><span className="delivery-cell-sub">{sellerType(row.influencer)}</span></>:<span className="delivery-cell-sub">—</span>}</td>}<td>{row.city}<span className="delivery-cell-sub">{row.courier} · {row.address}</span></td><td className="font-semibold">{money(total(row))}</td><td>{date(row.created)}<span className="delivery-cell-sub">{row.createdBy || '—'}</span></td>{admin&&<td>{row.processed?<>{dateTime(row.processed)}<span className="delivery-cell-sub">{row.processedBy||ADMIN}</span></>:<span className="delivery-cell-sub">—</span>}</td>}<td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="text-primary" aria-label={`Операции ${row.id}`} title="Операции"><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled><Pencil/>Отвори и редактирай</DropdownMenuItem><DropdownMenuItem onSelect={()=>downloadOrderBlankPdf(row)}><FileText/>Експорт в PDF (бланка)</DropdownMenuItem><DropdownMenuItem disabled><CheckCircle2/>Маркирай като обработена</DropdownMenuItem><DropdownMenuItem className="text-destructive" disabled><Ban/>Анулирай</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td><td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${row.id}`} title="Преглед на поръчката" onClick={()=>setSelected(row)}><Eye/></Button></div></td>
    </tr>)}</tbody></table></div>
    {visible.length===0&&<div className="delivery-empty"><ClipboardList size={32}/><h3>Няма намерени поръчки</h3><p>Няма поръчки със статус „{statusFilter}" {admin?'за избраните филтри.':`за ${view==='assistant'?assistantWorksFor(asAssistant):asPerson}`}</p><Button variant="outline" onClick={clear}><X/>Изчисти филтрите</Button></div>}
-   {selection.length>0&&<div className="article-selection"><span>{selection.length} {selection.length===1?'избрана поръчка':'избрани поръчки'}</span>{admin&&<div className="field"><label className="sr-only" htmlFor="orders-bulk-status">Смени статуса на избраните</label><select id="orders-bulk-status" value="" disabled><option value="" disabled>Смени статуса…</option><option>Необработена</option><option>Обработена</option><option>Анулирана</option></select></div>}<Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
+   {selection.length>0&&<div className="article-selection"><span>{selection.length} {selection.length===1?'избрана поръчка':'избрани поръчки'}</span>{admin&&<div className="field"><label className="sr-only" htmlFor="orders-bulk-status">Смени статуса на избраните</label><select id="orders-bulk-status" value="" disabled><option value="" disabled>Смени статуса…</option>{statuses.map(s=><option key={s}>{s}</option>)}</select></div>}<Button variant="ghost" size="sm" onClick={()=>setSelection([])}><X/>Изчисти избора</Button></div>}
       <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} noun="поръчки" id="orders-page-size" />
   </section><div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни поръчки · само преглед</div>
  </div><Dialog open={selected!==null} onOpenChange={open=>{if(!open)setSelected(null);}}><DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">{selected&&<><DialogHeader><DialogTitle>Поръчка {selected.id}</DialogTitle><DialogDescription>Примерна поръчка</DialogDescription></DialogHeader><OrderStatus status={displayStatus(view,selected.status)}/><dl className="delivery-details">{[['Клиент',selected.customer],['Инфлуенсър / Търговец',selected.influencer?`${selected.influencer} · ${sellerType(selected.influencer)}`:'—'],['Телефон',selected.phone],['Населено място',selected.city],['Куриер',selected.courier],['Адрес / офис',selected.address],['Метод на плащане',selected.payment],['Създадена на',date(selected.created)],['Обработена от',selected.processed?`${dateTime(selected.processed)} · ${selected.processedBy||ADMIN}`:'—']].filter(([label])=>admin||(label!=='Инфлуенсър / Търговец'&&label!=='Обработена от')).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><div className="delivery-detail-product"><img src={perfume} alt="Примерен парфюм"/><div><strong>{selected.items.map(i=>i.name).join(', ')}</strong><p>{itemCount(selected)} бр.</p></div><strong className="ml-auto">{money(total(selected)-selected.shipping)}</strong></div><dl className="delivery-details"><div><dt>Доставка</dt><dd>{money(selected.shipping)}</dd></div><div><dt>Общо с ДДС</dt><dd>{money(total(selected))}</dd></div></dl><div className="flex gap-2 justify-end"><Button variant="outline" onClick={()=>downloadOrderBlankPdf(selected)}><FileText/>Бланка (PDF)</Button><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button disabled><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog></WorkspaceShell>;
