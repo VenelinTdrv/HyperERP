@@ -4,6 +4,7 @@ import { CheckCheck, Clock3, Copy, Eye, FileText, MoreVertical, Printer, Search,
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Pagination } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { filterInvoices, INVOICE_STATUSES, useInvoices, type DemoInvoice } from '@/lib/invoices-store';
