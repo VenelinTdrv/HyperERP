@@ -119,10 +119,16 @@ export function buildDays(s: Seller, k: number, st: { weight: number } | null): 
       const price = 44 + ((m * 3 + k) % 6) * 2.5;
       // Demo gross margin on sold items: 38–53% depending on month and seller
       const margin = 0.38 + ((m + k) % 6) * 0.03;
+      let retAcc = 0, unpAcc = 0;
       for (let d = 1; d <= dim; d++) {
         const o = perDay[d - 1]!;
-        const r = Math.round(o * retRate);
-        const unp = Math.round(o * 0.06);
+        // Whole counts via running remainder, so small daily counts still sum to ~10% returned for the month
+        retAcc += o * retRate;
+        const r = Math.round(retAcc);
+        retAcc -= r;
+        unpAcc += o * 0.06;
+        const unp = Math.round(unpAcc);
+        unpAcc -= unp;
         const paid = Math.max(0, o - r - unp);
         out.push({ d: new Date(y, m, d), orders: o, paid, returned: r, items: Math.round(o * per), revenue: Math.round(o * per * price), profit: Math.round(paid * per * price * margin) });
       }
