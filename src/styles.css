@@ -619,4 +619,4 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .orders-view .segment { min-width:96px; height:33px; gap:6px; }
 @media (max-width:700px) { .orders-view { width:100%; } .orders-view .segment { flex:1; } }
 
-.invoices-filters .search-box { flex:0 1 220px; min-width:180px; }
+.orders-content .delivery-filter-primary.invoices-filters .search-box { flex:0 1 220px; min-width:180px; }
