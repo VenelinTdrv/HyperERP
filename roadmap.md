@@ -1,5 +1,6 @@
 # HyperERP redesign
 ## Фактури
+- [ ] Add example invoices with date-range and status filtering; verify combined filters and invoice details.
 - [x] Generate a demonstration invoice through Sales actions for exactly one checked sale; disabled for none/multiple, both action menus and invoice details verified in browser; 72 tests passed.
 - [x] Add „Фактури“ under „Операции“ in shared navigation and an empty invoice workspace; both menu entry points verified in browser, routing tests passed.
 
