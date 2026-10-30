@@ -275,18 +275,18 @@ function Statistics() {
       </div>)}
     </section>
 
-    <h2 className="text-sm font-semibold mb-2 text-foreground">Последните 12 месеца{windowLabel ? <span className="ml-2 text-xs font-normal text-muted-foreground">{windowLabel}</span> : null}</h2>
-    <div className="grid gap-3 lg:grid-cols-2">
-      <Card title="Брой поръчки (платени и върнати)"><ChartContainer config={ordersCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><ChartLegend content={<ChartLegendContent />} /><Bar dataKey="paid" stackId="a" fill="var(--color-paid)" /><Bar dataKey="returned" stackId="a" fill="var(--color-returned)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
-      <Card title="Върнати поръчки, % от всички"><ChartContainer config={returnCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} unit="%" /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="returnPct" stroke="var(--color-returnPct)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
-      <Card title="Брой продажби (платени)"><ChartContainer config={salesCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="paid" fill="var(--color-paid)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
-      <Card title="Среден брой артикули в поръчка"><ChartContainer config={itemsCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgItems" stroke="var(--color-avgItems)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
-      <Card title="Средна цена на поръчка (€)" wide><ChartContainer config={priceCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={40} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgPrice" stroke="var(--color-avgPrice)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
+    <h2 className="statistics-section">Последните 12 месеца{windowLabel ? <span className="ml-2 text-xs font-normal text-muted-foreground">{windowLabel}</span> : null}</h2>
+    <div className="statistics-charts">
+      <Card title="Брой поръчки (платени и върнати)"><ChartContainer config={ordersCfg} className="w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><ChartLegend content={<ChartLegendContent />} /><Bar dataKey="paid" stackId="a" fill="var(--color-paid)" /><Bar dataKey="returned" stackId="a" fill="var(--color-returned)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
+      <Card title="Брой продажби (платени)"><ChartContainer config={salesCfg} className="w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="paid" fill="var(--color-paid)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
+      <Card title="Върнати поръчки, % от всички"><ChartContainer config={returnCfg} className="w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} unit="%" /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="returnPct" stroke="var(--color-returnPct)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
+      <Card title="Среден брой артикули в поръчка"><ChartContainer config={itemsCfg} className="w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgItems" stroke="var(--color-avgItems)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
+      <Card title="Средна цена на поръчка (€)" wide><ChartContainer config={priceCfg} className="w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={40} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgPrice" stroke="var(--color-avgPrice)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
     </div>
-    <div className="demo-caption mt-4"><ShieldCheck size={13} />Примерни статистически данни · <RotateCcw size={12} /> не са свързани с реални поръчки</div>
+    <div className="demo-caption"><ShieldCheck size={13} />Примерни статистически данни · <RotateCcw size={12} /> не са свързани с реални поръчки</div>
   </div></WorkspaceShell>;
 }
 
 function Card({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
-  return <section className={`rounded-lg border border-border bg-card p-4 ${wide ? 'lg:col-span-2' : ''}`}><h3 className="text-xs font-semibold text-foreground mb-2">{title}</h3>{children}</section>;
+  return <section className={`statistics-card${wide ? ' statistics-card-wide' : ''}`}><h3 className="statistics-card-title">{title}</h3>{children}</section>;
 }
