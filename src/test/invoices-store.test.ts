@@ -24,6 +24,22 @@ describe('Demo invoice generation', () => {
     expect(filterInvoices(rows, '2026-10-29', '2026-10-30', 'Платена').map(row => row.id)).toEqual(['DEMO-000002']);
     expect(filterInvoices(rows, '2026-10-30', '', 'Анулирана')).toHaveLength(0);
   });
+  it('searches by client name or EIK, ignoring case and spaces', () => {
+    const rows = createExampleInvoices(new Date('2026-10-30T11:35:00Z'));
+    expect(filterInvoices(rows, '', '', '', 'козметик').map(row => row.id)).toEqual(['DEMO-000003']);
+    expect(filterInvoices(rows, '', '', '', 'КОЗМЕТИК ГРУП ООД')).toHaveLength(1);
+    expect(filterInvoices(rows, '', '', '', '205987654').map(row => row.sale.customer)).toEqual(['Козметик Груп ООД']);
+    expect(filterInvoices(rows, '', '', '', '59876')).toHaveLength(1);
+    expect(filterInvoices(rows, '', '', '', 'Мария')).toHaveLength(1);
+    expect(filterInvoices(rows, '', '', '', 'няма такъв клиент')).toHaveLength(0);
+    expect(filterInvoices(rows, '', '', '', '   ')).toHaveLength(6);
+  });
+  it('combines the client or EIK search with status and date filters', () => {
+    const rows = createExampleInvoices(new Date('2026-10-30T11:35:00Z'));
+    expect(filterInvoices(rows, '', '', 'Издадена', 'козметик')).toHaveLength(1);
+    expect(filterInvoices(rows, '', '', 'Платена', 'козметик')).toHaveLength(0);
+    expect(filterInvoices(rows, '2026-10-30', '', '', 'козметик')).toHaveLength(0);
+  });
   it('requires exactly one checkbox-selected sale', () => {
     expect(selectedInvoiceSale([], [sale, other])).toBeUndefined();
     expect(selectedInvoiceSale([sale.id, other.id], [sale, other])).toBeUndefined();
