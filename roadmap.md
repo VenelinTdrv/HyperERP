@@ -1,5 +1,6 @@
 # HyperERP redesign
 ## Фактури
+- [ ] Generate a demonstration invoice through Sales actions for exactly one checked sale and verify it in the invoice list.
 - [x] Add „Фактури“ under „Операции“ in shared navigation and an empty invoice workspace; both menu entry points verified in browser, routing tests passed.
 
 ## Справки
