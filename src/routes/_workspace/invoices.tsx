@@ -91,6 +91,7 @@ function InvoicesPage() {
             </table>
           </div>
           {!filtered.length && <div className="delivery-empty"><FileText size={28} /><h3>Няма фактури за избраните филтри</h3></div>}
+          {selection.length > 0 && <div className="article-selection"><span>{selection.length} {selection.length === 1 ? 'избрана фактура' : 'избрани фактури'}</span><DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="sm"><MoreVertical />Действия</Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen)}><Printer />Печат</DropdownMenuItem><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen, 'Фактури — PDF')}><FileText />Експорт в PDF</DropdownMenuItem><DropdownMenuItem disabled={chosen.length !== 1} onSelect={() => { void navigator.clipboard.writeText(chosen[0]?.id ?? ''); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu><Button variant="ghost" size="sm" onClick={() => setSelection([])}><X />Изчисти избора</Button></div>}
           <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="invoices-page-size" />
         </section>
         <p className="demo-caption mt-4">Примерни фактури · само за текущата сесия · не са официални счетоводни документи</p>
