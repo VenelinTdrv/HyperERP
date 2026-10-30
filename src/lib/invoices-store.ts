@@ -36,10 +36,10 @@ export function buildDemoInvoice(sale: InvoiceSale, number: number, now = new Da
 }
 
 export function createExampleInvoices(now = new Date()): DemoInvoice[] {
-  const examples: { customer: string; city: string; product: string; quantity: number; price: number; days: number; status: InvoiceStatus }[] = [
+  const examples: { customer: string; city: string; product: string; quantity: number; price: number; days: number; status: InvoiceStatus; eik?: string }[] = [
     { customer: 'Мария Георгиева', city: 'София', product: 'Rose Élixir', quantity: 2, price: 49, days: 0, status: 'Издадена' },
     { customer: 'Ивана Петрова', city: 'Пловдив', product: 'Крем за лице', quantity: 1, price: 38, days: 0, status: 'Платена' },
-    { customer: 'Козметик Груп ООД', city: 'Варна', product: 'Серум с витамин C', quantity: 5, price: 42, days: 1, status: 'Издадена' },
+    { customer: 'Козметик Груп ООД', city: 'Варна', product: 'Серум с витамин C', quantity: 5, price: 42, days: 1, status: 'Издадена', eik: '205987654' },
     { customer: 'Елена Димитрова', city: 'Бургас', product: 'Хидратираща маска', quantity: 3, price: 18, days: 2, status: 'Платена' },
     { customer: 'Николай Стоянов', city: 'Русе', product: 'Rose Élixir', quantity: 1, price: 49, days: 4, status: 'Анулирана' },
     { customer: 'Анна Николова', city: 'Стара Загора', product: 'Почистващ гел', quantity: 2, price: 24, days: 7, status: 'Платена' },
@@ -49,7 +49,7 @@ export function createExampleInvoices(now = new Date()): DemoInvoice[] {
     issued.setUTCDate(issued.getUTCDate() - example.days);
     return { ...buildDemoInvoice({
       id: `DEMO-SALE-${index + 1}`, customer: example.customer, phone: '—', city: example.city,
-      address: 'Примерен адрес', product: example.product, quantity: example.quantity, price: example.price, shipping: 4.9,
+      address: 'Примерен адрес', product: example.product, quantity: example.quantity, price: example.price, shipping: 4.9, eik: example.eik,
     }, index + 1, issued), status: example.status };
   });
 }
