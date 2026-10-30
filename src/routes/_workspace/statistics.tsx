@@ -23,7 +23,7 @@ export const Route = createFileRoute('/_workspace/statistics')({
   component: Statistics,
 });
 
-const SELLERS = [
+export const SELLERS = [
   { id: 'Виктория Григорова', type: 'Инфлуенсър', weight: 0.38 },
   { id: 'Елена Петрова', type: 'Инфлуенсър', weight: 0.27 },
   { id: 'Мария Иванова', type: 'Инфлуенсър', weight: 0.2 },
@@ -65,7 +65,7 @@ const PRESETS = [
 ];
 
 type Seller = (typeof SELLERS)[number];
-type DayRow = { d: Date; orders: number; paid: number; returned: number; items: number; revenue: number };
+type DayRow = { d: Date; orders: number; paid: number; returned: number; items: number; revenue: number; profit: number };
 
 const money = (v: number) => `${v.toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 const fmt = (d: Date) => format(d, 'dd.MM.yyyy');
@@ -91,7 +91,7 @@ function monthTotal(y: number, m: number) {
 }
 
 // Deterministic demo days for one seller (and optionally one settlement)
-function buildDays(s: Seller, k: number, st: { weight: number } | null): DayRow[] {
+export function buildDays(s: Seller, k: number, st: { weight: number } | null): DayRow[] {
   const out: DayRow[] = [];
   const y0 = DEMO_FROM.getFullYear(), m0 = DEMO_FROM.getMonth();
   const y1 = DEMO_TO.getFullYear(), m1 = DEMO_TO.getMonth();
@@ -117,11 +117,14 @@ function buildDays(s: Seller, k: number, st: { weight: number } | null): DayRow[
       const per = wholesale ? 6.5 + (m % 3) * 0.4 : 1.6 + ((m + k) % 4) * 0.15;
       const retRate = 0.04 + ((m + k) % 5) * 0.012;
       const price = 44 + ((m * 3 + k) % 6) * 2.5;
+      // Demo gross margin on sold items: 38–53% depending on month and seller
+      const margin = 0.38 + ((m + k) % 6) * 0.03;
       for (let d = 1; d <= dim; d++) {
         const o = perDay[d - 1]!;
         const r = Math.round(o * retRate);
         const unp = Math.round(o * 0.06);
-        out.push({ d: new Date(y, m, d), orders: o, paid: Math.max(0, o - r - unp), returned: r, items: Math.round(o * per), revenue: Math.round(o * per * price) });
+        const paid = Math.max(0, o - r - unp);
+        out.push({ d: new Date(y, m, d), orders: o, paid, returned: r, items: Math.round(o * per), revenue: Math.round(o * per * price), profit: Math.round(paid * per * price * margin) });
       }
     }
   }
@@ -147,6 +150,7 @@ const salesCfg = { paid: { label: 'Продажби (платени)', color: 'v
 const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--info)' } } satisfies ChartConfig;
 const priceCfg = { avgPrice: { label: 'Ср. цена', color: 'var(--warning)' } } satisfies ChartConfig;
 const returnCfg = { returnPct: { label: '% върнати', color: 'var(--destructive)' } } satisfies ChartConfig;
+const profitCfg = { profit: { label: 'Печалба', color: 'var(--success)' } } satisfies ChartConfig;
 
 function Statistics() {
   const [seller, setSeller] = useState('');
@@ -160,8 +164,8 @@ function Statistics() {
     const map = new Map<number, DayRow>();
     pickSellers(seller).forEach((s, k) => buildDays(s, k, st).forEach(p => {
       const key = +p.d;
-      const cur = map.get(key) ?? { d: p.d, orders: 0, paid: 0, returned: 0, items: 0, revenue: 0 };
-      cur.orders += p.orders; cur.paid += p.paid; cur.returned += p.returned; cur.items += p.items; cur.revenue += p.revenue;
+      const cur = map.get(key) ?? { d: p.d, orders: 0, paid: 0, returned: 0, items: 0, revenue: 0, profit: 0 };
+      cur.orders += p.orders; cur.paid += p.paid; cur.returned += p.returned; cur.items += p.items; cur.revenue += p.revenue; cur.profit += p.profit;
       map.set(key, cur);
     }));
     return [...map.values()].sort((a, b) => +a.d - +b.d);
@@ -186,13 +190,13 @@ function Statistics() {
     for (const p of days) {
       const y = p.d.getFullYear(), m = p.d.getMonth(), key = +new Date(y, m, 1);
       if (key > endKey) continue;
-      const cur = byMonth.get(key) ?? { d: new Date(y, m, 1), y, m, orders: 0, paid: 0, returned: 0, items: 0, revenue: 0 };
-      cur.orders += p.orders; cur.paid += p.paid; cur.returned += p.returned; cur.items += p.items; cur.revenue += p.revenue;
+      const cur = byMonth.get(key) ?? { d: new Date(y, m, 1), y, m, orders: 0, paid: 0, returned: 0, items: 0, revenue: 0, profit: 0 };
+      cur.orders += p.orders; cur.paid += p.paid; cur.returned += p.returned; cur.items += p.items; cur.revenue += p.revenue; cur.profit += p.profit;
       byMonth.set(key, cur);
     }
     return [...byMonth.values()].sort((a, b) => a.y - b.y || a.m - b.m).slice(-12).map(r => ({
       month: `${MONTH_SHORT[r.m]} ${String(r.y).slice(2)}`,
-      orders: r.orders, paid: r.paid, returned: r.returned, items: r.items, revenue: r.revenue,
+      orders: r.orders, paid: r.paid, returned: r.returned, items: r.items, revenue: r.revenue, profit: r.profit,
       returnPct: r.orders ? +(r.returned / r.orders * 100).toFixed(1) : 0,
       avgItems: r.orders ? +(r.items / r.orders).toFixed(2) : 0,
       avgPrice: r.orders ? +(r.revenue / r.orders).toFixed(2) : 0,
