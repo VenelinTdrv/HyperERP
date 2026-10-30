@@ -69,3 +69,15 @@ export function generateDemoInvoice(selection: string[], sales: InvoiceSale[]) {
   listeners.forEach(listener => listener());
   return invoice;
 }
+export type InvoiceOrder = { id: string; customer: string; phone: string; city: string; address: string; shipping: number; items: { name: string; quantity: number; price: number }[] };
+
+export function orderToInvoiceSale(order: InvoiceOrder): InvoiceSale {
+  const quantity = order.items.reduce((s, i) => s + i.quantity, 0);
+  const goods = order.items.reduce((s, i) => s + i.quantity * i.price, 0);
+  return { id: order.id, customer: order.customer, phone: order.phone, city: order.city, address: order.address,
+    product: order.items.map(i => i.name).join(', '), quantity, price: quantity ? goods / quantity : 0, shipping: order.shipping };
+}
+
+export function generateInvoiceFromOrder(order: InvoiceOrder) {
+  return generateDemoInvoice([order.id], [orderToInvoiceSale(order)]);
+}

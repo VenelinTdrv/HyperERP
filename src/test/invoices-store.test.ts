@@ -59,3 +59,8 @@ describe('Demo invoice generation', () => {
     expect(generateDemoInvoice([sale.id], [sale])).toBe(first);
   });
 });
+import { orderToInvoiceSale } from '@/lib/invoices-store';
+test('order invoice total equals goods plus shipping', () => {
+  const s = orderToInvoiceSale({ id:'ORD-X', customer:'A', phone:'', city:'', address:'', shipping:5, items:[{name:'a',quantity:2,price:10},{name:'b',quantity:1,price:30}] });
+  expect(s.quantity*s.price+s.shipping).toBe(55);
+});
