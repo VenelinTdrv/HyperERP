@@ -47,6 +47,10 @@ function InvoicesPage() {
     <WorkspaceShell active="Фактури">
       <div className="page-content orders-content deliveries-content">
         <div className="page-heading deliveries-heading"><h1>Фактури</h1>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="icon" aria-label="Печат" title="Печат" onClick={() => openInvoicesPrint(filtered)}><Printer /></Button>
+            <Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF — изберете „Запази като PDF“ в диалога за печат" onClick={() => openInvoicesPrint(filtered, 'Фактури — PDF')}><FileText className="text-destructive" /></Button>
+          </div>
           <div className="delivery-overview" aria-label="Обобщение на фактурите">
             {[{ label: 'Всички', value: '', icon: FileText }, { label: 'Издадена', value: 'Издадена', icon: Clock3 }, { label: 'Платена', value: 'Платена', icon: CheckCheck }, { label: 'Анулирана', value: 'Анулирана', icon: XCircle }].map(item => <Button key={item.label} variant="ghost" className={`delivery-metric ${status === item.value ? 'is-selected' : ''}`} aria-pressed={status === item.value} onClick={() => chooseStatus(item.value)}><span className={`metric-icon ${item.value ? statusClass(item.value) : ''}`}><item.icon size={14} /></span><span className="metric-copy"><span>{item.label}</span><strong>{item.value ? dated.filter(row => row.status === item.value).length : dated.length}</strong></span></Button>)}
           </div>
