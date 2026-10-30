@@ -8,8 +8,8 @@ describe('Demo invoice generation', () => {
   it('provides several example invoices with dates relative to today', () => {
     const rows = createExampleInvoices(new Date('2026-10-30T11:35:00Z'));
     expect(rows).toHaveLength(6);
-    expect(rows[0].date).toBe('2026-10-30');
-    expect(rows[5].date).toBe('2026-10-23');
+    expect(rows[0]?.date).toBe('2026-10-30');
+    expect(rows[5]?.date).toBe('2026-10-23');
     expect(new Set(rows.map(row => row.id)).size).toBe(6);
   });
   it('filters an inclusive date period and supports open-ended dates', () => {
