@@ -55,7 +55,7 @@ function InvoicesPage() {
             <Button variant="outline" size="icon" aria-label="Експорт в PDF" title="Експорт в PDF — изберете „Запази като PDF“ в диалога за печат" onClick={() => openInvoicesPrint(filtered, 'Фактури — PDF')}><FileText className="text-destructive" /></Button>
           </div>
         </div>
-        <div className="delivery-filters"><div className="delivery-filter-primary">
+        <div className="delivery-filters"><div className="delivery-filter-primary invoices-filters">
           <div className="search-box"><Search /><input className="search-input" aria-label="Търсене по име на клиент или ЕИК" placeholder="Клиент или ЕИК…" value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} /></div>
           <span className="text-sm text-muted-foreground">Дата на фактура</span>
           <div className="field"><label className="sr-only" htmlFor="invoice-from">Дата от</label><input id="invoice-from" type="date" title="Дата от" value={from} max={to || undefined} onChange={e => { setFrom(e.target.value); setPage(1); }} /></div>
