@@ -18,6 +18,7 @@ import { Route as WorkspaceClientsRouteImport } from './routes/_workspace/client
 import { Route as WorkspaceCombosRouteImport } from './routes/_workspace/combos'
 import { Route as WorkspaceCountriesRouteImport } from './routes/_workspace/countries'
 import { Route as WorkspaceDeliveriesRouteImport } from './routes/_workspace/deliveries'
+import { Route as WorkspaceInvoicesRouteImport } from './routes/_workspace/invoices'
 import { Route as WorkspaceOrdersRouteImport } from './routes/_workspace/orders'
 import { Route as WorkspacePaymentsRouteImport } from './routes/_workspace/payments'
 import { Route as WorkspaceSettlementsRouteImport } from './routes/_workspace/settlements'
@@ -76,6 +77,11 @@ const WorkspaceCountriesRoute = WorkspaceCountriesRouteImport.update({
 const WorkspaceDeliveriesRoute = WorkspaceDeliveriesRouteImport.update({
   id: '/deliveries',
   path: '/deliveries',
+  getParentRoute: () => WorkspaceRouteRoute,
+} as any)
+const WorkspaceInvoicesRoute = WorkspaceInvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
   getParentRoute: () => WorkspaceRouteRoute,
 } as any)
 const WorkspaceOrdersRoute = WorkspaceOrdersRouteImport.update({
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/combos': typeof WorkspaceCombosRoute
   '/countries': typeof WorkspaceCountriesRoute
   '/deliveries': typeof WorkspaceDeliveriesRoute
+  '/invoices': typeof WorkspaceInvoicesRoute
   '/orders': typeof WorkspaceOrdersRoute
   '/payments': typeof WorkspacePaymentsRoute
   '/settlements': typeof WorkspaceSettlementsRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/combos': typeof WorkspaceCombosRoute
   '/countries': typeof WorkspaceCountriesRoute
   '/deliveries': typeof WorkspaceDeliveriesRoute
+  '/invoices': typeof WorkspaceInvoicesRoute
   '/orders': typeof WorkspaceOrdersRoute
   '/payments': typeof WorkspacePaymentsRoute
   '/settlements': typeof WorkspaceSettlementsRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/_workspace/combos': typeof WorkspaceCombosRoute
   '/_workspace/countries': typeof WorkspaceCountriesRoute
   '/_workspace/deliveries': typeof WorkspaceDeliveriesRoute
+  '/_workspace/invoices': typeof WorkspaceInvoicesRoute
   '/_workspace/orders': typeof WorkspaceOrdersRoute
   '/_workspace/payments': typeof WorkspacePaymentsRoute
   '/_workspace/settlements': typeof WorkspaceSettlementsRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/combos'
     | '/countries'
     | '/deliveries'
+    | '/invoices'
     | '/orders'
     | '/payments'
     | '/settlements'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/combos'
     | '/countries'
     | '/deliveries'
+    | '/invoices'
     | '/orders'
     | '/payments'
     | '/settlements'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/_workspace/combos'
     | '/_workspace/countries'
     | '/_workspace/deliveries'
+    | '/_workspace/invoices'
     | '/_workspace/orders'
     | '/_workspace/payments'
     | '/_workspace/settlements'
@@ -382,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/deliveries'
       fullPath: '/deliveries'
       preLoaderRoute: typeof WorkspaceDeliveriesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
+    '/_workspace/invoices': {
+      id: '/_workspace/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof WorkspaceInvoicesRouteImport
       parentRoute: typeof WorkspaceRouteRoute
     }
     '/_workspace/orders': {
@@ -499,6 +518,7 @@ interface WorkspaceRouteRouteChildren {
   WorkspaceCombosRoute: typeof WorkspaceCombosRoute
   WorkspaceCountriesRoute: typeof WorkspaceCountriesRoute
   WorkspaceDeliveriesRoute: typeof WorkspaceDeliveriesRoute
+  WorkspaceInvoicesRoute: typeof WorkspaceInvoicesRoute
   WorkspaceOrdersRoute: typeof WorkspaceOrdersRoute
   WorkspacePaymentsRoute: typeof WorkspacePaymentsRoute
   WorkspaceSettlementsRoute: typeof WorkspaceSettlementsRoute
@@ -524,6 +544,7 @@ const WorkspaceRouteRouteChildren: WorkspaceRouteRouteChildren = {
   WorkspaceCombosRoute: WorkspaceCombosRoute,
   WorkspaceCountriesRoute: WorkspaceCountriesRoute,
   WorkspaceDeliveriesRoute: WorkspaceDeliveriesRoute,
+  WorkspaceInvoicesRoute: WorkspaceInvoicesRoute,
   WorkspaceOrdersRoute: WorkspaceOrdersRoute,
   WorkspacePaymentsRoute: WorkspacePaymentsRoute,
   WorkspaceSettlementsRoute: WorkspaceSettlementsRoute,
