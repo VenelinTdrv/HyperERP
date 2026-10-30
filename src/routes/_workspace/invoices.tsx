@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Eye, FileText, MoreVertical } from 'lucide-react';
+import { Copy, Eye, FileText, MoreVertical } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Pagination } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
@@ -49,7 +49,7 @@ function InvoicesPage() {
               <tbody>{visible.map(invoice => <tr key={invoice.id}>
                 <td><Button variant="link" className="delivery-id" onClick={() => setSelected(invoice)}>{invoice.id}</Button></td>
                 <td>{date(invoice.date)}</td><td>{invoice.sale.customer}</td><td>{invoice.sale.id}</td><td className="font-semibold">{money(invoice.total)}</td>
-                <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => setSelected(invoice)}><FileText />Преглед на фактурата</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
+                <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { void navigator.clipboard.writeText(invoice.id); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
                 <td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${invoice.id}`} title="Преглед" onClick={() => setSelected(invoice)}><Eye /></Button></div></td>
               </tr>)}</tbody>
             </table>
