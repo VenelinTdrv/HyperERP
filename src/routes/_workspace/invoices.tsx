@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { CheckCheck, Clock3, Copy, Eye, FileText, MoreVertical, Search, X, XCircle } from 'lucide-react';
+import { CheckCheck, Clock3, Copy, Eye, FileText, MoreVertical, Printer, Search, X, XCircle } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Pagination } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { filterInvoices, INVOICE_STATUSES, useInvoices, type DemoInvoice } from '@/lib/invoices-store';
+import { openInvoicesPrint } from '@/lib/invoices-export';
 
 const money = (value: number) => new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'EUR' }).format(value);
 const date = (value: string) => value.split('-').reverse().join('.');
