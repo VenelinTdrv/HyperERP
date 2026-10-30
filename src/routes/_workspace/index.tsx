@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Checkbox } from '@/components/ui/checkbox';
 import perfume from '@/assets/perfume.jpg';
 import { SELLERS, sellerByOrder } from '@/lib/sellers';
+import { generateDemoInvoice, selectedInvoiceSale } from '@/lib/invoices-store';
 
 export const Route = createFileRoute('/_workspace/')({
  head: () => ({ meta: [
@@ -97,6 +98,14 @@ function Sales() {
  const someSelected = !allSelected && pageIds.some(id=>selection.includes(id));
  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id=>!pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
  const toggleRow = (id:string) => setSelection(prev => prev.includes(id) ? prev.filter(item=>item!==id) : [...prev, id]);
+ const invoiceSale = selectedInvoiceSale(selection, filtered);
+ const generateInvoice = () => {
+  if (!invoiceSale) return;
+  const invoice = generateDemoInvoice(selection, filtered);
+  toast.success(`Примерна фактура ${invoice.id} · само за текущата сесия`);
+  setSelection([]);
+  void navigate({ to: '/invoices' });
+ };
  const activeFilters = Object.values(filters).filter(Boolean).length;
  const share = sellerShare(rows, filters);
  const exportXls=()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='prodazhbi.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
