@@ -451,7 +451,7 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .statistics-heading .statistics-filters .search-box { flex:1 1 220px; min-width:180px; }
 .statistics-heading .statistics-filters .search-input { min-height:38px; padding:0 10px; font-size:12px; }
 @media (max-width:1200px) { .statistics-heading .statistics-filters { flex:1 1 100%; justify-content:flex-start; } }
-@media (max-width:700px) { .statistics-heading .statistics-filters .search-box { flex:1 1 100%; min-width:0; } .statistics-heading .statistics-filters .search-input { min-height:44px; } }
+@media (max-width:700px) { .statistics-heading .statistics-filters { align-items:stretch; } .statistics-heading .statistics-filters .search-box { flex:0 0 auto; min-width:0; } .statistics-heading .statistics-filters .search-input { min-height:44px; } }
 
 /* Payment status tiles */
 .payments-heading .delivery-overview { flex-wrap:wrap; justify-content:flex-start; }
