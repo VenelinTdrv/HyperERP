@@ -452,6 +452,28 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .statistics-heading .statistics-filters .search-input { min-height:38px; padding:0 10px; font-size:12px; }
 @media (max-width:1200px) { .statistics-heading .statistics-filters { flex:1 1 100%; justify-content:flex-start; } }
 @media (max-width:700px) { .statistics-heading .statistics-filters { align-items:stretch; } .statistics-heading .statistics-filters .search-box { flex:0 0 auto; min-width:0; } .statistics-heading .statistics-filters .search-input { min-height:44px; } }
+/* Статистика: картите и графиките се разпределят във височината на един екран */
+.statistics-page { display:flex; flex-direction:column; min-height:calc(100dvh - 66px); padding-bottom:16px; }
+.statistics-page .statistics-heading { flex:0 0 auto; margin-bottom:12px; }
+.statistics-kpis { flex:0 0 auto; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.statistics-kpi { min-width:0; border:1px solid var(--border); border-radius:10px; background:var(--card); padding:10px 12px; }
+.statistics-kpi-label { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted-foreground); }
+.statistics-kpi-value { margin-top:5px; font-size:22px; font-weight:650; line-height:1.15; color:var(--foreground); font-variant-numeric:tabular-nums; }
+.statistics-kpi-sub { margin-top:3px; font-size:10px; color:var(--muted-foreground); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.statistics-section { flex:0 0 auto; margin:14px 0 8px; font-size:13px; font-weight:600; color:var(--foreground); }
+.statistics-charts { flex:1 1 auto; min-height:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(2,minmax(150px,1fr)); gap:10px; }
+.statistics-card { display:flex; flex-direction:column; min-width:0; min-height:0; border:1px solid var(--border); border-radius:10px; background:var(--card); padding:10px 12px 8px; }
+.statistics-card-wide { grid-column:span 2; }
+.statistics-card-title { margin:0 0 6px; font-size:11px; font-weight:600; color:var(--foreground); }
+.statistics-card [data-slot="chart"] { flex:1 1 auto; min-height:0; aspect-ratio:auto; }
+.statistics-page .demo-caption { flex:0 0 auto; margin-top:10px; }
+@media (max-width:1100px) {
+  .statistics-page { min-height:0; }
+  .statistics-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .statistics-charts { grid-template-columns:minmax(0,1fr); grid-template-rows:none; grid-auto-rows:230px; }
+  .statistics-card-wide { grid-column:auto; }
+}
+@media (max-width:700px) { .statistics-kpis { grid-template-columns:minmax(0,1fr); } }
 
 /* Payment status tiles */
 .payments-heading .delivery-overview { flex-wrap:wrap; justify-content:flex-start; }
