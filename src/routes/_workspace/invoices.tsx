@@ -77,10 +77,12 @@ function InvoicesPage() {
           <div className="delivery-table-scroll">
             <table className="delivery-table orders-table">
               <thead><tr>
+                <th className="row-select-cell"><Checkbox aria-label="Избери всички фактури на страницата" checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={() => toggleAll()} /></th>
                 <th>Фактура №</th><th>Дата</th><th>Статус</th><th>Клиент</th><th>Поръчка</th><th>Общо с ДДС</th>
                 <th className="delivery-head-center">Действия</th><th className="delivery-head-center">Виж</th>
               </tr></thead>
-              <tbody>{visible.map(invoice => <tr key={invoice.id}>
+              <tbody>{visible.map(invoice => <tr key={invoice.id} data-selected={selection.includes(invoice.id)}>
+                <td className="row-select-cell"><Checkbox aria-label={`Избери фактура ${invoice.id}`} checked={selection.includes(invoice.id)} onCheckedChange={() => toggleRow(invoice.id)} /></td>
                 <td><Button variant="link" className="delivery-id" onClick={() => setSelected(invoice)}>{invoice.id}</Button></td>
                 <td>{date(invoice.date)}</td><td><span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${statusClass(invoice.status)}`}>{invoice.status}</span></td><td>{invoice.sale.customer}{invoice.sale.eik && <span className="delivery-cell-sub block">ЕИК {invoice.sale.eik}</span>}</td><td>{invoice.sale.id}</td><td className="font-semibold">{money(invoice.total)}</td>
                 <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { void navigator.clipboard.writeText(invoice.id); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
