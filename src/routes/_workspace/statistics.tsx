@@ -115,7 +115,7 @@ export function buildDays(s: Seller, k: number, st: { weight: number } | null): 
       const byRemainder = raw.map((x, i) => i).sort((a, b) => (raw[b]! - perDay[b]!) - (raw[a]! - perDay[a]!));
       for (let j = 0; j < left; j++) { const i = byRemainder[j % dim]!; perDay[i] = (perDay[i] ?? 0) + 1; }
       const per = wholesale ? 6.5 + (m % 3) * 0.4 : 1.6 + ((m + k) % 4) * 0.15;
-      const retRate = 0.09 + ((m + k) % 5) * 0.005;
+      const retRate = 0.1 + ((m + k) % 5) * 0.006;
       const price = 44 + ((m * 3 + k) % 6) * 2.5;
       // Demo gross margin on sold items: 38–53% depending on month and seller
       const margin = 0.38 + ((m + k) % 6) * 0.03;
