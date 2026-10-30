@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 export type InvoiceSale = {
   id: string; customer: string; phone: string; city: string; address: string;
-  product: string; quantity: number; price: number; shipping: number; eik?: string;
+  product: string; quantity: number; price: number; shipping: number; eik?: string | undefined;
 };
 export const INVOICE_STATUSES = ['Издадена', 'Платена', 'Анулирана'] as const;
 export type InvoiceStatus = typeof INVOICE_STATUSES[number];
