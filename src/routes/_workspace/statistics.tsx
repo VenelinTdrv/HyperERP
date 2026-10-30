@@ -231,8 +231,8 @@ function Statistics() {
   const applyPreset = (id: string) => { const r = presetRange(id); setFrom(r.from); setTo(r.to); };
 
   return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
-    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
-    <div className="suppliers-filters transfers-filters">
+    <div className="page-heading deliveries-heading statistics-heading"><div className="heading-title"><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div>
+    <div className="suppliers-filters transfers-filters statistics-filters">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button type="button" variant="outline" className="period-trigger">
@@ -265,7 +265,7 @@ function Statistics() {
       </Popover>
       <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type} · {sellerStats[s.id]!.orders} поръчки · {sellerStats[s.id]!.pct}%</option>)}</select></div>
       <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
-    </div>
+    </div></div>
 
     <h2 className="text-sm font-semibold mb-2 text-foreground">Избран период<span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">{fmt(from)} – {fmt(to)}</span></h2>
     <section aria-label="Избран период" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-4">
