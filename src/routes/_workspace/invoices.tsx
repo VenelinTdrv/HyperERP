@@ -69,7 +69,7 @@ function InvoicesPage() {
               </tr></thead>
               <tbody>{visible.map(invoice => <tr key={invoice.id}>
                 <td><Button variant="link" className="delivery-id" onClick={() => setSelected(invoice)}>{invoice.id}</Button></td>
-                <td>{date(invoice.date)}</td><td><span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${statusClass(invoice.status)}`}>{invoice.status}</span></td><td>{invoice.sale.customer}</td><td>{invoice.sale.id}</td><td className="font-semibold">{money(invoice.total)}</td>
+                <td>{date(invoice.date)}</td><td><span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${statusClass(invoice.status)}`}>{invoice.status}</span></td><td>{invoice.sale.customer}{invoice.sale.eik && <span className="delivery-cell-sub block">ЕИК {invoice.sale.eik}</span>}</td><td>{invoice.sale.id}</td><td className="font-semibold">{money(invoice.total)}</td>
                 <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { void navigator.clipboard.writeText(invoice.id); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
                 <td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${invoice.id}`} title="Преглед" onClick={() => setSelected(invoice)}><Eye /></Button></div></td>
               </tr>)}</tbody>
@@ -84,7 +84,7 @@ function InvoicesPage() {
         <DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader><DialogTitle>Фактура {selected?.id}</DialogTitle><DialogDescription>Примерна фактура · не е официален счетоводен документ</DialogDescription></DialogHeader>
           {selected && <>
-            <dl className="delivery-details">{[['Дата', date(selected.date)], ['Статус', selected.status], ['Продажба / Поръчка', selected.sale.id], ['Клиент', selected.sale.customer], ['Телефон', selected.sale.phone], ['Населено място', selected.sale.city], ['Адрес / офис', selected.sale.address]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+            <dl className="delivery-details">{[['Дата', date(selected.date)], ['Статус', selected.status], ['Продажба / Поръчка', selected.sale.id], ['Клиент', selected.sale.customer], ...(selected.sale.eik ? [['ЕИК', selected.sale.eik]] : []), ['Телефон', selected.sale.phone], ['Населено място', selected.sale.city], ['Адрес / офис', selected.sale.address]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
             <div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Продукт</th><th>Количество</th><th>Цена</th><th>Сума</th></tr></thead><tbody><tr><td>{selected.sale.product}</td><td>{selected.sale.quantity}</td><td>{money(selected.sale.price)}</td><td>{money(selected.sale.quantity * selected.sale.price)}</td></tr></tbody></table></div>
             <dl className="delivery-details"><div><dt>Доставка</dt><dd>{money(selected.sale.shipping)}</dd></div><div><dt>Общо с ДДС</dt><dd>{money(selected.total)}</dd></div></dl>
           </>}
