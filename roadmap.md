@@ -1,5 +1,6 @@
 # HyperERP redesign
 ## Фактури
+- [x] Add a search by client name or EIK in the Фактури filter row; live filtering, tiles/counts, empty state and „Изчисти филтрите" all respect it, EIK shown in the row and details; 77 tests passed, verified in browser.
 - [x] Add six example invoices with date-range and status filtering; combined filters, tiles, details, empty state and clearing verified in browser.
 - [x] Generate a demonstration invoice through Sales actions for exactly one checked sale; disabled for none/multiple, both action menus and invoice details verified in browser; 72 tests passed.
 - [x] Add „Фактури“ under „Операции“ in shared navigation and an empty invoice workspace; both menu entry points verified in browser, routing tests passed.
