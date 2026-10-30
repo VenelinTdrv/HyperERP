@@ -230,7 +230,7 @@ function Statistics() {
   };
   const applyPreset = (id: string) => { const r = presetRange(id); setFrom(r.from); setTo(r.to); };
 
-  return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
+  return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content statistics-page">
     <div className="page-heading deliveries-heading statistics-heading"><div className="heading-title"><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div>
     <div className="suppliers-filters transfers-filters statistics-filters">
       <Popover open={open} onOpenChange={setOpen}>
@@ -267,12 +267,11 @@ function Statistics() {
       <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
     </div></div>
 
-    <h2 className="text-sm font-semibold mb-2 text-foreground">Избран период<span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">{fmt(from)} – {fmt(to)}</span></h2>
-    <section aria-label="Избран период" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-4">
-      {kpis.map(k => <div key={k.label} className="rounded-lg border border-border bg-card p-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground"><k.icon size={15} className="text-primary" />{k.label}</div>
-        <div className="mt-2 text-2xl font-semibold text-foreground">{k.value}</div>
-        <div className="mt-1 text-[11px] text-muted-foreground">{k.sub}</div>
+    <section aria-label="Избран период" className="statistics-kpis">
+      {kpis.map(k => <div key={k.label} className="statistics-kpi">
+        <div className="statistics-kpi-label"><k.icon size={14} className="text-primary" />{k.label}</div>
+        <div className="statistics-kpi-value">{k.value}</div>
+        <div className="statistics-kpi-sub">{k.sub}</div>
       </div>)}
     </section>
 
