@@ -27,6 +27,7 @@
 - Keep users at /users within WorkspaceShell as frontend demonstration state; demo-users validates assistant-to-influencer associations, never access rights. Passwords are never stored or sent; real auth/roles need a backend with a separate roles table.
 - Keep stock transfers at /transfers within WorkspaceShell; statuses, product quantities and stock moves on completion are frontend demonstration state until a real inventory service is connected.
 - Keep payments at /payments within WorkspaceShell as frontend demonstration state; no real Econt/Pigeon integration until a backend is connected.
+- Keep invoices at /invoices within the public WorkspaceShell with an empty list until invoicing is requested and connected, so the Operations menu does not imply real invoice issuance.
 - Generate demonstration record dates relative to the current day instead of hardcoding a calendar date, so screens that default to "today" always return rows.
 - Order-detail exports use the current draft, shared order-blank printing/PDF, and browser-generated binary XLS via order-export, so all actions reflect the visible order without changing session data.
 - Render every list footer through the shared Pagination component instead of hand-written pager markup, so paging and the records-per-page choice stay identical across screens and new lists inherit them.
