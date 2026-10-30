@@ -37,12 +37,19 @@ function InvoicesPage() {
   const [status, setStatus] = useState('');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<DemoInvoice | null>(null);
+  const [selection, setSelection] = useState<string[]>([]);
   const dated = filterInvoices(invoices, from, to, '', query);
   const filtered = filterInvoices(dated, '', '', status);
   const size = pageSize || filtered.length || 1;
   const current = Math.min(page, Math.max(1, Math.ceil(filtered.length / size)));
   const visible = filtered.slice((current - 1) * size, current * size);
   const chooseStatus = (value: string) => { setStatus(value); setPage(1); };
+  const pageIds = visible.map(invoice => invoice.id);
+  const allSelected = pageIds.length > 0 && pageIds.every(id => selection.includes(id));
+  const someSelected = !allSelected && pageIds.some(id => selection.includes(id));
+  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id => !pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
+  const toggleRow = (id: string) => setSelection(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+  const chosen = filtered.filter(invoice => selection.includes(invoice.id));
 
   return (
     <WorkspaceShell active="Фактури">
