@@ -10,8 +10,15 @@ export type DemoInvoice = {
   id: string; date: string; sale: InvoiceSale; total: number; status: InvoiceStatus;
 };
 
-export function filterInvoices(rows: DemoInvoice[], from: string, to: string, status: string) {
-  return rows.filter(row => (!from || row.date >= from) && (!to || row.date <= to) && (!status || row.status === status));
+export function matchesInvoiceQuery(row: DemoInvoice, query: string) {
+  const q = query.trim().toLocaleLowerCase('bg-BG');
+  if (!q) return true;
+  const eik = (row.sale.eik || '').replace(/\s/g, '');
+  return row.sale.customer.toLocaleLowerCase('bg-BG').includes(q) || (!!eik && eik.includes(q));
+}
+
+export function filterInvoices(rows: DemoInvoice[], from: string, to: string, status: string, query = '') {
+  return rows.filter(row => (!from || row.date >= from) && (!to || row.date <= to) && (!status || row.status === status) && matchesInvoiceQuery(row, query));
 }
 
 export function selectedInvoiceSale(selection: string[], sales: InvoiceSale[]) {
