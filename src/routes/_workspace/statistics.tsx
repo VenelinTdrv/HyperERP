@@ -265,7 +265,7 @@ function Statistics() {
       </Popover>
       <div className="search-box"><select className="search-input" aria-label="Инфлуенсър / Търговец" value={seller} onChange={e => setSeller(e.target.value)}><option value="">Всички инфлуенсъри и търговци</option>{SELLERS.map(s => <option key={s.id} value={s.id}>{s.id} · {s.type} · {sellerStats[s.id]!.orders} поръчки · {sellerStats[s.id]!.pct}%</option>)}</select></div>
       <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
-    </div>
+    </div></div>
 
     <h2 className="text-sm font-semibold mb-2 text-foreground">Избран период<span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">{fmt(from)} – {fmt(to)}</span></h2>
     <section aria-label="Избран период" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-4">

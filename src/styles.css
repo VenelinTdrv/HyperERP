@@ -445,6 +445,13 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .period-presets button:hover, .period-presets button.is-active { border-color:var(--primary); color:var(--primary); background:var(--muted); }
 .period-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px; border-top:1px solid var(--border); font-size:11px; color:var(--muted-foreground); }
 @media (max-width:700px) { .period-trigger { width:100%; } }
+.statistics-heading { margin-bottom:16px; }
+.statistics-heading .statistics-filters { flex:1 1 640px; justify-content:flex-end; align-items:center; gap:8px; margin:0; max-width:none; }
+.statistics-heading .statistics-filters .period-trigger { height:38px; }
+.statistics-heading .statistics-filters .search-box { flex:1 1 220px; min-width:180px; }
+.statistics-heading .statistics-filters .search-input { min-height:38px; padding:0 10px; font-size:12px; }
+@media (max-width:1200px) { .statistics-heading .statistics-filters { flex:1 1 100%; justify-content:flex-start; } }
+@media (max-width:700px) { .statistics-heading .statistics-filters .search-box { flex:1 1 100%; min-width:0; } .statistics-heading .statistics-filters .search-input { min-height:44px; } }
 
 /* Payment status tiles */
 .payments-heading .delivery-overview { flex-wrap:wrap; justify-content:flex-start; }
