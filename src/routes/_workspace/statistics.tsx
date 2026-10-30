@@ -115,14 +115,21 @@ export function buildDays(s: Seller, k: number, st: { weight: number } | null): 
       const byRemainder = raw.map((x, i) => i).sort((a, b) => (raw[b]! - perDay[b]!) - (raw[a]! - perDay[a]!));
       for (let j = 0; j < left; j++) { const i = byRemainder[j % dim]!; perDay[i] = (perDay[i] ?? 0) + 1; }
       const per = wholesale ? 6.5 + (m % 3) * 0.4 : 1.6 + ((m + k) % 4) * 0.15;
-      const retRate = 0.04 + ((m + k) % 5) * 0.012;
+      const retRate = 0.1 + ((m + k) % 5) * 0.006;
       const price = 44 + ((m * 3 + k) % 6) * 2.5;
       // Demo gross margin on sold items: 38–53% depending on month and seller
       const margin = 0.38 + ((m + k) % 6) * 0.03;
+      let retAcc = 0, unpAcc = 0;
       for (let d = 1; d <= dim; d++) {
         const o = perDay[d - 1]!;
-        const r = Math.round(o * retRate);
-        const unp = Math.round(o * 0.06);
+        // Whole counts via running remainder, so small daily counts still sum to ~10% returned for the month;
+        // returns and unpaid never take back the whole day, so paid stays positive
+        retAcc += o * retRate;
+        const r = Math.min(Math.round(retAcc), Math.max(0, o - 1));
+        retAcc -= r;
+        unpAcc += o * 0.06;
+        const unp = Math.min(Math.round(unpAcc), Math.max(0, o - r - 1));
+        unpAcc -= unp;
         const paid = Math.max(0, o - r - unp);
         out.push({ d: new Date(y, m, d), orders: o, paid, returned: r, items: Math.round(o * per), revenue: Math.round(o * per * price), profit: Math.round(paid * per * price * margin) });
       }
@@ -149,7 +156,7 @@ const ordersCfg = { paid: { label: 'Платени', color: 'var(--primary)' }, 
 const salesCfg = { paid: { label: 'Продажби (платени)', color: 'var(--primary)' } } satisfies ChartConfig;
 const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--info)' } } satisfies ChartConfig;
 const priceCfg = { avgPrice: { label: 'Ср. цена', color: 'var(--warning)' } } satisfies ChartConfig;
-const returnCfg = { returnPct: { label: '% върнати', color: 'var(--destructive)' } } satisfies ChartConfig;
+const returnCfg = { returned: { label: 'Върнати поръчки', color: 'var(--destructive)' } } satisfies ChartConfig;
 // Demo month-end stock value across all warehouses (delivery prices), independent of seller filters
 export function stockValue(y: number, m: number) { return 68000 + ((y * 5 + m * 11) % 9) * 2400 + (m % 4) * 1500; }
 const stockCfg = { stock: { label: 'Наличност', color: 'var(--info)' } } satisfies ChartConfig;
@@ -288,7 +295,7 @@ function Statistics() {
       <Card title="Печалба по месеци (€)"><ChartContainer config={profitCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={45} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="profit" fill="var(--color-profit)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
       <Card title="Наличност на артикули по месеци – обща стойност (€)"><ChartContainer config={stockCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={45} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="stock" fill="var(--color-stock)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
       <Card title="Брой поръчки (платени и върнати)"><ChartContainer config={ordersCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><ChartLegend content={<ChartLegendContent />} /><Bar dataKey="paid" stackId="a" fill="var(--color-paid)" /><Bar dataKey="returned" stackId="a" fill="var(--color-returned)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
-      <Card title="Върнати поръчки, % от всички"><ChartContainer config={returnCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} unit="%" /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="returnPct" stroke="var(--color-returnPct)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
+      <Card title="Върнати поръчки (брой)"><ChartContainer config={returnCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="returned" fill="var(--color-returned)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
       <Card title="Брой продажби (платени)"><ChartContainer config={salesCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="paid" fill="var(--color-paid)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
       <Card title="Среден брой артикули в поръчка"><ChartContainer config={itemsCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgItems" stroke="var(--color-avgItems)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
       <Card title="Средна цена на поръчка (€)" wide><ChartContainer config={priceCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={40} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgPrice" stroke="var(--color-avgPrice)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
