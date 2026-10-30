@@ -1,4 +1,7 @@
 # HyperERP redesign
+## Фактури
+- [x] Add „Фактури“ under „Операции“ in shared navigation and an empty invoice workspace; both menu entry points verified in browser, routing tests passed.
+
 ## Справки
 - [x] Add the five reference reports to shared navigation with separate demonstration screens.
 - [x] Verify navigation, filtering, details and pagination.
