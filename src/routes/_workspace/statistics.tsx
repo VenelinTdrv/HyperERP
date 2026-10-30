@@ -122,12 +122,13 @@ export function buildDays(s: Seller, k: number, st: { weight: number } | null): 
       let retAcc = 0, unpAcc = 0;
       for (let d = 1; d <= dim; d++) {
         const o = perDay[d - 1]!;
-        // Whole counts via running remainder, so small daily counts still sum to ~10% returned for the month
+        // Whole counts via running remainder, so small daily counts still sum to ~10% returned for the month;
+        // returns and unpaid never take back the whole day, so paid stays positive
         retAcc += o * retRate;
-        const r = Math.round(retAcc);
+        const r = Math.min(Math.round(retAcc), Math.max(0, o - 1));
         retAcc -= r;
         unpAcc += o * 0.06;
-        const unp = Math.round(unpAcc);
+        const unp = Math.min(Math.round(unpAcc), Math.max(0, o - r - 1));
         unpAcc -= unp;
         const paid = Math.max(0, o - r - unp);
         out.push({ d: new Date(y, m, d), orders: o, paid, returned: r, items: Math.round(o * per), revenue: Math.round(o * per * price), profit: Math.round(paid * per * price * margin) });
