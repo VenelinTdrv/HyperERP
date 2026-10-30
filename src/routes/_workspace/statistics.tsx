@@ -230,7 +230,7 @@ function Statistics() {
   };
   const applyPreset = (id: string) => { const r = presetRange(id); setFrom(r.from); setTo(r.to); };
 
-  return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
+  return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content statistics-page">
     <div className="page-heading deliveries-heading statistics-heading"><div className="heading-title"><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div>
     <div className="suppliers-filters transfers-filters statistics-filters">
       <Popover open={open} onOpenChange={setOpen}>
@@ -267,27 +267,26 @@ function Statistics() {
       <div className="search-box"><select className="search-input" aria-label="Населено място" value={settlement} onChange={e => setSettlement(e.target.value)}><option value="">Всички населени места</option>{SETTLEMENTS.map(s => <option key={s.id} value={s.id}>{s.id} · {settlementStats[s.id]!.orders} поръчки · {settlementStats[s.id]!.pct}%</option>)}</select></div>
     </div></div>
 
-    <h2 className="text-sm font-semibold mb-2 text-foreground">Избран период<span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">{fmt(from)} – {fmt(to)}</span></h2>
-    <section aria-label="Избран период" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 mb-4">
-      {kpis.map(k => <div key={k.label} className="rounded-lg border border-border bg-card p-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground"><k.icon size={15} className="text-primary" />{k.label}</div>
-        <div className="mt-2 text-2xl font-semibold text-foreground">{k.value}</div>
-        <div className="mt-1 text-[11px] text-muted-foreground">{k.sub}</div>
+    <section aria-label="Избран период" className="statistics-kpis">
+      {kpis.map(k => <div key={k.label} className="statistics-kpi">
+        <div className="statistics-kpi-label"><k.icon size={14} className="text-primary" />{k.label}</div>
+        <div className="statistics-kpi-value">{k.value}</div>
+        <div className="statistics-kpi-sub">{k.sub}</div>
       </div>)}
     </section>
 
-    <h2 className="text-sm font-semibold mb-2 text-foreground">Последните 12 месеца{windowLabel ? <span className="ml-2 text-xs font-normal text-muted-foreground">{windowLabel}</span> : null}</h2>
-    <div className="grid gap-3 lg:grid-cols-2">
-      <Card title="Брой поръчки (платени и върнати)"><ChartContainer config={ordersCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><ChartLegend content={<ChartLegendContent />} /><Bar dataKey="paid" stackId="a" fill="var(--color-paid)" /><Bar dataKey="returned" stackId="a" fill="var(--color-returned)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
-      <Card title="Върнати поръчки, % от всички"><ChartContainer config={returnCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} unit="%" /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="returnPct" stroke="var(--color-returnPct)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
-      <Card title="Брой продажби (платени)"><ChartContainer config={salesCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="paid" fill="var(--color-paid)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
-      <Card title="Среден брой артикули в поръчка"><ChartContainer config={itemsCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgItems" stroke="var(--color-avgItems)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
-      <Card title="Средна цена на поръчка (€)" wide><ChartContainer config={priceCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={40} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgPrice" stroke="var(--color-avgPrice)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
+    <h2 className="statistics-section">Последните 12 месеца{windowLabel ? <span className="ml-2 text-xs font-normal text-muted-foreground">{windowLabel}</span> : null}</h2>
+    <div className="statistics-charts">
+      <Card title="Брой поръчки (платени и върнати)"><ChartContainer config={ordersCfg} className="statistics-chart"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><ChartLegend content={<ChartLegendContent />} /><Bar dataKey="paid" stackId="a" fill="var(--color-paid)" /><Bar dataKey="returned" stackId="a" fill="var(--color-returned)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
+      <Card title="Брой продажби (платени)"><ChartContainer config={salesCfg} className="statistics-chart"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="paid" fill="var(--color-paid)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
+      <Card title="Върнати поръчки, % от всички"><ChartContainer config={returnCfg} className="statistics-chart"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} unit="%" /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="returnPct" stroke="var(--color-returnPct)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
+      <Card title="Среден брой артикули в поръчка"><ChartContainer config={itemsCfg} className="statistics-chart"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgItems" stroke="var(--color-avgItems)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
+      <Card title="Средна цена на поръчка (€)" wide><ChartContainer config={priceCfg} className="statistics-chart"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={40} /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="avgPrice" stroke="var(--color-avgPrice)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
     </div>
-    <div className="demo-caption mt-4"><ShieldCheck size={13} />Примерни статистически данни · <RotateCcw size={12} /> не са свързани с реални поръчки</div>
+    <div className="demo-caption"><ShieldCheck size={13} />Примерни статистически данни · <RotateCcw size={12} /> не са свързани с реални поръчки</div>
   </div></WorkspaceShell>;
 }
 
 function Card({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
-  return <section className={`rounded-lg border border-border bg-card p-4 ${wide ? 'lg:col-span-2' : ''}`}><h3 className="text-xs font-semibold text-foreground mb-2">{title}</h3>{children}</section>;
+  return <section className={`statistics-card${wide ? ' statistics-card-wide' : ''}`}><h3 className="statistics-card-title">{title}</h3>{children}</section>;
 }
