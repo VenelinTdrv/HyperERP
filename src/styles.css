@@ -453,7 +453,7 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
 @media (max-width:1200px) { .statistics-heading .statistics-filters { flex:1 1 100%; justify-content:flex-start; } }
 @media (max-width:700px) { .statistics-heading .statistics-filters { align-items:stretch; } .statistics-heading .statistics-filters .search-box { flex:0 0 auto; min-width:0; } .statistics-heading .statistics-filters .search-input { min-height:44px; } }
 /* Статистика: картите и графиките се разпределят във височината на един екран */
-.statistics-page { display:flex; flex-direction:column; min-height:calc(100dvh - 66px); padding-bottom:16px; }
+.statistics-page { display:flex; flex-direction:column; height:calc(100dvh - 66px); min-height:660px; padding-bottom:16px; }
 .statistics-page .statistics-heading { flex:0 0 auto; margin-bottom:12px; }
 .statistics-kpis { flex:0 0 auto; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
 .statistics-kpi { min-width:0; border:1px solid var(--border); border-radius:10px; background:var(--card); padding:10px 12px; }
@@ -465,7 +465,7 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .statistics-card { display:flex; flex-direction:column; min-width:0; min-height:0; border:1px solid var(--border); border-radius:10px; background:var(--card); padding:10px 12px 8px; }
 .statistics-card-wide { grid-column:span 2; }
 .statistics-card-title { margin:0 0 6px; font-size:11px; font-weight:600; color:var(--foreground); }
-.statistics-card [data-slot="chart"] { flex:1 1 auto; min-height:0; aspect-ratio:auto; }
+.statistics-card .statistics-chart { flex:1 1 auto; min-height:0; aspect-ratio:auto; }
 .statistics-page .demo-caption { flex:0 0 auto; margin-top:10px; }
 @media (max-width:1100px) {
   .statistics-page { min-height:0; }
