@@ -150,6 +150,9 @@ const salesCfg = { paid: { label: 'Продажби (платени)', color: 'v
 const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--info)' } } satisfies ChartConfig;
 const priceCfg = { avgPrice: { label: 'Ср. цена', color: 'var(--warning)' } } satisfies ChartConfig;
 const returnCfg = { returnPct: { label: '% върнати', color: 'var(--destructive)' } } satisfies ChartConfig;
+// Demo month-end stock value across all warehouses (delivery prices), independent of seller filters
+export function stockValue(y: number, m: number) { return 68000 + ((y * 5 + m * 11) % 9) * 2400 + (m % 4) * 1500; }
+const stockCfg = { stock: { label: 'Наличност', color: 'var(--info)' } } satisfies ChartConfig;
 const profitCfg = { profit: { label: 'Печалба', color: 'var(--success)' } } satisfies ChartConfig;
 
 function Statistics() {
@@ -196,7 +199,7 @@ function Statistics() {
     }
     return [...byMonth.values()].sort((a, b) => a.y - b.y || a.m - b.m).slice(-12).map(r => ({
       month: `${MONTH_SHORT[r.m]} ${String(r.y).slice(2)}`,
-      orders: r.orders, paid: r.paid, returned: r.returned, items: r.items, revenue: r.revenue, profit: r.profit,
+      orders: r.orders, paid: r.paid, returned: r.returned, items: r.items, revenue: r.revenue, profit: r.profit, stock: stockValue(r.y, r.m),
       returnPct: r.orders ? +(r.returned / r.orders * 100).toFixed(1) : 0,
       avgItems: r.orders ? +(r.items / r.orders).toFixed(2) : 0,
       avgPrice: r.orders ? +(r.revenue / r.orders).toFixed(2) : 0,
@@ -282,7 +285,8 @@ function Statistics() {
 
     <h2 className="text-sm font-semibold mb-2 text-foreground">Последните 12 месеца{windowLabel ? <span className="ml-2 text-xs font-normal text-muted-foreground">{windowLabel}</span> : null}</h2>
     <div className="grid gap-3 lg:grid-cols-2">
-      <Card title="Печалба по месеци (€)" wide><ChartContainer config={profitCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={45} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="profit" fill="var(--color-profit)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
+      <Card title="Печалба по месеци (€)"><ChartContainer config={profitCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={45} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="profit" fill="var(--color-profit)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
+      <Card title="Наличност на артикули по месеци – обща стойност (€)"><ChartContainer config={stockCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={45} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="stock" fill="var(--color-stock)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
       <Card title="Брой поръчки (платени и върнати)"><ChartContainer config={ordersCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><ChartLegend content={<ChartLegendContent />} /><Bar dataKey="paid" stackId="a" fill="var(--color-paid)" /><Bar dataKey="returned" stackId="a" fill="var(--color-returned)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
       <Card title="Върнати поръчки, % от всички"><ChartContainer config={returnCfg} className="h-56 w-full"><LineChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} unit="%" /><ChartTooltip content={<ChartTooltipContent />} /><Line dataKey="returnPct" stroke="var(--color-returnPct)" strokeWidth={2} dot={false} /></LineChart></ChartContainer></Card>
       <Card title="Брой продажби (платени)"><ChartContainer config={salesCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="paid" fill="var(--color-paid)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
