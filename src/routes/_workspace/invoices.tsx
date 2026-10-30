@@ -4,6 +4,7 @@ import { CheckCheck, Clock3, Copy, Eye, FileText, MoreVertical, Printer, Search,
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Pagination } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { filterInvoices, INVOICE_STATUSES, useInvoices, type DemoInvoice } from '@/lib/invoices-store';
@@ -36,12 +37,19 @@ function InvoicesPage() {
   const [status, setStatus] = useState('');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<DemoInvoice | null>(null);
+  const [selection, setSelection] = useState<string[]>([]);
   const dated = filterInvoices(invoices, from, to, '', query);
   const filtered = filterInvoices(dated, '', '', status);
   const size = pageSize || filtered.length || 1;
   const current = Math.min(page, Math.max(1, Math.ceil(filtered.length / size)));
   const visible = filtered.slice((current - 1) * size, current * size);
   const chooseStatus = (value: string) => { setStatus(value); setPage(1); };
+  const pageIds = visible.map(invoice => invoice.id);
+  const allSelected = pageIds.length > 0 && pageIds.every(id => selection.includes(id));
+  const someSelected = !allSelected && pageIds.some(id => selection.includes(id));
+  const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id => !pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
+  const toggleRow = (id: string) => setSelection(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+  const chosen = filtered.filter(invoice => selection.includes(invoice.id));
 
   return (
     <WorkspaceShell active="Фактури">
@@ -69,18 +77,21 @@ function InvoicesPage() {
           <div className="delivery-table-scroll">
             <table className="delivery-table orders-table">
               <thead><tr>
+                <th className="row-select-cell"><Checkbox aria-label="Избери всички фактури на страницата" checked={allSelected ? true : someSelected ? 'indeterminate' : false} onCheckedChange={() => toggleAll()} /></th>
                 <th>Фактура №</th><th>Дата</th><th>Статус</th><th>Клиент</th><th>Поръчка</th><th>Общо с ДДС</th>
                 <th className="delivery-head-center">Действия</th><th className="delivery-head-center">Виж</th>
               </tr></thead>
-              <tbody>{visible.map(invoice => <tr key={invoice.id}>
+              <tbody>{visible.map(invoice => <tr key={invoice.id} data-selected={selection.includes(invoice.id)}>
+                <td className="row-select-cell"><Checkbox aria-label={`Избери фактура ${invoice.id}`} checked={selection.includes(invoice.id)} onCheckedChange={() => toggleRow(invoice.id)} /></td>
                 <td><Button variant="link" className="delivery-id" onClick={() => setSelected(invoice)}>{invoice.id}</Button></td>
                 <td>{date(invoice.date)}</td><td><span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${statusClass(invoice.status)}`}>{invoice.status}</span></td><td>{invoice.sale.customer}{invoice.sale.eik && <span className="delivery-cell-sub block">ЕИК {invoice.sale.eik}</span>}</td><td>{invoice.sale.id}</td><td className="font-semibold">{money(invoice.total)}</td>
-                <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { void navigator.clipboard.writeText(invoice.id); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
+                <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled={!selection.includes(invoice.id)} onSelect={() => openInvoicesPrint([invoice])}><Printer />Печат</DropdownMenuItem><DropdownMenuItem disabled={!selection.includes(invoice.id)} onSelect={() => openInvoicesPrint([invoice], `Фактура ${invoice.id} — PDF`)}><FileText />Експорт в PDF</DropdownMenuItem><DropdownMenuItem onSelect={() => { void navigator.clipboard.writeText(invoice.id); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
                 <td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${invoice.id}`} title="Преглед" onClick={() => setSelected(invoice)}><Eye /></Button></div></td>
               </tr>)}</tbody>
             </table>
           </div>
           {!filtered.length && <div className="delivery-empty"><FileText size={28} /><h3>Няма фактури за избраните филтри</h3></div>}
+          {selection.length > 0 && <div className="article-selection"><span>{selection.length} {selection.length === 1 ? 'избрана фактура' : 'избрани фактури'}</span><DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="sm"><MoreVertical />Действия</Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen)}><Printer />Печат</DropdownMenuItem><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen, 'Фактури — PDF')}><FileText />Експорт в PDF</DropdownMenuItem><DropdownMenuItem disabled={chosen.length !== 1} onSelect={() => { void navigator.clipboard.writeText(chosen[0]?.id ?? ''); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu><Button variant="ghost" size="sm" onClick={() => setSelection([])}><X />Изчисти избора</Button></div>}
           <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="invoices-page-size" />
         </section>
         <p className="demo-caption mt-4">Примерни фактури · само за текущата сесия · не са официални счетоводни документи</p>
