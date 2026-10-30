@@ -231,8 +231,8 @@ function Statistics() {
   const applyPreset = (id: string) => { const r = presetRange(id); setFrom(r.from); setTo(r.to); };
 
   return <WorkspaceShell active="Статистика"><div className="page-content deliveries-content orders-content">
-    <div className="page-heading"><div><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div></div>
-    <div className="suppliers-filters transfers-filters">
+    <div className="page-heading deliveries-heading statistics-heading"><div className="heading-title"><h1>Статистика<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва екранът"><Info /></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Избери период от календара – с две кликвания или с бърз филтър. Картите показват избрания период, а графиките – 12-те месеца до края му. Филтрирай по инфлуенсър или търговец и по населено място.</TooltipContent></Tooltip></TooltipProvider></h1></div>
+    <div className="suppliers-filters transfers-filters statistics-filters">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button type="button" variant="outline" className="period-trigger">
