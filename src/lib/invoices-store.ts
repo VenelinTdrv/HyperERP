@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 export type InvoiceSale = {
   id: string; customer: string; phone: string; city: string; address: string;
-  product: string; quantity: number; price: number; shipping: number; eik?: string | undefined;
+  product: string; quantity: number; price: number; shipping: number; eik?: string | undefined; payment?: string | undefined;
 };
 export const INVOICE_STATUSES = ['Издадена', 'Платена', 'Анулирана'] as const;
 export type InvoiceStatus = typeof INVOICE_STATUSES[number];
@@ -36,20 +36,20 @@ export function buildDemoInvoice(sale: InvoiceSale, number: number, now = new Da
 }
 
 export function createExampleInvoices(now = new Date()): DemoInvoice[] {
-  const examples: { customer: string; city: string; product: string; quantity: number; price: number; days: number; status: InvoiceStatus; eik?: string }[] = [
-    { customer: 'Мария Георгиева', city: 'София', product: 'Rose Élixir', quantity: 2, price: 49, days: 0, status: 'Издадена' },
-    { customer: 'Ивана Петрова', city: 'Пловдив', product: 'Крем за лице', quantity: 1, price: 38, days: 0, status: 'Платена' },
-    { customer: 'Козметик Груп ООД', city: 'Варна', product: 'Серум с витамин C', quantity: 5, price: 42, days: 1, status: 'Издадена', eik: '205987654' },
-    { customer: 'Елена Димитрова', city: 'Бургас', product: 'Хидратираща маска', quantity: 3, price: 18, days: 2, status: 'Платена' },
-    { customer: 'Николай Стоянов', city: 'Русе', product: 'Rose Élixir', quantity: 1, price: 49, days: 4, status: 'Анулирана' },
-    { customer: 'Анна Николова', city: 'Стара Загора', product: 'Почистващ гел', quantity: 2, price: 24, days: 7, status: 'Платена' },
+  const examples: { customer: string; city: string; product: string; quantity: number; price: number; days: number; status: InvoiceStatus; eik?: string; payment: string }[] = [
+    { customer: 'Мария Георгиева', city: 'София', product: 'Rose Élixir', quantity: 2, price: 49, days: 0, status: 'Издадена', payment: 'Наложен платеж' },
+    { customer: 'Ивана Петрова', city: 'Пловдив', product: 'Крем за лице', quantity: 1, price: 38, days: 0, status: 'Платена', payment: 'Банков път' },
+    { customer: 'Козметик Груп ООД', city: 'Варна', product: 'Серум с витамин C', quantity: 5, price: 42, days: 1, status: 'Издадена', eik: '205987654', payment: 'Наложен платеж' },
+    { customer: 'Елена Димитрова', city: 'Бургас', product: 'Хидратираща маска', quantity: 3, price: 18, days: 2, status: 'Платена', payment: 'Банков път' },
+    { customer: 'Николай Стоянов', city: 'Русе', product: 'Rose Élixir', quantity: 1, price: 49, days: 4, status: 'Анулирана', payment: 'Наложен платеж' },
+    { customer: 'Анна Николова', city: 'Стара Загора', product: 'Почистващ гел', quantity: 2, price: 24, days: 7, status: 'Платена', payment: 'Банков път' },
   ];
   return examples.map((example, index) => {
     const issued = new Date(now);
     issued.setUTCDate(issued.getUTCDate() - example.days);
     return { ...buildDemoInvoice({
       id: `DEMO-SALE-${index + 1}`, customer: example.customer, phone: '—', city: example.city,
-      address: 'Примерен адрес', product: example.product, quantity: example.quantity, price: example.price, shipping: 4.9, eik: example.eik,
+      address: 'Примерен адрес', product: example.product, quantity: example.quantity, price: example.price, shipping: 4.9, eik: example.eik, payment: example.payment,
     }, index + 1, issued), status: example.status };
   });
 }
