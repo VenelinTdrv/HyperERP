@@ -64,3 +64,21 @@ test('order invoice total equals goods plus shipping', () => {
   const s = orderToInvoiceSale({ id:'ORD-X', customer:'A', phone:'', city:'', address:'', shipping:5, items:[{name:'a',quantity:2,price:10},{name:'b',quantity:1,price:30}] });
   expect(s.quantity*s.price+s.shipping).toBe(55);
 });
+import { applyInvoiceEdit, buildInvoiceNote } from '@/lib/invoices-store';
+describe('Invoice notes and edits', () => {
+  const inv = buildDemoInvoice(sale, 1, new Date('2026-10-30T08:00:00Z'));
+  it('credit note is negative and capped at invoice total', () => {
+    expect(buildInvoiceNote(inv, 'Кредитно известие', 20, 'Връщане', 2).total).toBe(-20);
+    expect(() => buildInvoiceNote(inv, 'Кредитно известие', 200, 'x', 2)).toThrow();
+  });
+  it('debit note is positive and references the invoice', () => {
+    const n = buildInvoiceNote(inv, 'Дебитно известие', 15, 'Доплащане', 2);
+    expect(n.total).toBe(15); expect(n.relatedId).toBe(inv.id);
+  });
+  it('no notes on annulled invoices', () => {
+    expect(() => buildInvoiceNote({ ...inv, status: 'Анулирана' }, 'Дебитно известие', 5, 'x', 2)).toThrow();
+  });
+  it('editing recalculates the total', () => {
+    expect(applyInvoiceEdit(inv, { quantity: 3 }).total).toBe(151.9);
+  });
+});

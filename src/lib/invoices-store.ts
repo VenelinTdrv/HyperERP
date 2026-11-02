@@ -81,3 +81,46 @@ export function orderToInvoiceSale(order: InvoiceOrder): InvoiceSale {
 export function generateInvoiceFromOrder(order: InvoiceOrder) {
   return generateDemoInvoice([order.id], [orderToInvoiceSale(order)]);
 }
+
+export type InvoiceKind = 'Фактура' | 'Кредитно известие' | 'Дебитно известие';
+export const invoiceKind = (row: DemoInvoice): InvoiceKind => (row as DemoInvoice & { kind?: InvoiceKind }).kind ?? 'Фактура';
+export type InvoiceNote = DemoInvoice & { kind: InvoiceKind; relatedId?: string; reason?: string };
+
+const notify = () => listeners.forEach(listener => listener());
+
+export function buildInvoiceNote(base: DemoInvoice, kind: 'Кредитно известие' | 'Дебитно известие', amount: number, reason: string, number: number, now = new Date()): InvoiceNote {
+  if (invoiceKind(base) !== 'Фактура') throw new Error('Известие се издава само към фактура.');
+  if (base.status === 'Анулирана') throw new Error('Фактурата е анулирана.');
+  const value = Math.round(amount * 100) / 100;
+  if (!(value > 0)) throw new Error('Въведете сума по-голяма от 0.');
+  if (kind === 'Кредитно известие' && value > base.total) throw new Error('Сумата не може да надвишава сумата на фактурата.');
+  if (!reason.trim()) throw new Error('Въведете основание.');
+  return { ...buildDemoInvoice(base.sale, number, now), kind, relatedId: base.id, reason: reason.trim(), total: kind === 'Кредитно известие' ? -value : value };
+}
+
+export function createInvoiceNote(invoiceId: string, kind: 'Кредитно известие' | 'Дебитно известие', amount: number, reason: string) {
+  const base = invoices.find(row => row.id === invoiceId);
+  if (!base) throw new Error('Фактурата не е намерена.');
+  const note = buildInvoiceNote(base, kind, amount, reason, invoices.length + 1);
+  invoices = [note, ...invoices];
+  notify();
+  return note;
+}
+
+export function applyInvoiceEdit(row: DemoInvoice, patch: Partial<InvoiceSale> & { status?: InvoiceStatus }): DemoInvoice {
+  const { status, ...salePatch } = patch;
+  const sale = { ...row.sale, ...salePatch };
+  if (!sale.customer.trim()) throw new Error('Въведете клиент.');
+  if (!(sale.quantity > 0) || sale.price < 0 || sale.shipping < 0) throw new Error('Невалидни количество или цена.');
+  const total = invoiceKind(row) === 'Фактура' ? Math.round((sale.quantity * sale.price + sale.shipping) * 100) / 100 : row.total;
+  return { ...row, sale, status: status ?? row.status, total };
+}
+
+export function updateInvoice(id: string, patch: Partial<InvoiceSale> & { status?: InvoiceStatus }) {
+  const row = invoices.find(item => item.id === id);
+  if (!row) throw new Error('Фактурата не е намерена.');
+  const next = applyInvoiceEdit(row, patch);
+  invoices = invoices.map(item => item.id === id ? next : item);
+  notify();
+  return next;
+}
