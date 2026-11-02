@@ -1,13 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { CheckCheck, Clock3, Copy, Eye, FileText, MoreVertical, Printer, Search, X, XCircle } from 'lucide-react';
+import { FileMinus, FilePlus, Pencil, CheckCheck, Clock3, Copy, Eye, FileText, MoreVertical, Printer, Search, X, XCircle } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Pagination } from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { filterInvoices, INVOICE_STATUSES, useInvoices, type DemoInvoice } from '@/lib/invoices-store';
+import { createInvoiceNote, filterInvoices, INVOICE_STATUSES, invoiceKind, updateInvoice, useInvoices, type DemoInvoice, type InvoiceNote, type InvoiceStatus } from '@/lib/invoices-store';
+import { toast } from 'sonner';
 import { openInvoicesPrint } from '@/lib/invoices-export';
 
 const money = (value: number) => new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'EUR' }).format(value);
@@ -49,6 +50,32 @@ function InvoicesPage() {
   const someSelected = !allSelected && pageIds.some(id => selection.includes(id));
   const toggleAll = () => setSelection(prev => allSelected ? prev.filter(id => !pageIds.includes(id)) : Array.from(new Set([...prev, ...pageIds])));
   const toggleRow = (id: string) => setSelection(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+  const [action, setAction] = useState<{ mode: 'credit' | 'debit' | 'edit'; invoice: DemoInvoice } | null>(null);
+  const [form, setForm] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState('');
+  const openAction = (mode: 'credit' | 'debit' | 'edit', invoice: DemoInvoice) => {
+    setFormError(''); setAction({ mode, invoice });
+    setForm(mode === 'edit' ? { customer: invoice.sale.customer, eik: invoice.sale.eik ?? '', city: invoice.sale.city, address: invoice.sale.address, product: invoice.sale.product, quantity: String(invoice.sale.quantity), price: String(invoice.sale.price), shipping: String(invoice.sale.shipping), status: invoice.status } : { amount: '', reason: '' });
+  };
+  const submitAction = () => {
+    if (!action) return;
+    try {
+      if (action.mode === 'edit') {
+        updateInvoice(action.invoice.id, { customer: form.customer ?? '', eik: form.eik || undefined, city: form.city ?? '', address: form.address ?? '', product: form.product ?? '', quantity: Number(form.quantity), price: Number(form.price), shipping: Number(form.shipping), status: form.status as InvoiceStatus });
+        toast.success(`Фактура ${action.invoice.id} е редактирана (демо)`);
+      } else {
+        const note = createInvoiceNote(action.invoice.id, action.mode === 'credit' ? 'Кредитно известие' : 'Дебитно известие', Number((form.amount ?? '').replace(',', '.')), form.reason ?? '');
+        toast.success(`${invoiceKind(note)} ${note.id} е създадено (демо)`);
+      }
+      setAction(null);
+    } catch (e) { setFormError(e instanceof Error ? e.message : 'Грешка'); }
+  };
+  const canNote = (invoice: DemoInvoice) => invoiceKind(invoice) === 'Фактура' && invoice.status !== 'Анулирана';
+  const noteItems = (invoice: DemoInvoice) => <>
+    <DropdownMenuItem disabled={!canNote(invoice)} onSelect={() => openAction('credit', invoice)}><FileMinus />Кредитно известие</DropdownMenuItem>
+    <DropdownMenuItem disabled={!canNote(invoice)} onSelect={() => openAction('debit', invoice)}><FilePlus />Дебитно известие</DropdownMenuItem>
+    <DropdownMenuItem onSelect={() => openAction('edit', invoice)}><Pencil />Редактирай</DropdownMenuItem>
+  </>;
   const chosen = filtered.filter(invoice => selection.includes(invoice.id));
 
   return (
@@ -83,28 +110,42 @@ function InvoicesPage() {
               </tr></thead>
               <tbody>{visible.map(invoice => <tr key={invoice.id} data-selected={selection.includes(invoice.id)}>
                 <td className="row-select-cell"><Checkbox aria-label={`Избери фактура ${invoice.id}`} checked={selection.includes(invoice.id)} onCheckedChange={() => toggleRow(invoice.id)} /></td>
-                <td><Button variant="link" className="delivery-id" onClick={() => setSelected(invoice)}>{invoice.id}</Button></td>
+                <td><Button variant="link" className="delivery-id" onClick={() => setSelected(invoice)}>{invoice.id}</Button>{invoiceKind(invoice) !== 'Фактура' && <span className="delivery-cell-sub block">{invoiceKind(invoice)} към {(invoice as InvoiceNote).relatedId}</span>}</td>
                 <td>{date(invoice.date)}</td><td><span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${statusClass(invoice.status)}`}>{invoice.status}</span></td><td>{invoice.sale.customer}{invoice.sale.eik && <span className="delivery-cell-sub block">ЕИК {invoice.sale.eik}</span>}</td><td>{invoice.sale.id}</td><td className="font-semibold">{money(invoice.total)}</td>
-                <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled={!selection.includes(invoice.id)} onSelect={() => openInvoicesPrint([invoice])}><Printer />Печат</DropdownMenuItem><DropdownMenuItem disabled={!selection.includes(invoice.id)} onSelect={() => openInvoicesPrint([invoice], `Фактура ${invoice.id} — PDF`)}><FileText />Експорт в PDF</DropdownMenuItem><DropdownMenuItem onSelect={() => { void navigator.clipboard.writeText(invoice.id); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
+                <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Действия ${invoice.id}`} title="Действия"><MoreVertical /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled={!selection.includes(invoice.id)} onSelect={() => openInvoicesPrint([invoice])}><Printer />Печат</DropdownMenuItem><DropdownMenuItem disabled={!selection.includes(invoice.id)} onSelect={() => openInvoicesPrint([invoice], `Фактура ${invoice.id} — PDF`)}><FileText />Експорт в PDF</DropdownMenuItem><DropdownMenuItem onSelect={() => { void navigator.clipboard.writeText(invoice.id); }}><Copy />Копирай номер</DropdownMenuItem>{noteItems(invoice)}</DropdownMenuContent></DropdownMenu></div></td>
                 <td><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${invoice.id}`} title="Преглед" onClick={() => setSelected(invoice)}><Eye /></Button></div></td>
               </tr>)}</tbody>
             </table>
           </div>
           {!filtered.length && <div className="delivery-empty"><FileText size={28} /><h3>Няма фактури за избраните филтри</h3></div>}
-          {selection.length > 0 && <div className="article-selection"><span>{selection.length} {selection.length === 1 ? 'избрана фактура' : 'избрани фактури'}</span><DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="sm"><MoreVertical />Действия</Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen)}><Printer />Печат</DropdownMenuItem><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen, 'Фактури — PDF')}><FileText />Експорт в PDF</DropdownMenuItem><DropdownMenuItem disabled={chosen.length !== 1} onSelect={() => { void navigator.clipboard.writeText(chosen[0]?.id ?? ''); }}><Copy />Копирай номер</DropdownMenuItem></DropdownMenuContent></DropdownMenu><Button variant="ghost" size="sm" onClick={() => setSelection([])}><X />Изчисти избора</Button></div>}
+          {selection.length > 0 && <div className="article-selection"><span>{selection.length} {selection.length === 1 ? 'избрана фактура' : 'избрани фактури'}</span><DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="sm"><MoreVertical />Действия</Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen)}><Printer />Печат</DropdownMenuItem><DropdownMenuItem onSelect={() => openInvoicesPrint(chosen, 'Фактури — PDF')}><FileText />Експорт в PDF</DropdownMenuItem><DropdownMenuItem disabled={chosen.length !== 1} onSelect={() => { void navigator.clipboard.writeText(chosen[0]?.id ?? ''); }}><Copy />Копирай номер</DropdownMenuItem>{chosen.length === 1 && chosen[0] && noteItems(chosen[0])}</DropdownMenuContent></DropdownMenu><Button variant="ghost" size="sm" onClick={() => setSelection([])}><X />Изчисти избора</Button></div>}
           <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="invoices-page-size" />
         </section>
         <p className="demo-caption mt-4">Примерни фактури · само за текущата сесия · не са официални счетоводни документи</p>
       </div>
       <Dialog open={selected !== null} onOpenChange={open => { if (!open) setSelected(null); }}>
         <DialogContent className="max-w-xl max-h-[90dvh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Фактура {selected?.id}</DialogTitle><DialogDescription>Примерна фактура · не е официален счетоводен документ</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>{selected ? invoiceKind(selected) : 'Фактура'} {selected?.id}</DialogTitle><DialogDescription>Примерна фактура · не е официален счетоводен документ</DialogDescription></DialogHeader>
           {selected && <>
-            <dl className="delivery-details">{[['Дата', date(selected.date)], ['Статус', selected.status], ['Продажба / Поръчка', selected.sale.id], ['Клиент', selected.sale.customer], ...(selected.sale.eik ? [['ЕИК', selected.sale.eik]] : []), ['Телефон', selected.sale.phone], ['Населено място', selected.sale.city], ['Адрес / офис', selected.sale.address]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+            <dl className="delivery-details">{[['Дата', date(selected.date)], ['Статус', selected.status], ['Продажба / Поръчка', selected.sale.id], ...((selected as InvoiceNote).relatedId ? [['Към фактура', (selected as InvoiceNote).relatedId ?? ''], ['Основание', (selected as InvoiceNote).reason ?? '']] : []), ['Клиент', selected.sale.customer], ...(selected.sale.eik ? [['ЕИК', selected.sale.eik]] : []), ['Телефон', selected.sale.phone], ['Населено място', selected.sale.city], ['Адрес / офис', selected.sale.address]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
             <div className="delivery-table-scroll"><table className="delivery-table"><thead><tr><th>Продукт</th><th>Количество</th><th>Цена</th><th>Сума</th></tr></thead><tbody><tr><td>{selected.sale.product}</td><td>{selected.sale.quantity}</td><td>{money(selected.sale.price)}</td><td>{money(selected.sale.quantity * selected.sale.price)}</td></tr></tbody></table></div>
             <dl className="delivery-details"><div><dt>Доставка</dt><dd>{money(selected.sale.shipping)}</dd></div><div><dt>Общо с ДДС</dt><dd>{money(selected.total)}</dd></div></dl>
           </>}
           <div className="flex justify-end"><Button variant="outline" onClick={() => setSelected(null)}>Затвори</Button></div>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}>
+        <DialogContent className="max-w-lg max-h-[90dvh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{action?.mode === 'credit' ? 'Кредитно известие' : action?.mode === 'debit' ? 'Дебитно известие' : 'Редакция на фактура'} · {action?.invoice.id}</DialogTitle><DialogDescription>Примерен документ · само за текущата сесия{action && action.mode !== 'edit' ? ` · фактура на стойност ${money(action.invoice.total)}` : ''}</DialogDescription></DialogHeader>
+          <form className="grid gap-3" onSubmit={e => { e.preventDefault(); submitAction(); }}>
+            {(action?.mode === 'edit'
+              ? [['customer', 'Клиент'], ['eik', 'ЕИК'], ['city', 'Населено място'], ['address', 'Адрес / офис'], ['product', 'Продукт'], ['quantity', 'Количество'], ['price', 'Цена (€)'], ['shipping', 'Доставка (€)']]
+              : [['amount', action?.mode === 'credit' ? 'Сума за намаление (€)' : 'Сума за увеличение (€)'], ['reason', 'Основание']]
+            ).map(([key, label]) => <div className="field" key={key}><label htmlFor={`inv-${key}`}>{label}</label><input id={`inv-${key}`} inputMode={['quantity', 'price', 'shipping', 'amount'].includes(key!) ? 'decimal' : undefined} value={form[key!] ?? ''} onChange={e => setForm(f => ({ ...f, [key!]: e.target.value }))} /></div>)}
+            {action?.mode === 'edit' && <div className="field"><label htmlFor="inv-status">Статус</label><select id="inv-status" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>{INVOICE_STATUSES.map(v => <option key={v}>{v}</option>)}</select></div>}
+            {formError && <p className="text-sm text-destructive" role="alert">{formError}</p>}
+            <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setAction(null)}>Отказ</Button><Button type="submit">{action?.mode === 'edit' ? 'Запази' : 'Създай'}</Button></div>
+          </form>
         </DialogContent>
       </Dialog>
     </WorkspaceShell>
