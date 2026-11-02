@@ -33,6 +33,7 @@
 - Order-detail exports use the current draft, shared order-blank printing/PDF and browser-generated XLS, so actions reflect the visible order without changing session data.
 - Render every list footer through the shared Pagination component instead of hand-written pager markup, so paging and the records-per-page choice stay identical across screens and new lists inherit them.
 - Keep the influencer / wholesale-trader nomenclature and the demo seller credited to each order in one shared module that order, sale and payment screens import, so names and types stay identical everywhere.
+- Take chart colors from the shared ChartConfig tokens; the generated `--color-*` variables exist only inside `<ChartContainer>`, so a legend or swatch rendered outside it must read the config value directly instead of the CSS variable.
 
 ## Cloud transition
 - The public demonstration workspace lives under _workspace with unchanged URLs, including sales at /; /auth redirects to /. Never weaken authentication on private server functions or expose operational records to the public preview.
