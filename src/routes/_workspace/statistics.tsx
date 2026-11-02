@@ -318,7 +318,7 @@ function Statistics() {
         <div>
           <ul className="grid gap-1.5">
             {pieRows.map(r => <li key={r.key} className="flex items-center gap-2 text-xs">
-              <span className="size-2.5 shrink-0 rounded-sm" style={{ background: `var(--color-${r.key})` }} />
+              <span className="size-2.5 shrink-0 rounded-sm" style={{ background: sellerPieCfg[r.key]!.color }} />
               <span className="truncate font-medium text-foreground">{r.name}</span>
               <span className="hidden shrink-0 text-muted-foreground sm:inline">{r.type}</span>
               <span className="ml-auto shrink-0 tabular-nums text-muted-foreground">{r.orders} поръчки</span>
