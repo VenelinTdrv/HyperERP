@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from 'recharts';
 import { CalendarDays, CheckCircle2, ChevronDown, Info, Package, RotateCcw, ShieldCheck, ShoppingBag, Wallet } from 'lucide-react';
 import { endOfMonth, format, startOfDay, startOfMonth, subMonths } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
@@ -152,6 +152,17 @@ export function sellerShareStats(settlement: string, from: Date, to: Date): Reco
   return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
 }
 
+// Pie slices per seller: order count and share of all orders for the chosen period.
+// The denominator always spans every seller, so one chosen seller still shows its real share.
+const PIE_COLORS = ['var(--primary)', 'var(--info)', 'var(--warning)', 'var(--plum)'];
+export function sellerPieData(settlement: string, from: Date, to: Date) {
+  const stats = sellerShareStats(settlement, from, to);
+  return SELLERS.map((s, i) => ({ key: `s${i}`, name: s.id, type: s.type, orders: stats[s.id]!.orders, pct: Number(stats[s.id]!.pct) }))
+    .filter(r => r.orders > 0)
+    .sort((a, b) => b.orders - a.orders);
+}
+const sellerPieCfg: ChartConfig = Object.fromEntries(SELLERS.map((s, i) => [`s${i}`, { label: s.id, color: PIE_COLORS[i % PIE_COLORS.length]! }]));
+
 const ordersCfg = { paid: { label: 'Платени', color: 'var(--primary)' }, returned: { label: 'Върнати', color: 'var(--destructive)' }, orders: { label: 'Всички', color: 'var(--info)' } } satisfies ChartConfig;
 const salesCfg = { paid: { label: 'Продажби (платени)', color: 'var(--primary)' } } satisfies ChartConfig;
 const itemsCfg = { avgItems: { label: 'Ср. артикули', color: 'var(--info)' } } satisfies ChartConfig;
@@ -224,6 +235,9 @@ function Statistics() {
   // Per-seller share for the dropdown labels, mirroring settlementStats.
   // Denominator always spans all sellers so a chosen seller still shows its real share.
   const sellerStats = useMemo(() => sellerShareStats(settlement, from, to), [settlement, from, to]);
+  // Pie slices for the selected period: orders and % of all per influencer / trader
+  const pieRows = useMemo(() => sellerPieData(settlement, from, to), [settlement, from, to]);
+  const pieTotal = pieRows.reduce((a, r) => a + r.orders, 0);
 
   const paidPct = period.orders ? (period.paid / period.orders * 100).toFixed(1) : '0';
   const activePreset = PRESETS.find(p => { const r = presetRange(p.id); return +r.from === +from && +r.to === +to; })?.id;
@@ -290,6 +304,32 @@ function Statistics() {
       </div>)}
     </section>
 
+    <h2 className="text-sm font-semibold mb-2 text-foreground">Поръчки по инфлуенсър / търговец<span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">{fmt(from)} – {fmt(to)}</span></h2>
+    <Card title="Брой поръчки и дял от всички" className="mb-4">
+      <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
+        <ChartContainer config={sellerPieCfg} className="mx-auto aspect-square h-56 w-56">
+          <PieChart>
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel indicator="dot" />} />
+            <Pie data={pieRows} dataKey="orders" nameKey="key" outerRadius="82%" paddingAngle={1} stroke="var(--card)" isAnimationActive={false}>
+              {pieRows.map(r => <Cell key={r.key} fill={`var(--color-${r.key})`} fillOpacity={seller && r.name !== seller ? 0.3 : 1} />)}
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+        <div>
+          <ul className="grid gap-1.5">
+            {pieRows.map(r => <li key={r.key} className="flex items-center gap-2 text-xs">
+              <span className="size-2.5 shrink-0 rounded-sm" style={{ background: sellerPieCfg[r.key]!.color }} />
+              <span className="truncate font-medium text-foreground">{r.name}</span>
+              <span className="hidden shrink-0 text-muted-foreground sm:inline">{r.type}</span>
+              <span className="ml-auto shrink-0 tabular-nums text-muted-foreground">{r.orders} поръчки</span>
+              <span className="w-14 shrink-0 text-right font-semibold tabular-nums text-foreground">{r.pct}%</span>
+            </li>)}
+          </ul>
+          <div className="mt-3 border-t border-border pt-2 text-[11px] text-muted-foreground">Общо {pieTotal} поръчки за избрания период</div>
+        </div>
+      </div>
+    </Card>
+
     <h2 className="text-sm font-semibold mb-2 text-foreground">Последните 12 месеца{windowLabel ? <span className="ml-2 text-xs font-normal text-muted-foreground">{windowLabel}</span> : null}</h2>
     <div className="grid gap-3 lg:grid-cols-2">
       <Card title="Печалба по месеци (€)"><ChartContainer config={profitCfg} className="h-56 w-full"><BarChart data={data}><CartesianGrid vertical={false} />{axis}<YAxis fontSize={10} width={45} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="profit" fill="var(--color-profit)" radius={[3, 3, 0, 0]} /></BarChart></ChartContainer></Card>
@@ -304,6 +344,6 @@ function Statistics() {
   </div></WorkspaceShell>;
 }
 
-function Card({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
-  return <section className={`rounded-lg border border-border bg-card p-4 ${wide ? 'lg:col-span-2' : ''}`}><h3 className="text-xs font-semibold text-foreground mb-2">{title}</h3>{children}</section>;
+function Card({ title, children, wide, className }: { title: string; children: React.ReactNode; wide?: boolean; className?: string }) {
+  return <section className={`rounded-lg border border-border bg-card p-4 ${wide ? 'lg:col-span-2' : ''} ${className ?? ''}`}><h3 className="text-xs font-semibold text-foreground mb-2">{title}</h3>{children}</section>;
 }
