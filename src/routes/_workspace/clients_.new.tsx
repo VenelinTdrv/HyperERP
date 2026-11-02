@@ -4,7 +4,7 @@ import { WorkspaceShell } from '@/components/workspace-shell';
 import { ClientEditorForm, type ClientFormData } from '@/components/client-editor';
 import { createClient, setClientNotice, useClients, clientName } from '@/lib/clients-store';
 
-export const Route = createFileRoute('/_workspace/clients_.new')({
+export const Route = createFileRoute('/_workspace/clients_/new')({
  head: () => ({ meta: [
   { title: 'HyperERP · Нов клиент' },
   { name: 'description', content: 'Създаване на клиент — физическо или юридическо лице с телефони и адреси за доставка в HyperERP.' },
