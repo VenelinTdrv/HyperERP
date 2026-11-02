@@ -238,6 +238,23 @@ function Statistics() {
   // Pie slices for the selected period: orders and % of all per influencer / trader
   const pieRows = useMemo(() => sellerPieData(settlement, from, to), [settlement, from, to]);
   const pieTotal = pieRows.reduce((a, r) => a + r.orders, 0);
+  // % printed beside every slice; recharts draws the leader line in the slice colour.
+  const piePctLabel = (props: { x?: number; y?: number; textAnchor?: 'start' | 'middle' | 'end'; payload?: { key?: string; name?: string; pct?: number } }) => {
+    const { x = 0, y = 0, textAnchor = 'middle', payload } = props;
+    const dimmed = Boolean(seller) && payload?.name !== seller;
+    return (
+      <text x={x} y={y} dx={textAnchor === 'start' ? 5 : -5} dy={4} textAnchor={textAnchor} fontSize={11} fontWeight={600}
+        fill={sellerPieCfg[payload?.key ?? '']?.color} fillOpacity={dimmed ? 0.55 : 1}>{payload?.pct}%</text>
+    );
+  };
+  // Tooltip: name, order count and share of all for the slice under the cursor.
+  const pieTooltip = (value: unknown, _name: unknown, item: { payload?: { key?: string; pct?: number } }) => (
+    <>
+      <span className="size-2.5 shrink-0 rounded-[2px]" style={{ background: sellerPieCfg[item.payload?.key ?? '']?.color }} />
+      <span className="flex-1 text-muted-foreground">{sellerPieCfg[item.payload?.key ?? '']?.label}</span>
+      <span className="font-mono font-medium tabular-nums text-foreground">{Number(value)} · {item.payload?.pct}%</span>
+    </>
+  );
 
   const paidPct = period.orders ? (period.paid / period.orders * 100).toFixed(1) : '0';
   const activePreset = PRESETS.find(p => { const r = presetRange(p.id); return +r.from === +from && +r.to === +to; })?.id;
