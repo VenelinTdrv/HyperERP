@@ -154,7 +154,7 @@ export function sellerShareStats(settlement: string, from: Date, to: Date): Reco
 
 // Pie slices per seller: order count and share of all orders for the chosen period.
 // The denominator always spans every seller, so one chosen seller still shows its real share.
-const PIE_COLORS = ['var(--primary)', 'var(--info)', 'var(--warning)', 'var(--success)'];
+const PIE_COLORS = ['var(--primary)', 'var(--info)', 'var(--warning)', 'var(--plum)'];
 export function sellerPieData(settlement: string, from: Date, to: Date) {
   const stats = sellerShareStats(settlement, from, to);
   return SELLERS.map((s, i) => ({ key: `s${i}`, name: s.id, type: s.type, orders: stats[s.id]!.orders, pct: Number(stats[s.id]!.pct) }))
@@ -310,7 +310,7 @@ function Statistics() {
         <ChartContainer config={sellerPieCfg} className="mx-auto aspect-square h-56 w-56">
           <PieChart>
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel indicator="dot" />} />
-            <Pie data={pieRows} dataKey="orders" nameKey="key" outerRadius="82%" paddingAngle={1} stroke="var(--card)">
+            <Pie data={pieRows} dataKey="orders" nameKey="key" outerRadius="82%" paddingAngle={1} stroke="var(--card)" isAnimationActive={false}>
               {pieRows.map(r => <Cell key={r.key} fill={`var(--color-${r.key})`} fillOpacity={seller && r.name !== seller ? 0.3 : 1} />)}
             </Pie>
           </PieChart>
