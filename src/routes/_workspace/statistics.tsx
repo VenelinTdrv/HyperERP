@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from 'recharts';
 import { CalendarDays, CheckCircle2, ChevronDown, Info, Package, RotateCcw, ShieldCheck, ShoppingBag, Wallet } from 'lucide-react';
 import { endOfMonth, format, startOfDay, startOfMonth, subMonths } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
@@ -151,6 +151,17 @@ export function sellerShareStats(settlement: string, from: Date, to: Date): Reco
   const total = rows.reduce((a, r) => a + r.orders, 0);
   return Object.fromEntries(rows.map(r => [r.id, { orders: r.orders, pct: total ? (r.orders / total * 100).toFixed(1) : '0' }])) as Record<string, { orders: number; pct: string }>;
 }
+
+// Pie slices per seller: order count and share of all orders for the chosen period.
+// The denominator always spans every seller, so one chosen seller still shows its real share.
+const PIE_COLORS = ['var(--primary)', 'var(--info)', 'var(--warning)', 'var(--success)'];
+export function sellerPieData(settlement: string, from: Date, to: Date) {
+  const stats = sellerShareStats(settlement, from, to);
+  return SELLERS.map((s, i) => ({ key: `s${i}`, name: s.id, type: s.type, orders: stats[s.id]!.orders, pct: Number(stats[s.id]!.pct) }))
+    .filter(r => r.orders > 0)
+    .sort((a, b) => b.orders - a.orders);
+}
+const sellerPieCfg: ChartConfig = Object.fromEntries(SELLERS.map((s, i) => [`s${i}`, { label: s.id, color: PIE_COLORS[i % PIE_COLORS.length]! }]));
 
 const ordersCfg = { paid: { label: 'Платени', color: 'var(--primary)' }, returned: { label: 'Върнати', color: 'var(--destructive)' }, orders: { label: 'Всички', color: 'var(--info)' } } satisfies ChartConfig;
 const salesCfg = { paid: { label: 'Продажби (платени)', color: 'var(--primary)' } } satisfies ChartConfig;
