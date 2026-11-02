@@ -238,6 +238,23 @@ function Statistics() {
   // Pie slices for the selected period: orders and % of all per influencer / trader
   const pieRows = useMemo(() => sellerPieData(settlement, from, to), [settlement, from, to]);
   const pieTotal = pieRows.reduce((a, r) => a + r.orders, 0);
+  // % printed beside every slice; recharts draws the leader line in the slice colour.
+  const piePctLabel = (props: { x?: number; y?: number; textAnchor?: 'start' | 'middle' | 'end'; payload?: { key?: string; name?: string; pct?: number } }) => {
+    const { x = 0, y = 0, textAnchor = 'middle', payload } = props;
+    const dimmed = Boolean(seller) && payload?.name !== seller;
+    return (
+      <text x={x} y={y} dx={textAnchor === 'start' ? 5 : -5} dy={4} textAnchor={textAnchor} fontSize={11} fontWeight={600}
+        fill={sellerPieCfg[payload?.key ?? '']?.color} fillOpacity={dimmed ? 0.55 : 1}>{payload?.pct}%</text>
+    );
+  };
+  // Tooltip: name, order count and share of all for the slice under the cursor.
+  const pieTooltip = (value: unknown, _name: unknown, item: { payload?: { key?: string; pct?: number } }) => (
+    <>
+      <span className="size-2.5 shrink-0 rounded-[2px]" style={{ background: sellerPieCfg[item.payload?.key ?? '']?.color }} />
+      <span className="flex-1 text-muted-foreground">{sellerPieCfg[item.payload?.key ?? '']?.label}</span>
+      <span className="font-mono font-medium tabular-nums text-foreground">{Number(value)} · {item.payload?.pct}%</span>
+    </>
+  );
 
   const paidPct = period.orders ? (period.paid / period.orders * 100).toFixed(1) : '0';
   const activePreset = PRESETS.find(p => { const r = presetRange(p.id); return +r.from === +from && +r.to === +to; })?.id;
@@ -306,11 +323,11 @@ function Statistics() {
 
     <h2 className="text-sm font-semibold mb-2 text-foreground">Поръчки по инфлуенсър / търговец<span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">{fmt(from)} – {fmt(to)}</span></h2>
     <Card title="Брой поръчки и дял от всички" className="mb-4">
-      <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
-        <ChartContainer config={sellerPieCfg} className="mx-auto aspect-square h-56 w-56">
+      <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
+        <ChartContainer config={sellerPieCfg} className="mx-auto h-60 w-full max-w-[320px]">
           <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel indicator="dot" />} />
-            <Pie data={pieRows} dataKey="orders" nameKey="key" outerRadius="82%" paddingAngle={1} stroke="var(--card)" isAnimationActive={false}>
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel indicator="dot" formatter={pieTooltip} />} />
+            <Pie data={pieRows} dataKey="orders" nameKey="key" outerRadius="68%" paddingAngle={1} stroke="var(--card)" isAnimationActive={false} label={piePctLabel} labelLine={{ strokeWidth: 1 }}>
               {pieRows.map(r => <Cell key={r.key} fill={`var(--color-${r.key})`} fillOpacity={seller && r.name !== seller ? 0.3 : 1} />)}
             </Pie>
           </PieChart>
