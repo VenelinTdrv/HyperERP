@@ -27,6 +27,7 @@ import { Route as WorkspaceSuppliersRouteImport } from './routes/_workspace/supp
 import { Route as WorkspaceTransfersRouteImport } from './routes/_workspace/transfers'
 import { Route as WorkspaceUsersRouteImport } from './routes/_workspace/users'
 import { Route as WorkspaceWarehousesRouteImport } from './routes/_workspace/warehouses'
+import { Route as WorkspaceClientsNewRouteImport } from './routes/_workspace/clients_.new'
 import { Route as WorkspaceOrdersIdRouteImport } from './routes/_workspace/orders_.$id'
 import { Route as WorkspaceReportsArticlesRouteImport } from './routes/_workspace/reports.articles'
 import { Route as WorkspaceReportsBatchesRouteImport } from './routes/_workspace/reports.batches'
@@ -124,6 +125,11 @@ const WorkspaceWarehousesRoute = WorkspaceWarehousesRouteImport.update({
   path: '/warehouses',
   getParentRoute: () => WorkspaceRouteRoute,
 } as any)
+const WorkspaceClientsNewRoute = WorkspaceClientsNewRouteImport.update({
+  id: '/clients_/new',
+  path: '/clients/new',
+  getParentRoute: () => WorkspaceRouteRoute,
+} as any)
 const WorkspaceOrdersIdRoute = WorkspaceOrdersIdRouteImport.update({
   id: '/orders_/$id',
   path: '/orders/$id',
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/transfers': typeof WorkspaceTransfersRoute
   '/users': typeof WorkspaceUsersRoute
   '/warehouses': typeof WorkspaceWarehousesRoute
+  '/clients/new': typeof WorkspaceClientsNewRoute
   '/orders/$id': typeof WorkspaceOrdersIdRoute
   '/reports/articles': typeof WorkspaceReportsArticlesRoute
   '/reports/batches': typeof WorkspaceReportsBatchesRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/users': typeof WorkspaceUsersRoute
   '/warehouses': typeof WorkspaceWarehousesRoute
   '/': typeof WorkspaceIndexRoute
+  '/clients/new': typeof WorkspaceClientsNewRoute
   '/orders/$id': typeof WorkspaceOrdersIdRoute
   '/reports/articles': typeof WorkspaceReportsArticlesRoute
   '/reports/batches': typeof WorkspaceReportsBatchesRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/_workspace/users': typeof WorkspaceUsersRoute
   '/_workspace/warehouses': typeof WorkspaceWarehousesRoute
   '/_workspace/': typeof WorkspaceIndexRoute
+  '/_workspace/clients_/new': typeof WorkspaceClientsNewRoute
   '/_workspace/orders_/$id': typeof WorkspaceOrdersIdRoute
   '/_workspace/reports/articles': typeof WorkspaceReportsArticlesRoute
   '/_workspace/reports/batches': typeof WorkspaceReportsBatchesRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/transfers'
     | '/users'
     | '/warehouses'
+    | '/clients/new'
     | '/orders/$id'
     | '/reports/articles'
     | '/reports/batches'
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/warehouses'
     | '/'
+    | '/clients/new'
     | '/orders/$id'
     | '/reports/articles'
     | '/reports/batches'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/_workspace/users'
     | '/_workspace/warehouses'
     | '/_workspace/'
+    | '/_workspace/clients_/new'
     | '/_workspace/orders_/$id'
     | '/_workspace/reports/articles'
     | '/_workspace/reports/batches'
@@ -459,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceWarehousesRouteImport
       parentRoute: typeof WorkspaceRouteRoute
     }
+    '/_workspace/clients_/new': {
+      id: '/_workspace/clients_/new'
+      path: '/clients/new'
+      fullPath: '/clients/new'
+      preLoaderRoute: typeof WorkspaceClientsNewRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
     '/_workspace/orders_/$id': {
       id: '/_workspace/orders_/$id'
       path: '/orders/$id'
@@ -528,6 +547,7 @@ interface WorkspaceRouteRouteChildren {
   WorkspaceUsersRoute: typeof WorkspaceUsersRoute
   WorkspaceWarehousesRoute: typeof WorkspaceWarehousesRoute
   WorkspaceIndexRoute: typeof WorkspaceIndexRoute
+  WorkspaceClientsNewRoute: typeof WorkspaceClientsNewRoute
   WorkspaceOrdersIdRoute: typeof WorkspaceOrdersIdRoute
   WorkspaceReportsArticlesRoute: typeof WorkspaceReportsArticlesRoute
   WorkspaceReportsBatchesRoute: typeof WorkspaceReportsBatchesRoute
@@ -554,6 +574,7 @@ const WorkspaceRouteRouteChildren: WorkspaceRouteRouteChildren = {
   WorkspaceUsersRoute: WorkspaceUsersRoute,
   WorkspaceWarehousesRoute: WorkspaceWarehousesRoute,
   WorkspaceIndexRoute: WorkspaceIndexRoute,
+  WorkspaceClientsNewRoute: WorkspaceClientsNewRoute,
   WorkspaceOrdersIdRoute: WorkspaceOrdersIdRoute,
   WorkspaceReportsArticlesRoute: WorkspaceReportsArticlesRoute,
   WorkspaceReportsBatchesRoute: WorkspaceReportsBatchesRoute,

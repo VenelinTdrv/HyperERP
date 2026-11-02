@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Ban, Check, Eye, Info, MapPin, MoreVertical, Pencil, Plus, Search, ShieldCheck, Trash2, Undo2, Users, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientEditorDialog, type ClientFormData } from '@/components/client-editor';
+import { addrText, clientName, clearClientNotice, createClient, deleteClient, primaryOf, setClientBlacklist, setClientNotice, updateClient, useClientNotice, useClients, type Client } from '@/lib/clients-store';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -14,58 +15,35 @@ export const Route = createFileRoute('/_workspace/clients')({
  component:Clients,
 });
 
-const cities=['София','Пловдив','Варна','Бургас','Ямбол','Стара Загора','Русе'];
-type Address={id:number;city:string;kind:'street'|'place';street:string;number:string;place:string};
-type Client={id:number;kind:'person'|'company';first:string;last:string;company:string;eik:string;vat:string;mol:string;email:string;iban:string;phone:string;blacklisted:boolean;notes:string;addresses:Address[];primary:number;createdBy:string;createdAt:string;editedBy:string;editedAt:string};
-const person={kind:'person' as const,company:'',eik:'',vat:'',mol:'',email:'',iban:''};
-const clientName=(c:Pick<Client,'kind'|'first'|'last'|'company'>)=>c.kind==='company'?c.company:`${c.first} ${c.last}`;
-const initial:Client[]=[
- {id:11,...person,kind:'company',first:'',last:'',company:'Козметик Груп ООД',eik:'205987654',vat:'BG205987654',mol:'Ивана Петрова',email:'office@kozmetikgroup.bg',iban:'BG80BNBG96611020345678',phone:'029888777',blacklisted:false,notes:'Фактура на фирмата, доставка до офиса',addresses:[{id:1,city:'София',kind:'street',street:'България',number:'102',place:''}],primary:1,createdBy:'Master Admin',createdAt:'14.10.2026, 10:20',editedBy:'',editedAt:''},
- {id:1,...person,first:'Мария',last:'Георгиева',phone:'0891234567',blacklisted:false,notes:'Предпочита доставка следобед',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Стара планина',number:'1А',place:''}],primary:1,createdBy:'Master Admin',createdAt:'14.10.2026, 11:03',editedBy:'',editedAt:''},
- {id:2,...person,first:'Иван',last:'Иванов',phone:'0895055199',blacklisted:false,notes:'Спешно',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Ангел Кънчев',number:'10',place:''},{id:2,city:'София',kind:'place',street:'',number:'',place:'Бизнес парк, сграда 4'}],primary:1,createdBy:'Виктория Григорова',createdAt:'14.10.2026, 11:21',editedBy:'',editedAt:''},
- {id:3,...person,first:'Елена',last:'Петрова',phone:'0887112233',blacklisted:false,notes:'',addresses:[{id:1,city:'Пловдив',kind:'street',street:'Капитан Райчо',number:'56',place:''}],primary:1,createdBy:'Master Admin',createdAt:'13.10.2026, 16:40',editedBy:'Master Admin',editedAt:'14.10.2026, 09:12'},
- {id:4,...person,first:'Георги',last:'Димитров',phone:'0897654321',blacklisted:false,notes:'Плаща по банков път',addresses:[{id:1,city:'София',kind:'street',street:'Витоша',number:'15',place:''}],primary:1,createdBy:'Виктория Григорова',createdAt:'13.10.2026, 10:15',editedBy:'',editedAt:''},
- {id:5,...person,first:'Николина',last:'Стефанова',phone:'0888222333',blacklisted:false,notes:'',addresses:[{id:1,city:'Варна',kind:'street',street:'Княз Борис I',number:'8',place:''}],primary:1,createdBy:'Master Admin',createdAt:'12.10.2026, 14:05',editedBy:'',editedAt:''},
- {id:6,...person,first:'Петя',last:'Колева',phone:'0879111222',blacklisted:false,notes:'Доставка до офис',addresses:[{id:1,city:'Пловдив',kind:'place',street:'',number:'',place:'Бизнес център, етаж 3'}],primary:1,createdBy:'Виктория Григорова',createdAt:'12.10.2026, 09:30',editedBy:'',editedAt:''},
- {id:7,...person,first:'Десислава',last:'Радева',phone:'0895555666',blacklisted:false,notes:'',addresses:[{id:1,city:'Бургас',kind:'street',street:'Александър Батенберг',number:'22',place:''}],primary:1,createdBy:'Master Admin',createdAt:'11.10.2026, 17:45',editedBy:'',editedAt:''},
- {id:8,...person,first:'Христо',last:'Янев',phone:'0888444555',blacklisted:true,notes:'Предпочита наложен платеж',addresses:[{id:1,city:'Ямбол',kind:'street',street:'Цар Иван Асень II',number:'7',place:''},{id:2,city:'София',kind:'street',street:'Пиротска',number:'40',place:''}],primary:1,createdBy:'Венелин Тодоров',createdAt:'11.10.2026, 12:20',editedBy:'Венелин Тодоров',editedAt:'13.10.2026, 08:40'},
- {id:9,...person,first:'Саня',last:'Тодорова',phone:'0877888999',blacklisted:false,notes:'',addresses:[{id:1,city:'Стара Загора',kind:'street',street:'Г. С. Раковски',number:'33',place:''}],primary:1,createdBy:'Виктория Григорова',createdAt:'10.10.2026, 15:10',editedBy:'',editedAt:''},
- {id:10,...person,first:'Мирослав',last:'Киров',phone:'0896333444',blacklisted:false,notes:'Променен адрес за празниците',addresses:[{id:1,city:'Русе',kind:'street',street:'Цар Освободител',number:'4',place:''}],primary:1,createdBy:'Master Admin',createdAt:'09.10.2026, 11:00',editedBy:'',editedAt:''},
-];
-const addrText=(a?:Address)=>!a?'—':a.kind==='street'?`ул. ${a.street} ${a.number}`:a.place;
-const now=()=>'14.10.2026, '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'});
-
 function Clients(){
- const [rows,setRows]=useState(initial);
+ const rows=useClients();const announcement=useClientNotice();
  const [name,setName]=useState('');const [phone,setPhone]=useState('');const [status,setStatus]=useState('');const [kind,setKind]=useState('');
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(25);
  const [editor,setEditor]=useState(false);const [editing,setEditing]=useState<Client|null>(null);
   const [selected,setSelected]=useState<Client|null>(null);const [deleting,setDeleting]=useState<Client|null>(null);
   const [blacklisting,setBlacklisting]=useState<Client|null>(null);
- const [announcement,setAnnouncement]=useState('');
  const q=name.trim().toLocaleLowerCase('bg-BG');const p=phone.replace(/\D/g,'');
  const filtered=rows.filter(r=>(!q||clientName(r).toLocaleLowerCase('bg-BG').includes(q))&&(!p||r.phone.includes(p))&&(!status||(status==='Черен списък'?r.blacklisted:!r.blacklisted))&&(!kind||(kind==='company'?r.kind==='company':r.kind==='person')));
  const pages=Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));const cur=Math.min(page,pages);
  const shown=filtered.slice((cur-1)*(pageSize||filtered.length),(cur-1)*(pageSize||filtered.length)+pageSize||filtered.length);
  const open=(c:Client|null)=>{setSelected(null);setEditing(c);setEditor(true);};
  const saveClient=(data:ClientFormData)=>{
-  if(editing)setRows(prev=>prev.map(r=>r.id===editing.id?{...r,...data,editedBy:'Венелин Тодоров',editedAt:now()}:r));
-  else setRows(prev=>[...prev,{id:Math.max(0,...prev.map(r=>r.id))+1,blacklisted:false,...data,createdBy:'Венелин Тодоров',createdAt:now(),editedBy:'',editedAt:''}]);
-  setEditor(false);setAnnouncement(`${clientName(data)} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
+  if(editing)updateClient(editing.id,data);
+  else createClient(data);
+  setEditor(false);setClientNotice(`${clientName(data)} · ${editing?'Промените са приложени':'Клиентът е добавен'} само в демонстрацията.`);
  };
-  const primaryOf=(c:Client)=>c.addresses.find(a=>a.id===c.primary)??c.addresses[0];
-  const applyStatus=(c:Client,blacklisted:boolean)=>{
+   const applyStatus=(c:Client,blacklisted:boolean)=>{
     if(c.blacklisted===blacklisted)return;
-    setRows(prev=>prev.map(r=>r.id===c.id?{...r,blacklisted,editedBy:'Венелин Тодоров',editedAt:now()}:r));
+    setClientBlacklist(c.id,blacklisted);
     setSelected(prev=>prev&&prev.id===c.id?{...prev,blacklisted}:prev);
-    setAnnouncement(`${clientName(c)} · ${blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);
+    setClientNotice(`${clientName(c)} · ${blacklisted?'Клиентът е отбелязан в черния списък':'Клиентът е премахнат от черния списък'} само в демонстрацията.`);
   };
   const toggleBlack=(c:Client)=>applyStatus(c,!c.blacklisted);
  return <WorkspaceShell active="Клиенти"><div className="page-content deliveries-content orders-content">
-  <div className="page-heading"><div><h1>Клиенти<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Контакти и адреси за доставка. Търси по име или телефон и отвори клиент за детайли.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button className="delivery-add" onClick={()=>open(null)}><Plus/>Добави клиент</Button></div>
+  <div className="page-heading"><div><h1>Клиенти<TooltipProvider><Tooltip><TooltipTrigger asChild><button type="button" className="orders-info" aria-label="Какво показва списъкът"><Info/></button></TooltipTrigger><TooltipContent className="max-w-60 text-center">Контакти и адреси за доставка. Търси по име или телефон и отвори клиент за детайли.</TooltipContent></Tooltip></TooltipProvider></h1></div><Button asChild className="delivery-add"><Link to="/clients/new"><Plus/>Добави клиент</Link></Button></div>
   <div className="clients-filters"><div className="search-box"><Search/><input className="search-input" aria-label="Име или фамилия" placeholder="Име или фамилия…" value={name} onChange={e=>{setName(e.target.value);setPage(1);}}/></div><div className="search-box"><Search/><input className="search-input" inputMode="tel" aria-label="Телефон" placeholder="Телефон…" value={phone} onChange={e=>{setPhone(e.target.value);setPage(1);}}/></div><div className="field"><label htmlFor="clients-status" className="sr-only">Статус</label><select id="clients-status" aria-label="Статус" title="Статус" value={status} onChange={e=>{setStatus(e.target.value);setPage(1);}}><option value="">Всички статуси</option><option>Активен</option><option>Черен списък</option></select></div><div className="field"><label htmlFor="clients-kind" className="sr-only">Вид на клиента</label><select id="clients-kind" aria-label="Вид на клиента" title="Вид на клиента" value={kind} onChange={e=>{setKind(e.target.value);setPage(1);}}><option value="">Всички клиенти</option><option value="person">Физически лица</option><option value="company">Юридически лица</option></select></div><Button variant="outline" disabled={!name&&!phone&&!status&&!kind} onClick={()=>{setName('');setPhone('');setStatus('');setKind('');setPage(1);}}><X/>Изчисти</Button></div>
-  {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>setAnnouncement('')}><X/></Button></div>}
+  {announcement&&<div className="delivery-notice" role="status"><Check size={16}/><span>{announcement}</span><Button variant="ghost" size="icon" aria-label="Затвори съобщението" onClick={()=>clearClientNotice()}><X/></Button></div>}
   <section className="delivery-list" aria-label="Списък с клиенти"><div className="delivery-list-heading"><h2>Всички клиенти <span>{filtered.length}</span></h2></div>
    {shown.length?<div className="delivery-table-scroll"><table className="delivery-table orders-table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Статус</th><th>Основен адрес</th><th>Бележки</th><th>Създаден</th><th>Редактиран</th><th className="delivery-head-center">Действия</th><th className="delivery-head-center">Виж</th></tr></thead><tbody>{shown.map(c=>{const a=primaryOf(c);return <tr key={c.id}>
     <td><span className="delivery-id">#{c.id}</span></td>
@@ -78,7 +56,7 @@ function Clients(){
     <td>{c.editedBy?<><span className="block text-xs">{c.editedBy}</span><span className="delivery-cell-sub">{c.editedAt}</span></>:'—'}</td>
     <td><div className="delivery-row-actions"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="text-primary" aria-label={`Действия за ${clientName(c)}`} title="Действия за клиента"><MoreVertical/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={()=>open(c)}><Pencil/>Редактирай</DropdownMenuItem>{c.blacklisted?<DropdownMenuItem onSelect={()=>toggleBlack(c)}><Undo2/>Премахни от черния списък</DropdownMenuItem>:<DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setBlacklisting(c)}><Ban/>В черен списък</DropdownMenuItem>}<DropdownMenuSeparator/><DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={()=>setDeleting(c)}><Trash2/>Изтрий</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td>
     <td className="text-right"><div className="delivery-row-actions"><Button variant="ghost" size="icon" aria-label={`Преглед ${clientName(c)}`} title="Преглед на клиента" onClick={()=>setSelected(c)}><Eye/></Button></div></td>
-   </tr>;})}</tbody></table></div>:<div className="delivery-empty"><Users size={32}/><h3>{rows.length?'Няма намерени клиенти':'Все още няма клиенти'}</h3>{rows.length?<Button variant="outline" onClick={()=>{setName('');setPhone('');setStatus('');setKind('');}}><X/>Изчисти търсенето</Button>:<Button className="mt-4" onClick={()=>open(null)}><Plus/>Добави клиент</Button>}</div>}
+   </tr>;})}</tbody></table></div>:<div className="delivery-empty"><Users size={32}/><h3>{rows.length?'Няма намерени клиенти':'Все още няма клиенти'}</h3>{rows.length?<Button variant="outline" onClick={()=>{setName('');setPhone('');setStatus('');setKind('');}}><X/>Изчисти търсенето</Button>:<Button asChild className="mt-4"><Link to="/clients/new"><Plus/>Добави клиент</Link></Button>}</div>}
       <Pagination total={filtered.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} id="clients-page-size" />
   </section>
   <div className="demo-caption mt-4"><ShieldCheck size={13}/>Примерни клиенти · без реално записване</div>
@@ -88,7 +66,7 @@ function Clients(){
 
  <Dialog open={selected!==null} onOpenChange={o=>{if(!o)setSelected(null);}}><DialogContent className="max-h-[90dvh] overflow-y-auto"><DialogHeader><DialogTitle className="article-dialog-title">{selected&&clientName(selected)}</DialogTitle><DialogDescription>Детайли за клиента · примерни данни</DialogDescription></DialogHeader>{selected&&<><dl className="delivery-details"><div><dt>Вид</dt><dd>{selected.kind==='company'?'Юридическо лице':'Физическо лице'}</dd></div><div><dt>Телефон</dt><dd>{selected.phone}</dd></div><div><dt>ID</dt><dd>#{selected.id}</dd></div>{selected.kind==='company'&&<><div><dt>ЕИК</dt><dd>{selected.eik}</dd></div><div><dt>ДДС номер</dt><dd>{selected.vat||'—'}</dd></div><div><dt>МОЛ / контакт</dt><dd>{selected.mol||'—'}</dd></div><div><dt>Имейл</dt><dd>{selected.email||'—'}</dd></div><div className="col-span-2"><dt>Банкова сметка</dt><dd>{selected.iban||'—'}</dd></div></>}<div><dt>Статус</dt><dd><select className={`client-status-select${selected.blacklisted?' client-status-select-black':''}`} value={selected.blacklisted?'black':'active'} onChange={e=>applyStatus(selected,e.target.value==='black')} aria-label="Статус на клиента"><option value="active">Активен</option><option value="black">Черен списък</option></select></dd></div><div className="col-span-2"><dt>Бележки</dt><dd>{selected.notes||'—'}</dd></div><div><dt>Създаден от</dt><dd>{selected.createdBy}<br/><span className="delivery-cell-sub">{selected.createdAt}</span></dd></div><div><dt>Редактиран от</dt><dd>{selected.editedBy||'—'}{selected.editedAt&&<><br/><span className="delivery-cell-sub">{selected.editedAt}</span></>}</dd></div><div className="col-span-2"><dt>Адреси</dt><dd><ul className="client-address-list">{selected.addresses.map(a=><li key={a.id}><MapPin size={14}/><span>{a.city}, {addrText(a)}</span>{a.id===selected.primary&&<span className="client-badge">Основен</span>}</li>)}</ul></dd></div></dl><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setSelected(null)}>Затвори</Button><Button onClick={()=>open(selected)}><Pencil/>Редактирай</Button></div></>}</DialogContent></Dialog>
 
- <Dialog open={deleting!==null} onOpenChange={o=>{if(!o)setDeleting(null);}}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">Изтриване на клиент?</DialogTitle><DialogDescription>„{deleting&&clientName(deleting)}“ ще бъде премахнат само от демонстрационния списък.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setDeleting(null)}>Отказ</Button><Button variant="destructive" onClick={()=>{if(!deleting)return;setRows(prev=>prev.filter(r=>r.id!==deleting.id));setAnnouncement(`${clientName(deleting)} · Клиентът е изтрит само в демонстрацията.`);setDeleting(null);}}><Trash2/>Изтрий клиента</Button></div></DialogContent></Dialog>
+ <Dialog open={deleting!==null} onOpenChange={o=>{if(!o)setDeleting(null);}}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">Изтриване на клиент?</DialogTitle><DialogDescription>„{deleting&&clientName(deleting)}“ ще бъде премахнат само от демонстрационния списък.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setDeleting(null)}>Отказ</Button><Button variant="destructive" onClick={()=>{if(!deleting)return;deleteClient(deleting.id);setClientNotice(`${clientName(deleting)} · Клиентът е изтрит само в демонстрацията.`);setDeleting(null);}}><Trash2/>Изтрий клиента</Button></div></DialogContent></Dialog>
  <Dialog open={blacklisting!==null} onOpenChange={o=>{if(!o)setBlacklisting(null);}}><DialogContent><DialogHeader><DialogTitle className="article-dialog-title">Черен списък на клиент?</DialogTitle><DialogDescription>„{blacklisting&&clientName(blacklisting)}“ ще бъде отбелязан като в черен списък и статусът ще се вижда в таблицата.</DialogDescription></DialogHeader><div className="flex justify-end gap-2"><Button variant="outline" onClick={()=>setBlacklisting(null)}>Отказ</Button><Button variant="destructive" onClick={()=>{if(!blacklisting)return;toggleBlack(blacklisting);setBlacklisting(null);}}><Ban/>В черен списък</Button></div></DialogContent></Dialog>
  </WorkspaceShell>;
 }
