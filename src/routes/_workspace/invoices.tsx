@@ -61,10 +61,10 @@ function InvoicesPage() {
     if (!action) return;
     try {
       if (action.mode === 'edit') {
-        updateInvoice(action.invoice.id, { customer: form.customer ?? '', eik: form.eik || undefined, city: form.city ?? '', address: form.address ?? '', product: form.product ?? '', quantity: Number(form.quantity), price: Number(form.price), shipping: Number(form.shipping), status: form.status as InvoiceStatus });
+        updateInvoice(action.invoice.id, { customer: form["customer"] ?? '', eik: form["eik"] || undefined, city: form["city"] ?? '', address: form["address"] ?? '', product: form["product"] ?? '', quantity: Number(form["quantity"]), price: Number(form["price"]), shipping: Number(form["shipping"]), status: form["status"] as InvoiceStatus });
         toast.success(`Фактура ${action.invoice.id} е редактирана (демо)`);
       } else {
-        const note = createInvoiceNote(action.invoice.id, action.mode === 'credit' ? 'Кредитно известие' : 'Дебитно известие', Number((form.amount ?? '').replace(',', '.')), form.reason ?? '');
+        const note = createInvoiceNote(action.invoice.id, action.mode === 'credit' ? 'Кредитно известие' : 'Дебитно известие', Number((form["amount"] ?? '').replace(',', '.')), form["reason"] ?? '');
         toast.success(`${invoiceKind(note)} ${note.id} е създадено (демо)`);
       }
       setAction(null);
@@ -142,7 +142,7 @@ function InvoicesPage() {
               ? [['customer', 'Клиент'], ['eik', 'ЕИК'], ['city', 'Населено място'], ['address', 'Адрес / офис'], ['product', 'Продукт'], ['quantity', 'Количество'], ['price', 'Цена (€)'], ['shipping', 'Доставка (€)']]
               : [['amount', action?.mode === 'credit' ? 'Сума за намаление (€)' : 'Сума за увеличение (€)'], ['reason', 'Основание']]
             ).map(([key, label]) => <div className="field" key={key}><label htmlFor={`inv-${key}`}>{label}</label><input id={`inv-${key}`} inputMode={['quantity', 'price', 'shipping', 'amount'].includes(key!) ? 'decimal' : undefined} value={form[key!] ?? ''} onChange={e => setForm(f => ({ ...f, [key!]: e.target.value }))} /></div>)}
-            {action?.mode === 'edit' && <div className="field"><label htmlFor="inv-status">Статус</label><select id="inv-status" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>{INVOICE_STATUSES.map(v => <option key={v}>{v}</option>)}</select></div>}
+            {action?.mode === 'edit' && <div className="field"><label htmlFor="inv-status">Статус</label><select id="inv-status" value={form["status"]} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>{INVOICE_STATUSES.map(v => <option key={v}>{v}</option>)}</select></div>}
             {formError && <p className="text-sm text-destructive" role="alert">{formError}</p>}
             <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setAction(null)}>Отказ</Button><Button type="submit">{action?.mode === 'edit' ? 'Запази' : 'Създай'}</Button></div>
           </form>
