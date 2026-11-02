@@ -5,8 +5,8 @@ const money = (v: number) => `${v.toLocaleString('bg-BG', { minimumFractionDigit
 const date = (v: string) => v.split('-').reverse().join('.');
 
 export function invoicesTableHtml(list: DemoInvoice[]): string {
-  const head = ['Фактура №', 'Дата', 'Статус', 'Клиент', 'ЕИК', 'Поръчка', 'Общо с ДДС'];
-  const body = list.map(r => `<tr><td>${esc(r.id)}</td><td>${date(r.date)}</td><td>${esc(r.status)}</td><td>${esc(r.sale.customer)}</td><td>${esc(r.sale.eik || '—')}</td><td>${esc(r.sale.id)}</td><td class="num">${money(r.total)}</td></tr>`).join('');
+  const head = ['Фактура №', 'Дата', 'Статус', 'Клиент', 'ЕИК', 'Поръчка', 'Общо с ДДС', 'Тип плащане'];
+  const body = list.map(r => `<tr><td>${esc(r.id)}</td><td>${date(r.date)}</td><td>${esc(r.status)}</td><td>${esc(r.sale.customer)}</td><td>${esc(r.sale.eik || '—')}</td><td>${esc(r.sale.id)}</td><td class="num">${money(r.total)}</td><td>${esc(r.sale.payment || '—')}</td></tr>`).join('');
   return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>`;
 }
 
