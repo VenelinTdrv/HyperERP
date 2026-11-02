@@ -12,6 +12,7 @@
  --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground);
  --color-accent: var(--secondary); --color-accent-foreground: var(--primary);
  --color-destructive: var(--destructive); --color-destructive-foreground: var(--primary-foreground);
+ --color-plum: var(--plum); --color-plum-soft: var(--plum-soft);
  --color-border: var(--border); --color-input: var(--border); --color-ring: var(--primary);
  --color-success: var(--success); --color-success-soft: var(--success-soft);
  --color-overlay: var(--overlay); --radius-md: 6px; --radius-lg: 8px;
@@ -27,6 +28,7 @@
  --shadow-panel: 0 2px 5px oklch(.25 .02 160 / .025);
  --warning: oklch(.52 .12 75); --warning-soft: oklch(.97 .036 85);
  --info: oklch(.49 .12 245); --info-soft: oklch(.96 .025 245);
+ --plum: oklch(.47 .1 320); --plum-soft: oklch(.96 .022 320);
  --destructive-soft: oklch(.97 .02 25);
 }
 @layer base {
