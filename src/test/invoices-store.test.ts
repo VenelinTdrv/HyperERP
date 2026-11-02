@@ -58,6 +58,13 @@ describe('Demo invoice generation', () => {
     const first = generateDemoInvoice([sale.id], [sale]);
     expect(generateDemoInvoice([sale.id], [sale])).toBe(first);
   });
+  it('carries the payment method into the invoice sale', () => {
+    const rows = createExampleInvoices(new Date('2026-10-30T11:35:00Z'));
+    expect(rows.every(row => row.sale.payment === 'Наложен платеж' || row.sale.payment === 'Банков път')).toBe(true);
+    expect(rows.filter(row => row.sale.payment === 'Наложен платеж').length).toBe(3);
+    const withPayment = buildDemoInvoice({ ...sale, payment: 'Банков път' }, 9, new Date('2026-10-30T08:22:00Z'));
+    expect(withPayment.sale.payment).toBe('Банков път');
+  });
 });
 import { orderToInvoiceSale } from '@/lib/invoices-store';
 test('order invoice total equals goods plus shipping', () => {
