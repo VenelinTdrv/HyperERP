@@ -34,7 +34,7 @@ export const Route = createFileRoute('/_workspace/')({
 
 type Status = 'Необработена'|'Обработена'|'Изпратена'|'Доставена'|'Отказана';
 const statuses: Status[] = ['Необработена','Обработена','Изпратена','Доставена','Отказана'];
-type Order = { id: string; status: Status; customer: string; phone: string; city: string; address: string; courier: string; created: string; product: string; quantity: number; price: number; shipping: number; influencer?: string; processed?: string; processedBy?: string; createdBy?: string; payment?: string };
+type Order = { id: string; status: Status; customer: string; phone: string; city: string; address: string; courier: string; created: string; product: string; quantity: number; price: number; shipping: number; influencer?: string; processed?: string; processedBy?: string; createdBy?: string; payment?: string | undefined };
 const ADMIN = 'Венелин Тодоров';
 const demoSales: Order[] = [
  { id:'ORD-0024', status:'Необработена', customer:'Мария Иванова', phone:'0888 123 456', city:'София', address:'ул. „Оборище“ 12', courier:'Еконт', created:'2026-10-14', product:'Rose Élixir', quantity:2, price:49, shipping:4.9 },
