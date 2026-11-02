@@ -323,11 +323,11 @@ function Statistics() {
 
     <h2 className="text-sm font-semibold mb-2 text-foreground">Поръчки по инфлуенсър / търговец<span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">{fmt(from)} – {fmt(to)}</span></h2>
     <Card title="Брой поръчки и дял от всички" className="mb-4">
-      <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,240px)_minmax(0,1fr)]">
-        <ChartContainer config={sellerPieCfg} className="mx-auto aspect-square h-56 w-56">
+      <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
+        <ChartContainer config={sellerPieCfg} className="mx-auto h-60 w-full max-w-[320px]">
           <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel indicator="dot" />} />
-            <Pie data={pieRows} dataKey="orders" nameKey="key" outerRadius="82%" paddingAngle={1} stroke="var(--card)" isAnimationActive={false}>
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel indicator="dot" formatter={pieTooltip} />} />
+            <Pie data={pieRows} dataKey="orders" nameKey="key" outerRadius="68%" paddingAngle={1} stroke="var(--card)" isAnimationActive={false} label={piePctLabel} labelLine={{ strokeWidth: 1 }}>
               {pieRows.map(r => <Cell key={r.key} fill={`var(--color-${r.key})`} fillOpacity={seller && r.name !== seller ? 0.3 : 1} />)}
             </Pie>
           </PieChart>
