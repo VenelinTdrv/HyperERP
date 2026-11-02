@@ -39,7 +39,8 @@ function InvoicesPage() {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<DemoInvoice | null>(null);
   const [selection, setSelection] = useState<string[]>([]);
-  const dated = filterInvoices(invoices, from, to, '', query);
+  const [kind, setKind] = useState('');
+  const dated = filterInvoices(invoices, from, to, '', query).filter(i => !kind || invoiceKind(i) === kind);
   const filtered = filterInvoices(dated, '', '', status);
   const size = pageSize || filtered.length || 1;
   const current = Math.min(page, Math.max(1, Math.ceil(filtered.length / size)));
@@ -96,6 +97,7 @@ function InvoicesPage() {
           <div className="field"><label className="sr-only" htmlFor="invoice-from">Дата от</label><input id="invoice-from" type="date" title="Дата от" value={from} max={to || undefined} onChange={e => { setFrom(e.target.value); setPage(1); }} /></div>
           <span className="text-sm text-muted-foreground">—</span>
           <div className="field"><label className="sr-only" htmlFor="invoice-to">Дата до</label><input id="invoice-to" type="date" title="Дата до" value={to} min={from || undefined} onChange={e => { setTo(e.target.value); setPage(1); }} /></div>
+          <div className="field"><label className="sr-only" htmlFor="invoice-kind">Тип документ</label><select id="invoice-kind" value={kind} onChange={e => { setKind(e.target.value); setPage(1); }}><option value="">Всички документи</option><option value="Фактура">Фактури</option><option value="Кредитно известие">Кредитни известия</option><option value="Дебитно известие">Дебитни известия</option></select></div>
           <div className="field"><label className="sr-only" htmlFor="invoice-status">Статус</label><select id="invoice-status" value={status} onChange={e => chooseStatus(e.target.value)}><option value="">Всички статуси</option>{INVOICE_STATUSES.map(value => <option key={value}>{value}</option>)}</select></div>
           {(from || to || status || query) && <Button variant="ghost" size="sm" onClick={() => { setFrom(''); setTo(''); setQuery(''); chooseStatus(''); }}><X />Изчисти филтрите</Button>}
         </div></div>
