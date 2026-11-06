@@ -52,6 +52,10 @@ function tableHtml(list:Article[], admin=true){
 function Articles() {
  const { data } = useSuspenseQuery(erpListsQuery);
  const rows: Article[] = data.articles.map((r, i) => ({ id:i+1,name:r.name,sku:r.sku,category:categoryPathFromDatabase(data.categories,r.category_id),stock:r.stock,created:r.created_at,createdBy:r.created_by,edited:r.edited_at ?? '',editedBy:r.edited_by }));
+ const [view,setView] = useState<ArticleView>('admin');
+ const [asInfluencer,setAsInfluencer] = useState(ARTICLE_INFLUENCERS[0] ?? '');
+ const { manage, audit, select } = articleViewCapabilities(view);
+ const switchView = (next:ArticleView) => { setView(next); setSelection([]); setPage(1); };
  
  const [name,setName] = useState('');
  const [sku,setSku] = useState('');
@@ -72,8 +76,8 @@ function Articles() {
  const pages = Math.max(1,Math.ceil(filtered.length/(pageSize||filtered.length||1)));
  const current = Math.min(page,pages);
  const visible = filtered.slice((current-1)*(pageSize||filtered.length),(current-1)*(pageSize||filtered.length)+pageSize||filtered.length);
- const exportXls = ()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='artikuli.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
- const exportPdf = ()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Артикули</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Артикули</h2>${tableHtml(filtered)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
+ const exportXls = ()=>{const html=`<html><head><meta charset="utf-8"></head><body>${tableHtml(filtered,manage)}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='artikuli.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);};
+ const exportPdf = ()=>{const w=window.open('','_blank');if(!w)return;w.document.write(`<html><head><meta charset="utf-8"><title>Артикули</title><style>@page{size:A4 landscape;margin:12mm}</style></head><body><h2 style="font-family:sans-serif">Артикули</h2>${tableHtml(filtered,manage)}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();};
  const fileInput = useRef<HTMLInputElement|null>(null);
  const importFile = async (_file:File)=>{};
  const exportPrint = exportPdf;
