@@ -4,7 +4,7 @@ import { DataLoadError } from '@/components/data-load-error';
 import { orderFromDatabase, saleFromDatabase, categoryPathFromDatabase } from '@/lib/erp-adapters';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useRef, type FormEvent } from 'react';
-import { Check, ChevronDown, ChevronRight, Eye, FileSpreadsheet, FileText, Folder, FolderInput, Info, MoreVertical, Package, Pencil, Plus, Printer, Search, ShieldCheck, Upload, X } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, Eye, FileSpreadsheet, FileText, Folder, FolderInput, Info, MoreVertical, Package, Pencil, Plus, Printer, Search, ShieldCheck, Upload, User, X } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import perfume from '@/assets/perfume.jpg';
+import { SELLERS } from '@/lib/sellers';
 
 export const Route = createFileRoute('/_workspace/articles')({
  head:()=>({meta:[{title:'HyperERP · Артикули'},{name:'description',content:'Каталог на артикули в HyperERP: SKU, категории и наличности.'},{property:'og:title',content:'HyperERP · Артикули'},{property:'og:description',content:'Управление на артикули по SKU и категория в HyperERP.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
@@ -23,6 +24,10 @@ export const Route = createFileRoute('/_workspace/articles')({
 });
 const categories = ['Козметика › Парфюми','Козметика › Дезодоранти','LEGO','Техника'] as const;
 type Article = { id:number; name:string; sku:string; category:string; stock:number; created:string; createdBy:string; edited:string; editedBy:string };
+export type ArticleView = 'admin' | 'influencer';
+export const ARTICLE_INFLUENCERS = SELLERS.filter(s => s.type === 'Инфлуенсър').map(s => s.id);
+// Demonstration preview only: the catalog is shared, while management and audit details belong to the admin view.
+export const articleViewCapabilities = (view: ArticleView) => ({ manage: view === 'admin', audit: view === 'admin', select: view === 'admin' });
 const initialRows:Article[] = [
  {id:1,name:'Парфюм 1',sku:'123456',category:categories[0],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
  {id:2,name:'Парфюм 2',sku:'234567',category:categories[0],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
@@ -38,9 +43,10 @@ const initialRows:Article[] = [
 const emptyForm = {name:'',sku:'',category:''};
 const date = (value:string) => value ? new Date(value).toLocaleString('bg-BG',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
 const esc = (value:string) => value.replace(/[&<>"]/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[character]??character));
-function tableHtml(list:Article[]){
- const head=['SKU','Име','Категория','Наличност','Създадено','Създадено от','Последна промяна','Променено от'];
- return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(title=>`<th>${title}</th>`).join('')}</tr></thead><tbody>${list.map(row=>`<tr><td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${esc(row.category)}</td><td>${row.stock}</td><td>${date(row.created)}</td><td>${esc(row.createdBy)}</td><td>${date(row.edited)}</td><td>${esc(row.editedBy||'—')}</td></tr>`).join('')}</tbody></table>`;
+function tableHtml(list:Article[], admin=true){
+ const head=['SKU','Име','Категория','Наличност',...(admin?['Създадено','Създадено от','Последна промяна','Променено от']:[])];
+ const cells=(row:Article)=>`<td>${esc(row.sku)}</td><td>${esc(row.name)}</td><td>${esc(row.category)}</td><td>${row.stock}</td>${admin?`<td>${date(row.created)}</td><td>${esc(row.createdBy)}</td><td>${date(row.edited)}</td><td>${esc(row.editedBy||'—')}</td>`:''}`;
+ return `<table border="1" cellpadding="4" style="border-collapse:collapse;font-family:sans-serif;font-size:11px"><thead><tr>${head.map(title=>`<th>${title}</th>`).join('')}</tr></thead><tbody>${list.map(row=>`<tr>${cells(row)}</tr>`).join('')}</tbody></table>`;
 }
 
 function Articles() {
