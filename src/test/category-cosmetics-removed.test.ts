@@ -9,7 +9,7 @@ const REMOVED = ['Козметика', 'Парфюми', 'Дезодоранти
 describe('Removed category: Козметика and its whole branch', () => {
   it('keeps no cosmetics category in the articles sidebar', () => {
     expect(ARTICLE_CATEGORIES.some(name => REMOVED.includes(name))).toBe(false);
-    expect(ARTICLE_CATEGORIES).toEqual(['Некатегоризирани', 'Техника']);
+    expect(ARTICLE_CATEGORIES).toEqual(['Некатегоризирани', 'Нови продукти 06.11']);
   });
 
   it('keeps no cosmetics category in the categories tree and leaves no orphan rows', () => {

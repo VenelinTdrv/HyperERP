@@ -14,7 +14,7 @@ export const Route = createFileRoute('/_workspace/categories')({
 type Category = { id:number; name:string; parentId:number|null };
 export const initialCategories:Category[] = [
  {id:1,name:'Некатегоризирани',parentId:null},
- {id:5,name:'Техника',parentId:null}, {id:6,name:'Телевизори',parentId:5},
+ {id:5,name:'Нови продукти 06.11',parentId:null}, {id:6,name:'Телевизори',parentId:5},
  {id:10,name:'Монитори',parentId:5},
 ];
 function descendantIds(rows:Category[], id:number):number[] {
