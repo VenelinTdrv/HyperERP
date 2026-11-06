@@ -13,11 +13,9 @@ export const Route = createFileRoute('/_workspace/categories')({
 });
 type Category = { id:number; name:string; parentId:number|null };
 export const initialCategories:Category[] = [
- {id:1,name:'Некатегоризирани',parentId:null}, {id:2,name:'Козметика',parentId:null},
- {id:3,name:'Дезодоранти',parentId:2}, {id:4,name:'Парфюми',parentId:2},
+ {id:1,name:'Некатегоризирани',parentId:null},
  {id:5,name:'Техника',parentId:null}, {id:6,name:'Телевизори',parentId:5},
- {id:7,name:'Дамски парфюми',parentId:4}, {id:8,name:'Мъжки парфюми',parentId:4},
- {id:9,name:'Креми',parentId:2}, {id:10,name:'Монитори',parentId:5},
+ {id:10,name:'Монитори',parentId:5},
 ];
 function descendantIds(rows:Category[], id:number):number[] {
  return rows.filter(row=>row.parentId===id).flatMap(row=>[row.id,...descendantIds(rows,row.id)]);
@@ -29,7 +27,7 @@ function categoryPath(rows:Category[], id:number):string {
 }
 function Categories() {
  const [rows,setRows]=useState(initialCategories);
- const [expanded,setExpanded]=useState<number[]>([2,4,5]);
+ const [expanded,setExpanded]=useState<number[]>([5]);
  const [search,setSearch]=useState('');
  const [editor,setEditor]=useState(false);
  const [editing,setEditing]=useState<Category|null>(null);
