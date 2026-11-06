@@ -15,7 +15,11 @@ describe('Removed category: Козметика and its whole branch', () => {
   it('keeps no cosmetics category in the categories tree and leaves no orphan rows', () => {
     expect(initialCategories.some(row => REMOVED.includes(row.name))).toBe(false);
     const ids = new Set(initialCategories.map(row => row.id));
-    expect(initialCategories.filter(row => row.parentId !== null).every(row => ids.has(row.parentId))).toBe(true);
+    const orphans = initialCategories.filter(row => {
+      const parentId = row.parentId;
+      return parentId !== null && !ids.has(parentId);
+    });
+    expect(orphans).toEqual([]);
   });
 
   it('moves every demonstration article out of the removed branch into Некатегоризирани', () => {
@@ -23,6 +27,10 @@ describe('Removed category: Козметика and its whole branch', () => {
     expect(lists.articles.length).toBeGreaterThan(0);
     expect(lists.categories.some(row => REMOVED.includes(row.name))).toBe(false);
     const names = new Map(lists.categories.map(row => [row.id, row.name]));
-    expect(lists.articles.every(article => names.get(article.category_id) === 'Некатегоризирани')).toBe(true);
+    const resolved = lists.articles.map(article => {
+      const categoryId = article.category_id;
+      return categoryId === null ? null : names.get(categoryId);
+    });
+    expect(resolved.every(name => name === 'Некатегоризирани')).toBe(true);
   });
 });
