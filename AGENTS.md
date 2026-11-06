@@ -19,7 +19,7 @@
 - Keep the orders list at /orders with an explicit status filter and frontend demonstration data, so processed orders cannot appear and no persistence is implied.
 - Keep incoming supplier deliveries in frontend demonstration state, including add/edit/receive actions, until a real inventory service is connected; never imply that stock is actually updated.
 - Keep client creation on a dedicated /clients/new screen using the shared clients store, so a new client uses the same session-only data as the list.
-- Keep the article workspace at /articles within WorkspaceShell; article additions, edits, and bulk category changes are frontend demonstration state until a real catalog service is connected.
+- Keep the article workspace at /articles within WorkspaceShell; article additions, edits, and bulk category changes are frontend demonstration state until a real catalog service is connected. Its Admin/Influencer preview shares one catalog; only Admin exposes management, selection and audit metadata.
 - Keep combos at /combos within WorkspaceShell with a separate combo editor; CRUD and product quantities remain frontend demonstration state until a real catalog service is connected.
 - Keep categories at /categories within WorkspaceShell as a frontend demonstration hierarchy; prevent cyclic parent assignments and deleting parents with children to protect the tree until a real catalog service is connected.
 - Keep countries at /countries within WorkspaceShell as frontend demonstration nomenclature with unique 2-letter codes; the Bulgaria system row stays locked against edit and delete until a real catalog service is connected.
