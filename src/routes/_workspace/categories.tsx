@@ -12,7 +12,7 @@ export const Route = createFileRoute('/_workspace/categories')({
  component:Categories,
 });
 type Category = { id:number; name:string; parentId:number|null };
-const initialCategories:Category[] = [
+export const initialCategories:Category[] = [
  {id:1,name:'Некатегоризирани',parentId:null}, {id:2,name:'Козметика',parentId:null},
  {id:3,name:'Дезодоранти',parentId:2}, {id:4,name:'Парфюми',parentId:2},
  {id:5,name:'Техника',parentId:null}, {id:6,name:'Телевизори',parentId:5},

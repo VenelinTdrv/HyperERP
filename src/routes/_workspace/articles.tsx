@@ -27,7 +27,7 @@ type Article = { id:number; name:string; sku:string; category:string; stock:numb
 export type ArticleView = 'admin' | 'influencer';
 export const ARTICLE_INFLUENCERS = SELLERS.filter(s => s.type === 'Инфлуенсър').map(s => s.id);
 // Demonstration preview only: the catalog is shared, while management and audit details belong to the admin view.
-export const articleViewCapabilities = (view: ArticleView) => ({ manage: view === 'admin', audit: view === 'admin', select: view === 'admin' });
+export const ARTICLE_CATEGORIES = categories;
 const initialRows:Article[] = [
  {id:1,name:'Парфюм 1',sku:'123456',category:categories[0],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
  {id:2,name:'Парфюм 2',sku:'234567',category:categories[0],stock:0,created:'2026-10-14T11:04',createdBy:'Венелин Тодоров',edited:'',editedBy:''},
