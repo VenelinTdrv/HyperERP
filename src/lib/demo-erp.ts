@@ -35,12 +35,11 @@ export function getDemoErpLists(): Lists {
     }),
     articles: CATALOG.map((article, index) => ({
       id: `demo-article-${index}`, sku: article.sku, name: article.name, price: article.price,
-      stock: 25, category_id: 'demo-perfumes', created_by: 'Демо', created_at: timestamp,
+      stock: 25, category_id: 'demo-none', created_by: 'Демо', created_at: timestamp,
       edited_by: '', edited_at: null,
     })),
     categories: [
-      { id: 'demo-cosmetics', name: 'Козметика', parent_id: null },
-      { id: 'demo-perfumes', name: 'Парфюми', parent_id: 'demo-cosmetics' },
+      { id: 'demo-none', name: 'Некатегоризирани', parent_id: null },
     ],
   };
 }
