@@ -1,11 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Eye, Search, Truck, Check } from 'lucide-react';
+import { Eye, Search, Truck, Check, ScanLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { useDeliveries, deliveryTransitions, processDelivery, statuses, type Status } from '@/lib/deliveries-store';
+import { useDeliveries, deliveryTransitions, processDelivery, deliveryByCode, statuses, type Status } from '@/lib/deliveries-store';
+import { InventoryScanner } from '@/components/inventory-scanner';
 
 export const Route = createFileRoute('/_workspace/mobile-app/deliveries')({
   head: () => ({ meta: [
@@ -30,6 +31,14 @@ function MobileDeliveries() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pending, setPending] = useState<Status | null>(null);
   const [notice, setNotice] = useState('');
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState('');
+  const scanDelivery = (code: string) => {
+    setScanning(false); setPending(null);
+    const delivery = deliveryByCode(code);
+    if (delivery) { setSelectedId(delivery.id); setScanError(''); }
+    else { setSearch(code); setPage(1); setStatus(''); setScanError('Няма доставка с този номер.'); }
+  };
   const selected = rows.find(row => row.id === selectedId);
   const matching = rows.filter(row => `${row.id} ${row.supplier} ${row.product} ${row.warehouse}`.toLowerCase().includes(search.trim().toLowerCase()));
   const filtered = matching.filter(row => !status || row.status === status);
@@ -37,7 +46,8 @@ function MobileDeliveries() {
   const visible = pageSize ? filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize) : filtered;
   return <section className="border-t border-border py-5" aria-label="Доставки">
     <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-base font-semibold">Доставки <span className="text-sm font-normal text-muted-foreground">{filtered.length}</span></h2><span className="text-xs text-muted-foreground">Примерни данни</span></div>
-    <div className="relative mb-3 max-w-md"><Search size={16} className="absolute left-3 top-3 text-muted-foreground"/><Input className="h-10 pl-9" aria-label="Търси доставка" placeholder="Номер, доставчик, продукт…" value={search} onChange={event => { setSearch(event.target.value); setPage(1); }}/></div>
+    <div className="mb-3 flex max-w-md items-center gap-2"><div className="relative min-w-0 flex-1"><Search size={16} className="absolute left-3 top-3 text-muted-foreground"/><Input className="h-10 pl-9" aria-label="Търси доставка" placeholder="Номер, доставчик, продукт…" value={search} onChange={event => { setSearch(event.target.value); setPage(1); setScanError(''); }}/></div><Button variant="outline" size="icon" className="h-10 w-10 shrink-0" aria-label="Сканирай доставка" title="Сканирай доставка" onClick={() => { setScanError(''); setScanning(true); }}><ScanLine/></Button></div>
+    {scanError && <p role="alert" className="mb-3 text-sm text-destructive">{scanError}</p>}
     <div className="mb-4 flex flex-wrap gap-2" aria-label="Статуси на доставки">{['', ...statuses].map(value => <Button key={value} variant={status === value ? 'default' : 'outline'} size="sm" aria-pressed={status === value} onClick={() => { setStatus(value); setPage(1); }}>{value || 'Всички'} <span>{matching.filter(row => !value || row.status === value).length}</span></Button>)}</div>
     {notice && <p role="status" className="mb-4 text-sm text-primary">{notice}</p>}
     <ul aria-label="Списък с доставки" className="divide-y divide-border border-y border-border">{visible.map(row => <li key={row.id} className="py-4">
@@ -54,5 +64,6 @@ function MobileDeliveries() {
       {selected.note && <p className="text-sm break-words">{selected.note}</p>}
       {pending ? <div className="border-t border-border pt-4"><p className="mb-3 text-sm">Промяна към „{pending}“ само в демонстрацията?</p><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => setPending(null)}>Назад</Button><Button onClick={() => { processDelivery(selected.id, pending); setNotice(`${selected.id} · ${pending} — само в демонстрацията.`); setPending(null); }}><Check/>Потвърди</Button></div></div> : <div className="flex flex-wrap gap-2 border-t border-border pt-4">{deliveryTransitions(selected.status).map(next => <Button key={next} variant={next === 'Получена' ? 'default' : 'outline'} onClick={() => setPending(next)}>{next === 'В транзит' ? <Truck/> : <Check/>}{next === 'Получена' ? 'Получи доставка' : next === 'Отказана' ? 'Откажи доставка' : 'В транзит'}</Button>)}<Button variant="outline" onClick={() => setSelectedId(null)}>Затвори</Button></div>}
     </>}</DialogContent></Dialog>
+    {scanning && <InventoryScanner title="Сканиране на доставка" description="Баркод или QR код с номера на доставката" manualLabel="номер на доставка" onScan={scanDelivery} onClose={() => setScanning(false)}/>}
   </section>;
 }

@@ -34,6 +34,9 @@ let rows: Delivery[] = fixtureRows.map(row => ({ ...row, expected: relativeDate(
 const listeners = new Set<() => void>();
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
 export const getDeliveries = () => rows;
+export function deliveryByCode(code: string): Delivery | undefined {
+ return rows.find(row => row.id.toLowerCase() === code.trim().toLowerCase());
+}
 export const useDeliveries = () => useSyncExternalStore(subscribe, getDeliveries, getDeliveries);
 export function setDeliveries(update: Delivery[] | ((previous: Delivery[]) => Delivery[])) {
  rows = typeof update === 'function' ? update(rows) : update;
