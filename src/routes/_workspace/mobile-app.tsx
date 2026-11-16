@@ -21,7 +21,7 @@ function MobileApp() {
       <div className="page-heading">
         <div><h1><Smartphone size={23} aria-hidden="true"/>Мобилно приложение</h1></div>
       </div>
-      <nav aria-label="Меню на мобилното приложение" className="mb-5 grid grid-cols-3 gap-2 max-w-xl">
+      <nav aria-label="Меню на мобилното приложение" className="mb-5 grid grid-cols-1 gap-2 max-w-xl">
         {[
           { title: 'Артикули', to: '/mobile-app/articles' as const, icon: Package },
           { title: 'Доставки', to: '/mobile-app/deliveries' as const, icon: Truck },
