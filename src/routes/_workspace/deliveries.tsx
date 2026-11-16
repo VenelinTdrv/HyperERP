@@ -9,29 +9,12 @@ import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import perfume from '@/assets/perfume.jpg';
+import { useDeliveries, setDeliveries, suppliers, warehouses, products, statuses, type Status, type Delivery } from '@/lib/deliveries-store';
 
 export const Route = createFileRoute('/_workspace/deliveries')({
  head:()=>({meta:[{title:'HyperERP · Доставки'},{name:'description',content:'Доставки на козметика от доставчици: статуси, складове и очаквани дати в HyperERP.'},{property:'og:title',content:'HyperERP · Доставки'},{property:'og:description',content:'Проследяване на входящи доставки на козметика и получаване в склад.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),
  component:Deliveries,
 });
-type Status = 'Очаквана'|'В транзит'|'Получена'|'Отказана';
-type Delivery = {id:string;status:Status;supplier:string;warehouse:string;expected:string;received:string;created:string;createdBy:string;edited:string;editedBy:string;quantity:number;product:string;note:string};
-const suppliers=['Maison Beauty','Bloom Cosmetics','Essence Lab'] as const;
-const warehouses=['Основен склад · София','Склад · Пловдив'] as const;
-const products=['Rose Élixir','Velvet Bloom','Pure Essence'] as const;
-const statuses:Status[]=['Очаквана','В транзит','Получена','Отказана'];
-const initialRows:Delivery[]=[
- {id:'DEL-0018',status:'В транзит',supplier:suppliers[0],warehouse:warehouses[0],expected:'2026-10-15',received:'',created:'2026-10-12',createdBy:'Венелин Тодоров',edited:'2026-10-14',editedBy:'Венелин Тодоров',quantity:48,product:products[0],note:'Доставка до основния склад.'},
- {id:'DEL-0017',status:'Очаквана',supplier:suppliers[1],warehouse:warehouses[0],expected:'2026-10-16',received:'',created:'2026-10-12',createdBy:'Венелин Тодоров',edited:'',editedBy:'',quantity:32,product:products[1],note:''},
- {id:'DEL-0016',status:'Очаквана',supplier:suppliers[2],warehouse:warehouses[1],expected:'2026-10-19',received:'',created:'2026-10-11',createdBy:'Венелин Тодоров',edited:'',editedBy:'',quantity:24,product:products[2],note:''},
- {id:'DEL-0015',status:'Получена',supplier:suppliers[0],warehouse:warehouses[0],expected:'2026-10-13',received:'2026-10-13',created:'2026-10-09',createdBy:'Венелин Тодоров',edited:'2026-10-13',editedBy:'Венелин Тодоров',quantity:60,product:products[0],note:'Получена без забележки.'},
- {id:'DEL-0014',status:'Получена',supplier:suppliers[1],warehouse:warehouses[1],expected:'2026-10-12',received:'2026-10-12',created:'2026-10-08',createdBy:'Венелин Тодоров',edited:'2026-10-12',editedBy:'Венелин Тодоров',quantity:36,product:products[1],note:''},
- {id:'DEL-0013',status:'Отказана',supplier:suppliers[2],warehouse:warehouses[0],expected:'2026-10-10',received:'',created:'2026-10-07',createdBy:'Венелин Тодоров',edited:'2026-10-09',editedBy:'Венелин Тодоров',quantity:20,product:products[2],note:'Отказана от доставчика.'},
- {id:'DEL-0012',status:'В транзит',supplier:suppliers[1],warehouse:warehouses[1],expected:'2026-10-17',received:'',created:'2026-10-13',createdBy:'Венелин Тодоров',edited:'2026-10-15',editedBy:'Венелин Тодоров',quantity:54,product:products[2],note:'Пратката е поета от куриера.'},
- {id:'DEL-0011',status:'Очаквана',supplier:suppliers[0],warehouse:warehouses[0],expected:'2026-10-20',received:'',created:'2026-10-14',createdBy:'Венелин Тодоров',edited:'',editedBy:'',quantity:40,product:products[0],note:''},
- {id:'DEL-0010',status:'Получена',supplier:suppliers[2],warehouse:warehouses[0],expected:'2026-10-11',received:'2026-10-11',created:'2026-10-06',createdBy:'Венелин Тодоров',edited:'2026-10-11',editedBy:'Венелин Тодоров',quantity:72,product:products[1],note:'Получена без забележки.'},
- {id:'DEL-0009',status:'Отказана',supplier:suppliers[1],warehouse:warehouses[1],expected:'2026-10-09',received:'',created:'2026-10-05',createdBy:'Венелин Тодоров',edited:'2026-10-08',editedBy:'Венелин Тодоров',quantity:18,product:products[2],note:'Отказана — доставчикът не потвърди наличност.'},
-];
 type DateKind='expected'|'created'|'received';
 type Filters={search:string;status:string;supplier:string;warehouse:string;dateKind:DateKind;from:string;to:string};
 const dateKinds=[{key:'expected' as DateKind,label:'Очаквана'},{key:'created' as DateKind,label:'Създадена'},{key:'received' as DateKind,label:'Получена'}];
@@ -47,7 +30,8 @@ function tableHtml(list:Delivery[]){
 function StatusBadge({status}:{status:Status}) { return <span className={`delivery-status ${statusClass(status)}`}><span/>{status}</span>; }
 
 function Deliveries() {
- const [rows,setRows]=useState(initialRows);
+ const rows=useDeliveries();
+ const setRows=setDeliveries;
  const [filters,setFilters]=useState(emptyFilters);
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(25);
