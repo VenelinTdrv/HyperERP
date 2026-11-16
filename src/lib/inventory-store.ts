@@ -21,10 +21,21 @@ export function inventoryLines(warehouse: string): InventoryLine[] {
   return [...grouped.values()];
 }
 
-export function createInventory(input: { warehouse: string; date: string; note: string; counts: Record<string, string> }): Inventory {
+export function findInventoryProducts(warehouse: string, query: string): InventoryLine[] {
+  const value = query.trim().toLocaleLowerCase('bg-BG');
+  return inventoryLines(warehouse).filter(line => !value || `${line.name} ${line.sku}`.toLocaleLowerCase('bg-BG').includes(value));
+}
+
+export function inventoryProductByCode(warehouse: string, code: string): InventoryLine | undefined {
+  return inventoryLines(warehouse).find(line => line.sku.toLocaleLowerCase('bg-BG') === code.trim().toLocaleLowerCase('bg-BG'));
+}
+
+export function createInventory(input: { warehouse: string; date: string; note: string; counts: Record<string, string>; skus?: string[] }): Inventory {
   if (!INVENTORY_WAREHOUSES.includes(input.warehouse)) throw new Error('Изберете склад.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date) || Number.isNaN(Date.parse(input.date)) || new Date(input.date).toISOString().slice(0, 10) !== input.date) throw new Error('Въведете валидна дата.');
-  const lines = inventoryLines(input.warehouse).map(line => {
+  const available = inventoryLines(input.warehouse);
+  if (input.skus && (!input.skus.length || input.skus.some(sku => !available.some(line => line.sku === sku)))) throw new Error('Добавете валиден продукт към ревизията.');
+  const lines = available.filter(line => !input.skus || input.skus.includes(line.sku)).map(line => {
     const value = input.counts[line.sku]?.trim() ?? '';
     if (value && (!/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)))) throw new Error('Преброените количества трябва да са цели, неотрицателни числа.');
     return { ...line, counted: value ? Number(value) : null };

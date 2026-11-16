@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/pagination';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { createInventory, useInventories, inventoryLines, inventoryToday, INVENTORY_WAREHOUSES } from '@/lib/inventory-store';
+import { createInventory, useInventories, inventoryToday, INVENTORY_WAREHOUSES } from '@/lib/inventory-store';
+import { InventoryProducts } from '@/components/inventory-products';
 
 export const Route = createFileRoute('/_workspace/mobile-app/inventory')({
   head: () => ({ meta: [
@@ -26,6 +27,7 @@ function MobileInventory() {
   const [date, setDate] = useState(inventoryToday);
   const [note, setNote] = useState('');
   const [counts, setCounts] = useState<Record<string, string>>({});
+  const [skus, setSkus] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -33,11 +35,11 @@ function MobileInventory() {
   const [pageSize, setPageSize] = useState(25);
   const selected = rows.find(row => row.id === selectedId);
   const visible = pageSize ? rows.slice((page - 1) * pageSize, page * pageSize) : rows;
-  const start = () => { setWarehouse(''); setDate(inventoryToday()); setNote(''); setCounts({}); setError(''); setCreating(true); };
+  const start = () => { setWarehouse(''); setDate(inventoryToday()); setNote(''); setCounts({}); setSkus([]); setError(''); setCreating(true); };
   const save = (event: FormEvent) => {
     event.preventDefault();
     try {
-      const revision = createInventory({ warehouse, date, note, counts });
+      const revision = createInventory({ warehouse, date, note, counts, skus });
       setCreating(false); setPage(1); setNotice(`${revision.id} · Ревизията е създадена само в демонстрацията.`);
     } catch (error) { setError(error instanceof Error ? error.message : 'Ревизията не е създадена.'); }
   };
@@ -47,10 +49,10 @@ function MobileInventory() {
     {creating ? <form onSubmit={save} noValidate>
       {error && <p className="mb-4 text-sm text-destructive" role="alert">{error}</p>}
       <div className="mb-5 grid gap-4 sm:grid-cols-2">
-        <div className="field"><label htmlFor="inventory-warehouse">Склад *</label><select id="inventory-warehouse" value={warehouse} onChange={event => { setWarehouse(event.target.value); setCounts({}); }}><option value="">Изберете склад</option>{INVENTORY_WAREHOUSES.map(value => <option key={value}>{value}</option>)}</select></div>
+        <div className="field"><label htmlFor="inventory-warehouse">Склад *</label><select id="inventory-warehouse" value={warehouse} onChange={event => { setWarehouse(event.target.value); setCounts({}); setSkus([]); }}><option value="">Изберете склад</option>{INVENTORY_WAREHOUSES.map(value => <option key={value}>{value}</option>)}</select></div>
         <div><label htmlFor="inventory-date" className="mb-2 block text-xs">Дата *</label><Input id="inventory-date" type="date" value={date} onChange={event => setDate(event.target.value)}/></div>
       </div>
-      {warehouse && <div className="border-t border-border"><div className="grid grid-cols-[minmax(0,1fr)_52px_80px] items-center gap-2 py-3 text-xs text-muted-foreground"><span>Продукт / SKU</span><span>Нал.</span><span>Преброено</span></div>{inventoryLines(warehouse).map(line => <div key={line.sku} className="grid grid-cols-[minmax(0,1fr)_52px_80px] items-center gap-2 border-t border-border py-3"><div className="min-w-0"><strong className="block break-words text-sm">{line.name}</strong><span className="block break-all text-xs text-muted-foreground">{line.sku}</span></div><span className="text-sm tabular-nums">{line.expected}</span><Input type="number" min={0} step={1} inputMode="numeric" aria-label={`Преброено ${line.name}`} value={counts[line.sku] ?? ''} placeholder="—" onChange={event => setCounts(previous => ({ ...previous, [line.sku]: event.target.value }))}/></div>)}</div>}
+      {warehouse && <InventoryProducts key={warehouse} warehouse={warehouse} skus={skus} onSkus={setSkus} counts={counts} onCounts={setCounts}/>}
       <label htmlFor="inventory-note" className="mb-2 mt-5 block text-xs">Бележка</label><Input id="inventory-note" value={note} maxLength={500} onChange={event => setNote(event.target.value)}/>
       <div className="mt-5 flex flex-wrap gap-2"><Button type="button" variant="outline" onClick={() => setCreating(false)}><ArrowLeft/>Отказ</Button><Button type="submit"><Check/>Създай ревизия</Button></div>
     </form> : <>

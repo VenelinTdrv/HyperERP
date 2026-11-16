@@ -1,8 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { createInventory, getInventories, inventoryLines } from '@/lib/inventory-store';
+import { createInventory, getInventories, inventoryLines, findInventoryProducts, inventoryProductByCode } from '@/lib/inventory-store';
 import { REPORT_BATCHES } from '@/lib/reports-data';
 
 describe('Demonstration stocktakes', () => {
+  it('finds products by entered name or SKU', () => {
+    expect(findInventoryProducts('Склад Главен', 'rose').map(line => line.sku)).toEqual(['PRF-ROSE-50']);
+    expect(findInventoryProducts('Склад Главен', 'prf-velv').map(line => line.sku)).toEqual(['PRF-VELV-50']);
+  });
+  it('resolves scanned SKU and rejects unknown codes', () => {
+    expect(inventoryProductByCode('Склад Главен', ' PRF-ROSE-50 ')?.name).toBe('Rose Élixir');
+    expect(inventoryProductByCode('Склад Главен', 'unknown')).toBeUndefined();
+  });
+  it('saves only added products without duplicate SKU rows', () => {
+    const revision = createInventory({ warehouse: 'Склад Главен', date: '2026-11-16', note: '', counts: { 'PRF-ROSE-50': '2' }, skus: ['PRF-ROSE-50', 'PRF-ROSE-50'] });
+    expect(revision.lines).toEqual([{ sku: 'PRF-ROSE-50', name: 'Rose Élixir', expected: 10, counted: 2 }]);
+  });
+  it('rejects empty or unknown selections', () => {
+    const input = { warehouse: 'Склад Главен', date: '2026-11-16', note: '', counts: {} };
+    expect(() => createInventory({ ...input, skus: [] })).toThrow();
+    expect(() => createInventory({ ...input, skus: ['unknown'] })).toThrow();
+  });
   it('creates a revision with warehouse stock snapshots and entered quantities', () => {
     const before = JSON.stringify(REPORT_BATCHES);
     const revision = createInventory({ warehouse: 'Склад Главен', date: '2026-11-16', note: 'Проверка', counts: { 'PRF-ROSE-50': '8', 'PRF-VELV-50': '0' } });
