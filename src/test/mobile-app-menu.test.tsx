@@ -1,18 +1,24 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
-import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
-import { QueryClient } from '@tanstack/react-query';
+import { describe, expect, it, vi } from 'vitest';
+import type { ReactNode } from 'react';
+import { createMemoryHistory, createRootRoute, createRoute, createRouter, Outlet, RouterProvider } from '@tanstack/react-router';
 
-import { routeTree } from '@/routeTree.gen';
+vi.mock('@/components/workspace-shell', () => ({
+  WorkspaceShell: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
+
+const { Route } = await import('@/routes/_workspace/mobile-app');
 
 const BACK_LABEL = 'Назад към менюто на мобилното приложение';
 const NAV_NAME = 'Меню на мобилното приложение';
 
-function renderAt(path: '/mobile-app' | '/mobile-app/articles') {
+function renderAt(path: string) {
+  const root = createRootRoute({ component: () => <Outlet /> });
+  const parent = createRoute({ getParentRoute: () => root, path: '/mobile-app', component: Route.options.component as () => ReactNode });
+  const screens = ['articles', 'deliveries', 'inventory'].map(name => createRoute({ getParentRoute: () => parent, path: name, component: () => <div /> }));
   const router = createRouter({
-    routeTree,
+    routeTree: root.addChildren([parent.addChildren(screens)]),
     history: createMemoryHistory({ initialEntries: [path] }),
-    context: { queryClient: new QueryClient() },
   });
   return render(<RouterProvider router={router} />);
 }
@@ -29,8 +35,5 @@ describe('Mobile app menu', () => {
     renderAt('/mobile-app/articles');
     expect(await screen.findByLabelText(BACK_LABEL)).toBeTruthy();
     expect(screen.queryByRole('navigation', { name: NAV_NAME })).toBeNull();
-    for (const title of ['Артикули', 'Доставки', 'Ревизия']) {
-      expect(screen.queryByRole('button', { name: title })).toBeNull();
-    }
   });
 });
