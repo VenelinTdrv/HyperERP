@@ -11,6 +11,7 @@
 
 ## Application rules
 - Keep /mobile-app within WorkspaceShell with nested article, delivery and inventory screens and shared navigation, so mobile development stays separate from operational pages without introducing native or installable-app behavior.
+- Keep mobile stocktakes in a session-only inventory store with isolated report-stock snapshots and optional counted quantities, so creating a revision never changes operational stock.
 - Keep the five reports in separate public /reports/* routes with shared ReportsWorkspace and isolated fixtures, so navigation works without exposing operational inventory.
 - Keep the sales list at the index route and the new-order workspace at /sales/new and its styling in the semantic global design system, so the entry screen stays consistent.
 - Treat order and catalog data as frontend demonstration state until a real service is connected; never imply that demo confirmation persists an order.
