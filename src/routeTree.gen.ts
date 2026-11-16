@@ -19,6 +19,7 @@ import { Route as WorkspaceCombosRouteImport } from './routes/_workspace/combos'
 import { Route as WorkspaceCountriesRouteImport } from './routes/_workspace/countries'
 import { Route as WorkspaceDeliveriesRouteImport } from './routes/_workspace/deliveries'
 import { Route as WorkspaceInvoicesRouteImport } from './routes/_workspace/invoices'
+import { Route as WorkspaceMobileAppRouteImport } from './routes/_workspace/mobile-app'
 import { Route as WorkspaceOrdersRouteImport } from './routes/_workspace/orders'
 import { Route as WorkspacePaymentsRouteImport } from './routes/_workspace/payments'
 import { Route as WorkspaceSettlementsRouteImport } from './routes/_workspace/settlements'
@@ -83,6 +84,11 @@ const WorkspaceDeliveriesRoute = WorkspaceDeliveriesRouteImport.update({
 const WorkspaceInvoicesRoute = WorkspaceInvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
+  getParentRoute: () => WorkspaceRouteRoute,
+} as any)
+const WorkspaceMobileAppRoute = WorkspaceMobileAppRouteImport.update({
+  id: '/mobile-app',
+  path: '/mobile-app',
   getParentRoute: () => WorkspaceRouteRoute,
 } as any)
 const WorkspaceOrdersRoute = WorkspaceOrdersRouteImport.update({
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/countries': typeof WorkspaceCountriesRoute
   '/deliveries': typeof WorkspaceDeliveriesRoute
   '/invoices': typeof WorkspaceInvoicesRoute
+  '/mobile-app': typeof WorkspaceMobileAppRoute
   '/orders': typeof WorkspaceOrdersRoute
   '/payments': typeof WorkspacePaymentsRoute
   '/settlements': typeof WorkspaceSettlementsRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/countries': typeof WorkspaceCountriesRoute
   '/deliveries': typeof WorkspaceDeliveriesRoute
   '/invoices': typeof WorkspaceInvoicesRoute
+  '/mobile-app': typeof WorkspaceMobileAppRoute
   '/orders': typeof WorkspaceOrdersRoute
   '/payments': typeof WorkspacePaymentsRoute
   '/settlements': typeof WorkspaceSettlementsRoute
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/_workspace/countries': typeof WorkspaceCountriesRoute
   '/_workspace/deliveries': typeof WorkspaceDeliveriesRoute
   '/_workspace/invoices': typeof WorkspaceInvoicesRoute
+  '/_workspace/mobile-app': typeof WorkspaceMobileAppRoute
   '/_workspace/orders': typeof WorkspaceOrdersRoute
   '/_workspace/payments': typeof WorkspacePaymentsRoute
   '/_workspace/settlements': typeof WorkspaceSettlementsRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/countries'
     | '/deliveries'
     | '/invoices'
+    | '/mobile-app'
     | '/orders'
     | '/payments'
     | '/settlements'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/countries'
     | '/deliveries'
     | '/invoices'
+    | '/mobile-app'
     | '/orders'
     | '/payments'
     | '/settlements'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/_workspace/countries'
     | '/_workspace/deliveries'
     | '/_workspace/invoices'
+    | '/_workspace/mobile-app'
     | '/_workspace/orders'
     | '/_workspace/payments'
     | '/_workspace/settlements'
@@ -413,6 +425,13 @@ declare module '@tanstack/react-router' {
       path: '/invoices'
       fullPath: '/invoices'
       preLoaderRoute: typeof WorkspaceInvoicesRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
+    '/_workspace/mobile-app': {
+      id: '/_workspace/mobile-app'
+      path: '/mobile-app'
+      fullPath: '/mobile-app'
+      preLoaderRoute: typeof WorkspaceMobileAppRouteImport
       parentRoute: typeof WorkspaceRouteRoute
     }
     '/_workspace/orders': {
@@ -538,6 +557,7 @@ interface WorkspaceRouteRouteChildren {
   WorkspaceCountriesRoute: typeof WorkspaceCountriesRoute
   WorkspaceDeliveriesRoute: typeof WorkspaceDeliveriesRoute
   WorkspaceInvoicesRoute: typeof WorkspaceInvoicesRoute
+  WorkspaceMobileAppRoute: typeof WorkspaceMobileAppRoute
   WorkspaceOrdersRoute: typeof WorkspaceOrdersRoute
   WorkspacePaymentsRoute: typeof WorkspacePaymentsRoute
   WorkspaceSettlementsRoute: typeof WorkspaceSettlementsRoute
@@ -565,6 +585,7 @@ const WorkspaceRouteRouteChildren: WorkspaceRouteRouteChildren = {
   WorkspaceCountriesRoute: WorkspaceCountriesRoute,
   WorkspaceDeliveriesRoute: WorkspaceDeliveriesRoute,
   WorkspaceInvoicesRoute: WorkspaceInvoicesRoute,
+  WorkspaceMobileAppRoute: WorkspaceMobileAppRoute,
   WorkspaceOrdersRoute: WorkspaceOrdersRoute,
   WorkspacePaymentsRoute: WorkspacePaymentsRoute,
   WorkspaceSettlementsRoute: WorkspaceSettlementsRoute,
