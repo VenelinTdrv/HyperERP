@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Smartphone } from 'lucide-react';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
+import { Smartphone, Package, Truck, ClipboardCheck } from 'lucide-react';
 import { WorkspaceShell } from '@/components/workspace-shell';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/_workspace/mobile-app')({
   head: () => ({ meta: [
@@ -20,13 +21,16 @@ function MobileApp() {
       <div className="page-heading">
         <div><h1><Smartphone size={23} aria-hidden="true"/>Мобилно приложение</h1></div>
       </div>
-      <section aria-label="Екрани" className="border-t border-border py-6">
-        <h2 className="text-sm font-semibold text-foreground">Екрани</h2>
-        <div className="flex min-h-64 flex-col items-center justify-center gap-4 text-muted-foreground">
-          <Smartphone size={40} strokeWidth={1.25} aria-hidden="true"/>
-          <p className="text-sm">Няма добавени екрани.</p>
-        </div>
-      </section>
+      <nav aria-label="Меню на мобилното приложение" className="mb-5 grid grid-cols-3 gap-2 max-w-xl">
+        {[
+          { title: 'Артикули', to: '/mobile-app/articles' as const, icon: Package },
+          { title: 'Доставки', to: '/mobile-app/deliveries' as const, icon: Truck },
+          { title: 'Ревизия', to: '/mobile-app/inventory' as const, icon: ClipboardCheck },
+        ].map(item => <Button key={item.to} asChild variant="outline" className="h-16 min-w-0 flex-col gap-1 px-2 text-xs">
+          <Link to={item.to} activeProps={{ className: 'bg-accent text-accent-foreground border-primary', 'aria-current': 'page' }}><item.icon size={19}/>{item.title}</Link>
+        </Button>)}
+      </nav>
+      <Outlet/>
     </div>
   </WorkspaceShell>;
 }
