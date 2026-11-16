@@ -1,10 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Package, Search } from 'lucide-react';
+import { Package, Search, ScanLine } from 'lucide-react';
 import { erpListsQuery } from '@/lib/erp-query';
 import { Pagination } from '@/components/pagination';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { InventoryScanner } from '@/components/inventory-scanner';
 import perfume from '@/assets/perfume.jpg';
 
 export const Route = createFileRoute('/_workspace/mobile-app/articles')({
@@ -20,23 +22,33 @@ export const Route = createFileRoute('/_workspace/mobile-app/articles')({
   component: MobileArticles,
 });
 
-function MobileArticles() {
+export function MobileArticles() {
   const { data } = useSuspenseQuery(erpListsQuery);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+  const [scanning, setScanning] = useState(false);
+  const [scannedSku, setScannedSku] = useState<string | null>(null);
+  const [scanError, setScanError] = useState('');
+  const scanProduct = (code: string) => {
+    const sku = code.trim();
+    const product = data.articles.find(row => row.sku.toLocaleLowerCase('bg') === sku.toLocaleLowerCase('bg'));
+    setScanning(false); setSearch(product?.sku ?? sku); setScannedSku(product?.sku ?? sku); setPage(1);
+    setScanError(product ? '' : 'Няма продукт с този SKU.');
+  };
   const query = search.trim().toLocaleLowerCase('bg');
-  const rows = data.articles.filter(row => `${row.name} ${row.sku}`.toLocaleLowerCase('bg').includes(query));
+  const rows = data.articles.filter(row => scannedSku !== null ? row.sku.toLocaleLowerCase('bg') === scannedSku.toLocaleLowerCase('bg') : `${row.name} ${row.sku}`.toLocaleLowerCase('bg').includes(query));
   const visible = pageSize ? rows.slice((page - 1) * pageSize, page * pageSize) : rows;
   return <section className="border-t border-border py-5" aria-label="Артикули">
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-base font-semibold text-foreground">Артикули <span className="ml-2 text-sm font-normal text-muted-foreground">{rows.length}</span></h2>
       <span className="text-xs text-muted-foreground">Примерни данни</span>
     </div>
-    <div className="relative mb-5 max-w-md">
+    <div className="mb-5 flex max-w-md items-center gap-2"><div className="relative min-w-0 flex-1">
       <Search size={16} className="absolute left-3 top-3 text-muted-foreground" aria-hidden="true"/>
-      <Input aria-label="Търсене по име или SKU" placeholder="Търсене по име или SKU" value={search} className="h-10 pl-9" onChange={event => { setSearch(event.target.value); setPage(1); }}/>
-    </div>
+      <Input aria-label="Търсене по име или SKU" placeholder="Търсене по име или SKU" value={search} className="h-10 pl-9" onChange={event => { setSearch(event.target.value); setPage(1); setScannedSku(null); setScanError(''); }}/>
+    </div><Button variant="outline" size="icon" className="h-10 w-10 shrink-0" aria-label="Сканирай продукт" title="Сканирай продукт" onClick={() => { setScanError(''); setScanning(true); }}><ScanLine/></Button></div>
+    {scanError && <p role="alert" className="mb-3 text-sm text-destructive">{scanError}</p>}
     <div className="flex items-center justify-between border-b border-border pb-2 text-xs text-muted-foreground"><span>Продукт / SKU</span><span>Наличност</span></div>
     <ul className="divide-y divide-border" aria-label="Продукти и наличности">
       {visible.map(row => <li key={row.id} className="flex items-center gap-3 py-4">
@@ -47,5 +59,6 @@ function MobileArticles() {
     </ul>
     {rows.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">Няма намерени продукти.</p>}
     <Pagination total={rows.length} page={page} pageSize={pageSize} onPage={setPage} onPageSize={setPageSize} noun="продукта" id="mobile-articles-page-size"/>
+    {scanning && <InventoryScanner onScan={scanProduct} onClose={() => setScanning(false)}/>}
   </section>;
 }
