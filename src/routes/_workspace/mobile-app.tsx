@@ -24,7 +24,7 @@ function MobileApp() {
     <div className="page-content orders-content">
       <div className="page-heading">
         <div>
-          {!onMenu && <Link to="/mobile-app" aria-label="Назад към менюто на мобилното приложение" className="mb-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft size={14} aria-hidden="true"/>Меню</Link>}
+          {!onMenu && <Link to="/mobile-app" aria-label="Назад към менюто на мобилното приложение" className="mb-2 flex w-fit items-center gap-1 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft size={14} aria-hidden="true"/>Меню</Link>}
           <h1><Smartphone size={23} aria-hidden="true"/>Мобилно приложение</h1>
         </div>
       </div>

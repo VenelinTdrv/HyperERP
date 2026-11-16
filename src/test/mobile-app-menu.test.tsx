@@ -14,7 +14,9 @@ const NAV_NAME = 'Меню на мобилното приложение';
 
 function renderAt(path: string) {
   const root = createRootRoute({ component: () => <Outlet /> });
-  const parent = createRoute({ getParentRoute: () => root, path: '/mobile-app', component: Route.options.component as () => ReactNode });
+  const MobileApp = Route.options.component;
+  if (!MobileApp) throw new Error('Mobile app screen has no component');
+  const parent = createRoute({ getParentRoute: () => root, path: '/mobile-app', component: MobileApp });
   const screens = ['articles', 'deliveries', 'inventory'].map(name => createRoute({ getParentRoute: () => parent, path: name, component: () => <div /> }));
   const router = createRouter({
     routeTree: root.addChildren([parent.addChildren(screens)]),
