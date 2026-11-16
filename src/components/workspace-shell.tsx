@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { profileQuery } from '@/lib/erp-query';
 import { Link, useLocation } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
-import { ArrowLeftRight, BarChart3, ArrowRight, Wallet, Bell, Boxes, ChevronDown, CircleHelp, ClipboardList, FileText, Globe2, LayoutGrid, Layers, Menu, Package, PackageSearch, PackageX, CircleDollarSign, Settings2, ShoppingBag, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, ArrowRight, Wallet, Bell, Boxes, ChevronDown, CircleHelp, ClipboardList, FileText, Globe2, LayoutGrid, Layers, Menu, Package, PackageSearch, PackageX, CircleDollarSign, Settings2, ShoppingBag, Smartphone, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
 import { REPORTS } from '@/lib/reports-data';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,10 +12,10 @@ const groups = [
  { name:'Каталог', items:[{name:'Артикули',icon:Package,to:'/articles' as const}, {name:'Комбота',icon:Boxes,to:'/combos' as const}, {name:'Категории',icon:LayoutGrid,to:'/categories' as const}] },
  { name:'Справки', items:[{name:REPORTS.warehouses,icon:Warehouse,to:'/reports/warehouses' as const},{name:REPORTS.articles,icon:PackageSearch,to:'/reports/articles' as const},{name:REPORTS.batches,icon:Layers,to:'/reports/batches' as const},{name:REPORTS.profit,icon:CircleDollarSign,to:'/reports/warehouse-profit' as const},{name:REPORTS.exhausted,icon:PackageX,to:'/reports/exhausted-batches' as const}] },
  { name:'Контакти и логистика', items:[{name:'Клиенти',icon:Users,to:'/clients' as const}, {name:'Доставчици',icon:Truck,to:'/suppliers' as const}, {name:'Държави',icon:Globe2,to:'/countries' as const}, {name:'Населени места',icon:Warehouse,to:'/settlements' as const}, {name:'Складове',icon:Warehouse,to:'/warehouses' as const}] },
- { name:'Администрация', items:[{name:'Потребители',icon:UserCog,to:'/users' as const}] },
+ { name:'Администрация', items:[{name:'Потребители',icon:UserCog,to:'/users' as const}, {name:'Мобилно приложение',icon:Smartphone,to:'/mobile-app' as const}] },
 ];
 
-export function WorkspaceShell({ active, children }: { active:'Поръчки'|'Трансфер на стоки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'|'Категории'|'Клиенти'|'Доставчици'|'Държави'|'Населени места'|'Складове'|'Потребители'|'Статистика'|'Плащания'|'Фактури'|(typeof REPORTS)[keyof typeof REPORTS]; children:ReactNode }) {
+export function WorkspaceShell({ active, children }: { active:'Мобилно приложение'|'Поръчки'|'Трансфер на стоки'|'Продажби'|'Доставки'|'Артикули'|'Комбота'|'Категории'|'Клиенти'|'Доставчици'|'Държави'|'Населени места'|'Складове'|'Потребители'|'Статистика'|'Плащания'|'Фактури'|(typeof REPORTS)[keyof typeof REPORTS]; children:ReactNode }) {
  const [mobileOpen,setMobileOpen] = useState(false);
  const [collapsed,setCollapsed] = useState(false);
  const [menuOpen,setMenuOpen] = useState<string|null>(null);
