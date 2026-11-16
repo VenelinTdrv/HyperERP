@@ -14,7 +14,7 @@ describe('Mobile article scans', () => {
     render(<MobileArticles/>);
     fireEvent.click(screen.getByRole('button', { name: 'Сканирай продукт' }));
     fireEvent.click(screen.getByRole('button', { name: 'Known scan' }));
-    expect(screen.getByRole('heading', { name: 'Rose', exact: true })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^Rose$/ })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Rose large' })).not.toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'Продукти и наличности' })).toHaveTextContent('25');
   });
