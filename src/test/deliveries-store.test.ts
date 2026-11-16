@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { getDeliveries, processDelivery, deliveryTransitions, deliveryToday } from '@/lib/deliveries-store';
+import { getDeliveries, processDelivery, deliveryTransitions, deliveryToday, deliveryByCode } from '@/lib/deliveries-store';
 
 describe('Shared demonstration deliveries', () => {
+  it('finds a scanned delivery number without processing it', () => {
+    const before = JSON.stringify(getDeliveries());
+    expect(deliveryByCode(' del-0018 ')?.id).toBe('DEL-0018');
+    expect(deliveryByCode('DEL-9999')).toBeUndefined();
+    expect(JSON.stringify(getDeliveries())).toBe(before);
+  });
   it('includes all deliveries in each supported status', () => {
     expect(getDeliveries()).toHaveLength(10);
     expect(new Set(getDeliveries().map(row => row.status))).toEqual(new Set(['Очаквана', 'В транзит', 'Получена', 'Отказана']));
