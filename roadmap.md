@@ -1,6 +1,6 @@
 # HyperERP redesign
 ## Мобилно приложение
-- [ ] Добавяне на меню „Мобилно приложение“ и отделен публичен екран за последващо разработване; проверка на навигацията на компютър и телефон.
+- [x] Добавено меню „Мобилно приложение“ в Администрация с отделен публичен екран; проверени са страничното меню, горното меню и навигацията на телефон, трите теста за маршрути и изграждането са успешни.
 
 ## Фактури
 - [x] Add a search by client name or EIK in the Фактури filter row; live filtering, tiles/counts, empty state and „Изчисти филтрите" all respect it, EIK shown in the row and details; 77 tests passed, verified in browser.
