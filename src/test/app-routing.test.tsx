@@ -7,6 +7,14 @@ import { routeTree } from "@/routeTree.gen";
 // Match routes without running loaders or rendering: loaders may need a server or
 // network the test run lacks, and jsdom never loads the stylesheets React waits on.
 describe("App routing", () => {
+  it('opens the three distinct mobile screens within the mobile workspace', () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    for (const screen of ['articles', 'deliveries', 'inventory']) {
+      const matches = router.matchRoutes(`/mobile-app/${screen}`);
+      expect(matches.some(match => match.routeId === '/_workspace/mobile-app')).toBe(true);
+      expect(matches.at(-1)?.routeId).toBe(`/_workspace/mobile-app/${screen}`);
+    }
+  });
   it('opens all five reports in the public workspace', () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     for (const path of ['/reports/warehouses', '/reports/articles', '/reports/batches', '/reports/warehouse-profit', '/reports/exhausted-batches']) {
