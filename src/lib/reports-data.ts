@@ -29,16 +29,72 @@ export const REPORT_BATCHES = REPORT_ARTICLES.flatMap((article, index) => REPORT
   warehouse, quantity: position === 2 && index % 2 === 0 ? 0 : 10 + index * 5 + position * 3,
   cost: Math.round(article.price * 0.6 * 100) / 100, sold: 3 + index + position,
 })));
-export const REPORT_VIRTUAL_BATCHES = REPORT_ARTICLES.flatMap((article, index) => REPORT_VIRTUAL_WAREHOUSES.map((warehouse, position) => ({
-  ...article, id: `${article.sku}-virtual-${position}`, batch: `V-${201 + index * 3 + position}`,
-  warehouse, quantity: 8 + index * 4 + position * 2,
-  cost: Math.round(article.price * 0.6 * 100) / 100, sold: 2 + index + position,
-})));
-export type ReportRow = { id: string; name: string; sku?: string; warehouse?: string; batch?: string; quantity: number; value: number; revenue?: number; cost?: number };
-export function reportRows(kind: ReportKind, query = '', warehouse = '', virtualSource = kind === 'virtual'): ReportRow[] {
+export type VirtualWarehouseOrderItem = { sku: string; name: string; quantity: number; minimumPrice: number };
+export type VirtualWarehouseOrder = {
+  orderNumber: string;
+  client: string;
+  phone: string;
+  warehouse: string;
+  status: string;
+  leftWarehouse: boolean;
+  completed: boolean;
+  paid: boolean;
+  items: VirtualWarehouseOrderItem[];
+};
+export type VirtualOrderPayment = 'all' | 'paid' | 'unpaid';
+
+// Isolated demonstration orders; no operational orders or stock are read or changed.
+export const REPORT_VIRTUAL_ORDERS: VirtualWarehouseOrder[] = [
+  { orderNumber: 'VW-1001', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
+    { sku: 'CRM-HYDR-50', name: 'Hydra Cream', quantity: 1, minimumPrice: 29 },
+    { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 9 },
+  ] },
+  { orderNumber: 'VW-1002', client: 'Мария Георгиева', phone: '+359 887 112 402', warehouse: 'Виртуален — Виктория', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, items: [
+    { sku: 'PRF-VELV-50', name: 'Velvet Bloom', quantity: 1, minimumPrice: 69 },
+    { sku: 'MST-BODY-200', name: 'Body Butter', quantity: 1, minimumPrice: 24 },
+  ] },
+  { orderNumber: 'VW-1003', client: 'Арома Трейд ЕООД', phone: '+359 2 491 2080', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
+    { sku: 'SER-VITA-30', name: 'Vitamin C Serum', quantity: 2, minimumPrice: 45 },
+  ] },
+  { orderNumber: 'VW-1004', client: 'Елена Петрова', phone: '+359 889 734 155', warehouse: 'Виртуален — Връщания', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, items: [
+    { sku: 'OIL-ARGA-100', name: 'Argan Oil', quantity: 1, minimumPrice: 39 },
+    { sku: 'MLS-SPF-50', name: 'Sun Fluid SPF 50', quantity: 1, minimumPrice: 33 },
+  ] },
+  { orderNumber: 'VW-1005', client: 'Николай Иванов', phone: '+359 886 410 377', warehouse: 'Виртуален — Виктория', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
+    { sku: 'CRM-NIGH-50', name: 'Night Repair', quantity: 1, minimumPrice: 59 },
+    { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 19 },
+  ] },
+  { orderNumber: 'VW-1006', client: 'Студио Лотос', phone: '+359 878 302 644', warehouse: 'Виртуален — Връщания', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, items: [
+    { sku: 'PRF-PURE-30', name: 'Pure Essence', quantity: 2, minimumPrice: 35 },
+  ] },
+  { orderNumber: 'VW-1007', client: 'Приключена поръчка', phone: '+359 888 000 007', warehouse: 'Виртуален — Ема', status: 'Завършена', leftWarehouse: true, completed: true, paid: true, items: [
+    { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49 },
+  ] },
+  { orderNumber: 'VW-1008', client: 'Неначална заявка', phone: '+359 888 000 008', warehouse: 'Виртуален — Ема', status: 'Подготвя се', leftWarehouse: false, completed: false, paid: false, items: [
+    { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49 },
+  ] },
+];
+
+export function virtualOrderTotal(order: VirtualWarehouseOrder) {
+  return order.items.reduce((sum, item) => sum + item.quantity * item.minimumPrice, 0);
+}
+
+export function virtualWarehouseOrders(query = '', warehouse = '', payment: VirtualOrderPayment = 'all') {
   const q = query.trim().toLocaleLowerCase('bg-BG');
-  const source = virtualSource ? REPORT_VIRTUAL_BATCHES : REPORT_BATCHES;
-  const batches = source.filter(row => (!warehouse || row.warehouse === warehouse) && (!q || `${row.name} ${row.sku} ${row.batch} ${row.warehouse}`.toLocaleLowerCase('bg-BG').includes(q)));
+  const phoneQuery = query.replace(/\D/g, '');
+  return REPORT_VIRTUAL_ORDERS.filter(order =>
+    order.leftWarehouse && !order.completed &&
+    (!warehouse || order.warehouse === warehouse) &&
+    (payment === 'all' || (payment === 'paid' ? order.paid : !order.paid)) &&
+    (!q || order.client.toLocaleLowerCase('bg-BG').includes(q) || (phoneQuery.length > 0 && order.phone.replace(/\D/g, '').includes(phoneQuery))),
+  );
+}
+
+export type ReportRow = { id: string; name: string; sku?: string; warehouse?: string; batch?: string; quantity: number; value: number; revenue?: number; cost?: number };
+export type StockReportKind = Exclude<ReportKind, 'virtual'>;
+export function reportRows(kind: StockReportKind, query = '', warehouse = ''): ReportRow[] {
+  const q = query.trim().toLocaleLowerCase('bg-BG');
+  const batches = REPORT_BATCHES.filter(row => (!warehouse || row.warehouse === warehouse) && (!q || `${row.name} ${row.sku} ${row.batch} ${row.warehouse}`.toLocaleLowerCase('bg-BG').includes(q)));
   if (kind === 'batches' || kind === 'exhausted') return batches.filter(row => kind !== 'exhausted' || row.quantity === 0).map(row => ({ ...row, value: row.quantity * row.cost }));
   const grouped = new Map<string, ReportRow>();
   for (const row of batches) {
