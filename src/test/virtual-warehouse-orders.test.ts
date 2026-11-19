@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { REPORT_VIRTUAL_ORDERS, REPORT_VIRTUAL_WAREHOUSES, virtualOrderSalesTotal, virtualOrderTotal, virtualWarehouseClientTotals, virtualWarehouseOrders } from '@/lib/reports-data';
+import { REPORT_VIRTUAL_ORDERS, REPORT_VIRTUAL_WAREHOUSES, virtualOrderSalesTotal, virtualOrderTotal, virtualWarehouseClientKey, virtualWarehouseClientOrderCounts, virtualWarehouseClientTotals, virtualWarehouseOrders } from '@/lib/reports-data';
 
 describe('virtual warehouse orders', () => {
   it('shows only orders that left the warehouse and are not completed', () => {
@@ -60,6 +60,20 @@ describe('virtual warehouse orders', () => {
   it('does not show a client total for a single matching order', () => {
     expect(virtualWarehouseClientTotals(virtualWarehouseOrders('Мария Георгиева'))).toEqual([]);
     expect(virtualWarehouseClientTotals(virtualWarehouseOrders('Перлана', 'Виртуален — Виктория'))).toEqual([]);
+  });
+
+  it('counts the orders of every client in the result set', () => {
+    const counts = virtualWarehouseClientOrderCounts(virtualWarehouseOrders());
+    const perla = virtualWarehouseOrders('Перлана')[0]!;
+    const maria = virtualWarehouseOrders('Мария Георгиева')[0]!;
+    expect(counts.get(virtualWarehouseClientKey(perla))).toBe(2);
+    expect(counts.get(virtualWarehouseClientKey(maria))).toBe(1);
+  });
+
+  it('counts only the orders left after filtering by payment', () => {
+    const rows = virtualWarehouseOrders('Перлана', '', 'paid');
+    const counts = virtualWarehouseClientOrderCounts(rows);
+    expect(counts.get(virtualWarehouseClientKey(rows[0]!))).toBe(1);
   });
 
   it('keeps virtual warehouses isolated from physical warehouses', () => {

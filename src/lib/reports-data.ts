@@ -86,6 +86,20 @@ export function virtualOrderSalesTotal(order: VirtualWarehouseOrder) {
   return order.items.reduce((sum, item) => sum + item.quantity * item.salesPrice, 0);
 }
 
+export function virtualWarehouseClientKey(order: VirtualWarehouseOrder) {
+  return `${order.client.toLocaleLowerCase('bg-BG')}|${order.phone.replace(/\D/g, '')}`;
+}
+
+// Order count per client inside the currently filtered result set.
+export function virtualWarehouseClientOrderCounts(orders: VirtualWarehouseOrder[]) {
+  const counts = new Map<string, number>();
+  for (const order of orders) {
+    const key = virtualWarehouseClientKey(order);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+}
+
 export type VirtualWarehouseClientTotal = {
   client: string;
   phone: string;
@@ -97,7 +111,7 @@ export type VirtualWarehouseClientTotal = {
 export function virtualWarehouseClientTotals(orders: VirtualWarehouseOrder[]): VirtualWarehouseClientTotal[] {
   const groups = new Map<string, VirtualWarehouseOrder[]>();
   for (const order of orders) {
-    const key = `${order.client.toLocaleLowerCase('bg-BG')}|${order.phone.replace(/\D/g, '')}`;
+    const key = virtualWarehouseClientKey(order);
     groups.set(key, [...(groups.get(key) ?? []), order]);
   }
   return [...groups.values()]
