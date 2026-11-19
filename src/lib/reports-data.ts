@@ -76,6 +76,9 @@ export const REPORT_VIRTUAL_ORDERS: VirtualWarehouseOrder[] = [
   { orderNumber: 'VW-1009', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, items: [
     { sku: 'PRF-PURE-30', name: 'Pure Essence', quantity: 1, minimumPrice: 35, salesPrice: 49 },
   ] },
+  { orderNumber: 'VW-1010', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'В доставка', leftWarehouse: true, completed: false, paid: false, items: [
+    { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49, salesPrice: 69 },
+  ] },
 ];
 
 export function virtualOrderTotal(order: VirtualWarehouseOrder) {
@@ -98,6 +101,12 @@ export function virtualWarehouseClientOrderCounts(orders: VirtualWarehouseOrder[
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   return counts;
+}
+
+// Every order of the same client inside the currently filtered result set.
+export function virtualWarehouseClientOrders(orders: VirtualWarehouseOrder[], order: VirtualWarehouseOrder) {
+  const key = virtualWarehouseClientKey(order);
+  return orders.filter(candidate => virtualWarehouseClientKey(candidate) === key);
 }
 
 export type VirtualWarehouseClientTotal = {

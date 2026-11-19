@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { REPORT_VIRTUAL_ORDERS, REPORT_VIRTUAL_WAREHOUSES, virtualOrderSalesTotal, virtualOrderTotal, virtualWarehouseClientKey, virtualWarehouseClientOrderCounts, virtualWarehouseClientTotals, virtualWarehouseOrders } from '@/lib/reports-data';
+import { REPORT_VIRTUAL_ORDERS, REPORT_VIRTUAL_WAREHOUSES, virtualOrderSalesTotal, virtualOrderTotal, virtualWarehouseClientKey, virtualWarehouseClientOrderCounts, virtualWarehouseClientOrders, virtualWarehouseClientTotals, virtualWarehouseOrders } from '@/lib/reports-data';
 
 describe('virtual warehouse orders', () => {
   it('shows only orders that left the warehouse and are not completed', () => {
     const rows = virtualWarehouseOrders();
-    expect(rows).toHaveLength(7);
+    expect(rows).toHaveLength(8);
     expect(rows.every(order => order.leftWarehouse && !order.completed)).toBe(true);
     expect(rows.map(order => order.orderNumber)).not.toContain('VW-1007');
     expect(rows.map(order => order.orderNumber)).not.toContain('VW-1008');
@@ -38,11 +38,11 @@ describe('virtual warehouse orders', () => {
   });
 
   it('finds a client by name', () => {
-    expect(virtualWarehouseOrders('перлана').map(order => order.orderNumber)).toEqual(['VW-1001', 'VW-1009']);
+    expect(virtualWarehouseOrders('перлана').map(order => order.orderNumber)).toEqual(['VW-1001', 'VW-1009', 'VW-1010']);
   });
 
   it('finds a client by phone number without formatting', () => {
-    expect(virtualWarehouseOrders('888245610').map(order => order.orderNumber)).toEqual(['VW-1001', 'VW-1009']);
+    expect(virtualWarehouseOrders('888245610').map(order => order.orderNumber)).toEqual(['VW-1001', 'VW-1009', 'VW-1010']);
     expect(virtualWarehouseOrders('000000000')).toHaveLength(0);
   });
 
@@ -51,9 +51,9 @@ describe('virtual warehouse orders', () => {
     expect(totals).toEqual([{
       client: 'Перлана',
       phone: '+359 888 245 610',
-      orderCount: 2,
-      minimumTotal: 73,
-      salesTotal: 113,
+      orderCount: 3,
+      minimumTotal: 122,
+      salesTotal: 182,
     }]);
   });
 
@@ -66,8 +66,15 @@ describe('virtual warehouse orders', () => {
     const counts = virtualWarehouseClientOrderCounts(virtualWarehouseOrders());
     const perla = virtualWarehouseOrders('Перлана')[0]!;
     const maria = virtualWarehouseOrders('Мария Георгиева')[0]!;
-    expect(counts.get(virtualWarehouseClientKey(perla))).toBe(2);
+    expect(counts.get(virtualWarehouseClientKey(perla))).toBe(3);
     expect(counts.get(virtualWarehouseClientKey(maria))).toBe(1);
+  });
+
+  it('lists every order of a client for the details dialog', () => {
+    const rows = virtualWarehouseOrders();
+    const perlaOrders = virtualWarehouseClientOrders(rows, rows.find(order => order.orderNumber === 'VW-1001')!);
+    expect(perlaOrders.map(order => order.orderNumber)).toEqual(['VW-1001', 'VW-1009', 'VW-1010']);
+    expect(virtualWarehouseClientOrders(rows, rows.find(order => order.orderNumber === 'VW-1002')!)).toHaveLength(1);
   });
 
   it('counts only the orders left after filtering by payment', () => {
