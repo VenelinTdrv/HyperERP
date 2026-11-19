@@ -14,6 +14,7 @@
 - [x] Add „Фактури“ under „Операции“ in shared navigation and an empty invoice workspace; both menu entry points verified in browser, routing tests passed.
 
 ## Справки
+- [x] Добави справка „Виртуални складове“ с изолирани примерни наличности, филтри, детайли и навигация; проверени са менюто, филтрирането и десетте продукта в детайлите, 122 теста и изграждането са успешни.
 - [x] Add the five reference reports to shared navigation with separate demonstration screens.
 - [x] Verify navigation, filtering, details and pagination.
 

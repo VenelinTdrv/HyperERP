@@ -5,9 +5,11 @@ export const REPORTS = {
   batches: 'Наличност по партиди',
   profit: 'Печалба по складове',
   exhausted: 'Изчерпани партиди',
+  virtual: 'Виртуални складове',
 } as const;
 export type ReportKind = keyof typeof REPORTS;
 export const REPORT_WAREHOUSES = ['Склад Главен', 'Склад София', 'Склад Варна'];
+export const REPORT_VIRTUAL_WAREHOUSES = ['Виртуален — Ема', 'Виртуален — Виктория', 'Виртуален — Връщания'];
 // Isolated demonstration catalogue for the reports, independent from order entry.
 export const REPORT_ARTICLES = [
   { sku: 'PRF-ROSE-50', name: 'Rose Élixir', price: 49 },
@@ -27,10 +29,16 @@ export const REPORT_BATCHES = REPORT_ARTICLES.flatMap((article, index) => REPORT
   warehouse, quantity: position === 2 && index % 2 === 0 ? 0 : 10 + index * 5 + position * 3,
   cost: Math.round(article.price * 0.6 * 100) / 100, sold: 3 + index + position,
 })));
+export const REPORT_VIRTUAL_BATCHES = REPORT_ARTICLES.flatMap((article, index) => REPORT_VIRTUAL_WAREHOUSES.map((warehouse, position) => ({
+  ...article, id: `${article.sku}-virtual-${position}`, batch: `V-${201 + index * 3 + position}`,
+  warehouse, quantity: 8 + index * 4 + position * 2,
+  cost: Math.round(article.price * 0.6 * 100) / 100, sold: 2 + index + position,
+})));
 export type ReportRow = { id: string; name: string; sku?: string; warehouse?: string; batch?: string; quantity: number; value: number; revenue?: number; cost?: number };
-export function reportRows(kind: ReportKind, query = '', warehouse = ''): ReportRow[] {
+export function reportRows(kind: ReportKind, query = '', warehouse = '', virtualSource = kind === 'virtual'): ReportRow[] {
   const q = query.trim().toLocaleLowerCase('bg-BG');
-  const batches = REPORT_BATCHES.filter(row => (!warehouse || row.warehouse === warehouse) && (!q || `${row.name} ${row.sku} ${row.batch} ${row.warehouse}`.toLocaleLowerCase('bg-BG').includes(q)));
+  const source = virtualSource ? REPORT_VIRTUAL_BATCHES : REPORT_BATCHES;
+  const batches = source.filter(row => (!warehouse || row.warehouse === warehouse) && (!q || `${row.name} ${row.sku} ${row.batch} ${row.warehouse}`.toLocaleLowerCase('bg-BG').includes(q)));
   if (kind === 'batches' || kind === 'exhausted') return batches.filter(row => kind !== 'exhausted' || row.quantity === 0).map(row => ({ ...row, value: row.quantity * row.cost }));
   const grouped = new Map<string, ReportRow>();
   for (const row of batches) {
