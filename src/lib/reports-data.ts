@@ -73,6 +73,9 @@ export const REPORT_VIRTUAL_ORDERS: VirtualWarehouseOrder[] = [
   { orderNumber: 'VW-1008', client: 'Неначална заявка', phone: '+359 888 000 008', warehouse: 'Виртуален — Ема', status: 'Подготвя се', leftWarehouse: false, completed: false, paid: false, items: [
     { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49, salesPrice: 69 },
   ] },
+  { orderNumber: 'VW-1009', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, items: [
+    { sku: 'PRF-PURE-30', name: 'Pure Essence', quantity: 1, minimumPrice: 35, salesPrice: 49 },
+  ] },
 ];
 
 export function virtualOrderTotal(order: VirtualWarehouseOrder) {
@@ -81,6 +84,31 @@ export function virtualOrderTotal(order: VirtualWarehouseOrder) {
 
 export function virtualOrderSalesTotal(order: VirtualWarehouseOrder) {
   return order.items.reduce((sum, item) => sum + item.quantity * item.salesPrice, 0);
+}
+
+export type VirtualWarehouseClientTotal = {
+  client: string;
+  phone: string;
+  orderCount: number;
+  minimumTotal: number;
+  salesTotal: number;
+};
+
+export function virtualWarehouseClientTotals(orders: VirtualWarehouseOrder[]): VirtualWarehouseClientTotal[] {
+  const groups = new Map<string, VirtualWarehouseOrder[]>();
+  for (const order of orders) {
+    const key = `${order.client.toLocaleLowerCase('bg-BG')}|${order.phone.replace(/\D/g, '')}`;
+    groups.set(key, [...(groups.get(key) ?? []), order]);
+  }
+  return [...groups.values()]
+    .filter(clientOrders => clientOrders.length > 1)
+    .map(clientOrders => ({
+      client: clientOrders[0]!.client,
+      phone: clientOrders[0]!.phone,
+      orderCount: clientOrders.length,
+      minimumTotal: clientOrders.reduce((sum, order) => sum + virtualOrderTotal(order), 0),
+      salesTotal: clientOrders.reduce((sum, order) => sum + virtualOrderSalesTotal(order), 0),
+    }));
 }
 
 export function virtualWarehouseOrders(query = '', warehouse = '', payment: VirtualOrderPayment = 'all') {
