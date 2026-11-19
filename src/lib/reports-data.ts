@@ -29,7 +29,7 @@ export const REPORT_BATCHES = REPORT_ARTICLES.flatMap((article, index) => REPORT
   warehouse, quantity: position === 2 && index % 2 === 0 ? 0 : 10 + index * 5 + position * 3,
   cost: Math.round(article.price * 0.6 * 100) / 100, sold: 3 + index + position,
 })));
-export type VirtualWarehouseOrderItem = { sku: string; name: string; quantity: number; minimumPrice: number };
+export type VirtualWarehouseOrderItem = { sku: string; name: string; quantity: number; minimumPrice: number; salesPrice: number };
 export type VirtualWarehouseOrder = {
   orderNumber: string;
   client: string;
@@ -46,37 +46,41 @@ export type VirtualOrderPayment = 'all' | 'paid' | 'unpaid';
 // Isolated demonstration orders; no operational orders or stock are read or changed.
 export const REPORT_VIRTUAL_ORDERS: VirtualWarehouseOrder[] = [
   { orderNumber: 'VW-1001', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
-    { sku: 'CRM-HYDR-50', name: 'Hydra Cream', quantity: 1, minimumPrice: 29 },
-    { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 9 },
+    { sku: 'CRM-HYDR-50', name: 'Hydra Cream', quantity: 1, minimumPrice: 29, salesPrice: 45 },
+    { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 9, salesPrice: 19 },
   ] },
   { orderNumber: 'VW-1002', client: 'Мария Георгиева', phone: '+359 887 112 402', warehouse: 'Виртуален — Виктория', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, items: [
-    { sku: 'PRF-VELV-50', name: 'Velvet Bloom', quantity: 1, minimumPrice: 69 },
-    { sku: 'MST-BODY-200', name: 'Body Butter', quantity: 1, minimumPrice: 24 },
+    { sku: 'PRF-VELV-50', name: 'Velvet Bloom', quantity: 1, minimumPrice: 69, salesPrice: 89 },
+    { sku: 'MST-BODY-200', name: 'Body Butter', quantity: 1, minimumPrice: 24, salesPrice: 34 },
   ] },
   { orderNumber: 'VW-1003', client: 'Арома Трейд ЕООД', phone: '+359 2 491 2080', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
-    { sku: 'SER-VITA-30', name: 'Vitamin C Serum', quantity: 2, minimumPrice: 45 },
+    { sku: 'SER-VITA-30', name: 'Vitamin C Serum', quantity: 2, minimumPrice: 45, salesPrice: 65 },
   ] },
   { orderNumber: 'VW-1004', client: 'Елена Петрова', phone: '+359 889 734 155', warehouse: 'Виртуален — Връщания', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, items: [
-    { sku: 'OIL-ARGA-100', name: 'Argan Oil', quantity: 1, minimumPrice: 39 },
-    { sku: 'MLS-SPF-50', name: 'Sun Fluid SPF 50', quantity: 1, minimumPrice: 33 },
+    { sku: 'OIL-ARGA-100', name: 'Argan Oil', quantity: 1, minimumPrice: 39, salesPrice: 55 },
+    { sku: 'MLS-SPF-50', name: 'Sun Fluid SPF 50', quantity: 1, minimumPrice: 33, salesPrice: 45 },
   ] },
   { orderNumber: 'VW-1005', client: 'Николай Иванов', phone: '+359 886 410 377', warehouse: 'Виртуален — Виктория', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
-    { sku: 'CRM-NIGH-50', name: 'Night Repair', quantity: 1, minimumPrice: 59 },
-    { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 19 },
+    { sku: 'CRM-NIGH-50', name: 'Night Repair', quantity: 1, minimumPrice: 59, salesPrice: 79 },
+    { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 19, salesPrice: 29 },
   ] },
   { orderNumber: 'VW-1006', client: 'Студио Лотос', phone: '+359 878 302 644', warehouse: 'Виртуален — Връщания', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, items: [
-    { sku: 'PRF-PURE-30', name: 'Pure Essence', quantity: 2, minimumPrice: 35 },
+    { sku: 'PRF-PURE-30', name: 'Pure Essence', quantity: 2, minimumPrice: 35, salesPrice: 49 },
   ] },
   { orderNumber: 'VW-1007', client: 'Приключена поръчка', phone: '+359 888 000 007', warehouse: 'Виртуален — Ема', status: 'Завършена', leftWarehouse: true, completed: true, paid: true, items: [
-    { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49 },
+    { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49, salesPrice: 69 },
   ] },
   { orderNumber: 'VW-1008', client: 'Неначална заявка', phone: '+359 888 000 008', warehouse: 'Виртуален — Ема', status: 'Подготвя се', leftWarehouse: false, completed: false, paid: false, items: [
-    { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49 },
+    { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49, salesPrice: 69 },
   ] },
 ];
 
 export function virtualOrderTotal(order: VirtualWarehouseOrder) {
   return order.items.reduce((sum, item) => sum + item.quantity * item.minimumPrice, 0);
+}
+
+export function virtualOrderSalesTotal(order: VirtualWarehouseOrder) {
+  return order.items.reduce((sum, item) => sum + item.quantity * item.salesPrice, 0);
 }
 
 export function virtualWarehouseOrders(query = '', warehouse = '', payment: VirtualOrderPayment = 'all') {
