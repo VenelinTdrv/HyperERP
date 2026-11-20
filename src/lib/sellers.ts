@@ -16,6 +16,12 @@ export const ASSISTANTS = [
 
 export const assistantWorksFor = (id: string) => ASSISTANTS.find(a => a.id === id)?.worksFor ?? '';
 
+// Demonstration employees: the staff who prepare and ship orders out of a warehouse.
+export const EMPLOYEES = [
+  { id: 'Венелин Тодоров', role: 'Администратор' },
+  { id: 'Цветан Стоянов', role: 'Складов служител' },
+] as const;
+
 // Which seller each demo order and sale is credited to. The same map backs „Поръчки" and „Продажби",
 // so both screens agree about who sold what.
 export const sellerByOrder: Record<string, string> = {

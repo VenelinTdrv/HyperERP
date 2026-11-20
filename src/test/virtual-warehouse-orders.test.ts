@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { REPORT_VIRTUAL_ORDERS, REPORT_VIRTUAL_WAREHOUSES, virtualOrderSalesTotal, virtualOrderTotal, virtualWarehouseClientKey, virtualWarehouseClientOrderCounts, virtualWarehouseClientOrders, virtualWarehouseClientTotals, virtualWarehouseOrders } from '@/lib/reports-data';
+import { REPORT_VIRTUAL_ORDERS, REPORT_VIRTUAL_WAREHOUSES, virtualOrderSalesTotal, virtualOrderTotal, virtualWarehouseClientKey, virtualWarehouseClientOrderCounts, virtualWarehouseClientOrders, virtualWarehouseClientTotals, virtualWarehouseOrders, virtualWarehousePeople, virtualWarehousePersonKind } from '@/lib/reports-data';
 
 describe('virtual warehouse orders', () => {
   it('shows only orders that left the warehouse and are not completed', () => {
@@ -44,6 +44,24 @@ describe('virtual warehouse orders', () => {
   it('finds a client by phone number without formatting', () => {
     expect(virtualWarehouseOrders('888245610').map(order => order.orderNumber)).toEqual(['VW-1001', 'VW-1009', 'VW-1010']);
     expect(virtualWarehouseOrders('000000000')).toHaveLength(0);
+  });
+
+  it('finds orders by virtual warehouse or order number in the same text field', () => {
+    expect(virtualWarehouseOrders('Виртуален — Виктория').map(order => order.orderNumber)).toEqual(['VW-1002', 'VW-1005']);
+    expect(virtualWarehouseOrders('vw-1003').map(order => order.orderNumber)).toEqual(['VW-1003']);
+  });
+
+  it('finds orders by the influencer or employee credited with them', () => {
+    expect(virtualWarehouseOrders('Виктория Григорова').map(order => order.orderNumber)).toEqual(['VW-1001', 'VW-1002', 'VW-1006', 'VW-1009']);
+    expect(virtualWarehouseOrders('Цветан Стоянов').map(order => order.orderNumber)).toEqual(['VW-1010']);
+  });
+
+  it('lists influencers before employees with counts and share of all orders', () => {
+    const people = virtualWarehousePeople(virtualWarehouseOrders(), 8);
+    expect(people.map(person => person.name)).toEqual(['Виктория Григорова', 'Елена Петрова', 'Мария Иванова', 'Венелин Тодоров', 'Цветан Стоянов']);
+    expect(people[0]).toEqual({ name: 'Виктория Григорова', kind: 'Инфлуенсър', orders: 4, share: 50 });
+    expect(virtualWarehousePersonKind('Венелин Тодоров')).toBe('Служител');
+    expect(virtualWarehousePersonKind('Виктория Григорова')).toBe('Инфлуенсър');
   });
 
   it('totals both price types for a client with multiple orders', () => {

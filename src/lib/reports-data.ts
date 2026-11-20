@@ -1,4 +1,6 @@
 
+import { EMPLOYEES, SELLERS } from './sellers';
+
 export const REPORTS = {
   warehouses: 'Наличност по складове',
   articles: 'Наличност по артикули',
@@ -39,44 +41,45 @@ export type VirtualWarehouseOrder = {
   leftWarehouse: boolean;
   completed: boolean;
   paid: boolean;
+  seller: string;
   items: VirtualWarehouseOrderItem[];
 };
 export type VirtualOrderPayment = 'all' | 'paid' | 'unpaid';
 
 // Isolated demonstration orders; no operational orders or stock are read or changed.
 export const REPORT_VIRTUAL_ORDERS: VirtualWarehouseOrder[] = [
-  { orderNumber: 'VW-1001', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
+  { orderNumber: 'VW-1001', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, seller: 'Виктория Григорова', items: [
     { sku: 'CRM-HYDR-50', name: 'Hydra Cream', quantity: 1, minimumPrice: 29, salesPrice: 45 },
     { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 9, salesPrice: 19 },
   ] },
-  { orderNumber: 'VW-1002', client: 'Мария Георгиева', phone: '+359 887 112 402', warehouse: 'Виртуален — Виктория', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, items: [
+  { orderNumber: 'VW-1002', client: 'Мария Георгиева', phone: '+359 887 112 402', warehouse: 'Виртуален — Виктория', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, seller: 'Виктория Григорова', items: [
     { sku: 'PRF-VELV-50', name: 'Velvet Bloom', quantity: 1, minimumPrice: 69, salesPrice: 89 },
     { sku: 'MST-BODY-200', name: 'Body Butter', quantity: 1, minimumPrice: 24, salesPrice: 34 },
   ] },
-  { orderNumber: 'VW-1003', client: 'Арома Трейд ЕООД', phone: '+359 2 491 2080', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
+  { orderNumber: 'VW-1003', client: 'Арома Трейд ЕООД', phone: '+359 2 491 2080', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, seller: 'Венелин Тодоров', items: [
     { sku: 'SER-VITA-30', name: 'Vitamin C Serum', quantity: 2, minimumPrice: 45, salesPrice: 65 },
   ] },
-  { orderNumber: 'VW-1004', client: 'Елена Петрова', phone: '+359 889 734 155', warehouse: 'Виртуален — Връщания', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, items: [
+  { orderNumber: 'VW-1004', client: 'Елена Петрова', phone: '+359 889 734 155', warehouse: 'Виртуален — Връщания', status: 'В доставка', leftWarehouse: true, completed: false, paid: true, seller: 'Елена Петрова', items: [
     { sku: 'OIL-ARGA-100', name: 'Argan Oil', quantity: 1, minimumPrice: 39, salesPrice: 55 },
     { sku: 'MLS-SPF-50', name: 'Sun Fluid SPF 50', quantity: 1, minimumPrice: 33, salesPrice: 45 },
   ] },
-  { orderNumber: 'VW-1005', client: 'Николай Иванов', phone: '+359 886 410 377', warehouse: 'Виртуален — Виктория', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, items: [
+  { orderNumber: 'VW-1005', client: 'Николай Иванов', phone: '+359 886 410 377', warehouse: 'Виртуален — Виктория', status: 'Изпратена', leftWarehouse: true, completed: false, paid: false, seller: 'Мария Иванова', items: [
     { sku: 'CRM-NIGH-50', name: 'Night Repair', quantity: 1, minimumPrice: 59, salesPrice: 79 },
     { sku: 'TON-MICE-250', name: 'Micellar Water', quantity: 1, minimumPrice: 19, salesPrice: 29 },
   ] },
-  { orderNumber: 'VW-1006', client: 'Студио Лотос', phone: '+359 878 302 644', warehouse: 'Виртуален — Връщания', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, items: [
+  { orderNumber: 'VW-1006', client: 'Студио Лотос', phone: '+359 878 302 644', warehouse: 'Виртуален — Връщания', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, seller: 'Виктория Григорова', items: [
     { sku: 'PRF-PURE-30', name: 'Pure Essence', quantity: 2, minimumPrice: 35, salesPrice: 49 },
   ] },
-  { orderNumber: 'VW-1007', client: 'Приключена поръчка', phone: '+359 888 000 007', warehouse: 'Виртуален — Ема', status: 'Завършена', leftWarehouse: true, completed: true, paid: true, items: [
+  { orderNumber: 'VW-1007', client: 'Приключена поръчка', phone: '+359 888 000 007', warehouse: 'Виртуален — Ема', status: 'Завършена', leftWarehouse: true, completed: true, paid: true, seller: 'Цветан Стоянов', items: [
     { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49, salesPrice: 69 },
   ] },
-  { orderNumber: 'VW-1008', client: 'Неначална заявка', phone: '+359 888 000 008', warehouse: 'Виртуален — Ема', status: 'Подготвя се', leftWarehouse: false, completed: false, paid: false, items: [
+  { orderNumber: 'VW-1008', client: 'Неначална заявка', phone: '+359 888 000 008', warehouse: 'Виртуален — Ема', status: 'Подготвя се', leftWarehouse: false, completed: false, paid: false, seller: 'Венелин Тодоров', items: [
     { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49, salesPrice: 69 },
   ] },
-  { orderNumber: 'VW-1009', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, items: [
+  { orderNumber: 'VW-1009', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'Изпратена', leftWarehouse: true, completed: false, paid: true, seller: 'Виктория Григорова', items: [
     { sku: 'PRF-PURE-30', name: 'Pure Essence', quantity: 1, minimumPrice: 35, salesPrice: 49 },
   ] },
-  { orderNumber: 'VW-1010', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'В доставка', leftWarehouse: true, completed: false, paid: false, items: [
+  { orderNumber: 'VW-1010', client: 'Перлана', phone: '+359 888 245 610', warehouse: 'Виртуален — Ема', status: 'В доставка', leftWarehouse: true, completed: false, paid: false, seller: 'Цветан Стоянов', items: [
     { sku: 'PRF-ROSE-50', name: 'Rose Élixir', quantity: 1, minimumPrice: 49, salesPrice: 69 },
   ] },
 ];
@@ -134,6 +137,24 @@ export function virtualWarehouseClientTotals(orders: VirtualWarehouseOrder[]): V
     }));
 }
 
+// Who is credited with an order: an influencer from the shared seller nomenclature or an employee.
+export const virtualWarehousePersonKind = (name: string) => SELLERS.find(seller => seller.id === name)?.type ?? (EMPLOYEES.some(employee => employee.id === name) ? 'Служител' : '');
+
+export type VirtualWarehousePerson = { name: string; kind: string; orders: number; share: number };
+
+// Influencers and employees behind the given orders, with their share of all orders.
+export function virtualWarehousePeople(orders: VirtualWarehouseOrder[], total = orders.length): VirtualWarehousePerson[] {
+  const counts = new Map<string, number>();
+  for (const order of orders) counts.set(order.seller, (counts.get(order.seller) ?? 0) + 1);
+  const kinds = ['Инфлуенсър', 'Служител'];
+  return [...counts.entries()].map(([name, count]) => ({
+    name,
+    kind: virtualWarehousePersonKind(name),
+    orders: count,
+    share: total > 0 ? Math.round(count / total * 100) : 0,
+  })).sort((a, b) => kinds.indexOf(a.kind) - kinds.indexOf(b.kind) || b.orders - a.orders || a.name.localeCompare(b.name, 'bg-BG'));
+}
+
 export function virtualWarehouseOrders(query = '', warehouse = '', payment: VirtualOrderPayment = 'all') {
   const q = query.trim().toLocaleLowerCase('bg-BG');
   const phoneQuery = query.replace(/\D/g, '');
@@ -141,7 +162,7 @@ export function virtualWarehouseOrders(query = '', warehouse = '', payment: Virt
     order.leftWarehouse && !order.completed &&
     (!warehouse || order.warehouse === warehouse) &&
     (payment === 'all' || (payment === 'paid' ? order.paid : !order.paid)) &&
-    (!q || order.client.toLocaleLowerCase('bg-BG').includes(q) || (phoneQuery.length > 0 && order.phone.replace(/\D/g, '').includes(phoneQuery))),
+    (!q || order.client.toLocaleLowerCase('bg-BG').includes(q) || order.orderNumber.toLocaleLowerCase('bg-BG').includes(q) || order.warehouse.toLocaleLowerCase('bg-BG').includes(q) || order.seller.toLocaleLowerCase('bg-BG').includes(q) || (phoneQuery.length > 0 && order.phone.replace(/\D/g, '').includes(phoneQuery))),
   );
 }
 
