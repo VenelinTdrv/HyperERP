@@ -43,3 +43,5 @@
 - Public sales, order and article queries use isolated demo-erp fixtures and demo-prefixed cache keys; private server functions remain authenticated and mutations disabled until persisted actions are connected.
 - Public preview data is always demonstration state regardless of any existing login session; never fall back from a failed cloud read to demo data within a private list.
 - Private operational records use owner_user_id with admin-or-owner RLS; ownerless legacy seeds are admin-only, so names cannot confer access.
+
+- Keep the Ямбол low-stock report rules (free stock, reference reset on delivery, one-shot alerts) in the session-only low-stock module shared by the report and the header bell, so notifications and the list never disagree.

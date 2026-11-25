@@ -656,3 +656,6 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
  .client-editor-body .delivery-editor { gap:16px; }
  .client-editor-body .delivery-editor .field input, .client-editor-body .delivery-editor .field select, .client-editor-body .delivery-editor .field textarea { min-height:44px; }
 }
+.low-stock-filters { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.low-stock-filters .search-box { flex:1 1 220px; max-width:280px; }
+.low-stock-filters .field { flex:0 1 180px; }
