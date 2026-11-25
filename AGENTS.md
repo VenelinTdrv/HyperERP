@@ -44,4 +44,4 @@
 - Public preview data is always demonstration state regardless of any existing login session; never fall back from a failed cloud read to demo data within a private list.
 - Private operational records use owner_user_id with admin-or-owner RLS; ownerless legacy seeds are admin-only, so names cannot confer access.
 
-- Keep the Ямбол low-stock report rules (free stock, reference reset on delivery, one-shot alerts) in the session-only low-stock module shared by the report and the header bell, so notifications and the list never disagree.
+- Low-stock rules live in one session-only module shared by report and header bell, so they never disagree.
