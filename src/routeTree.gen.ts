@@ -37,6 +37,7 @@ import { Route as WorkspaceReportsArticlesRouteImport } from './routes/_workspac
 import { Route as WorkspaceReportsBatchesRouteImport } from './routes/_workspace/reports.batches'
 import { Route as WorkspaceReportsExhaustedBatchesRouteImport } from './routes/_workspace/reports.exhausted-batches'
 import { Route as WorkspaceReportsLowStockRouteImport } from './routes/_workspace/reports.low-stock'
+import { Route as WorkspaceReportsStaffTurnoverRouteImport } from './routes/_workspace/reports.staff-turnover'
 import { Route as WorkspaceReportsVirtualWarehousesRouteImport } from './routes/_workspace/reports.virtual-warehouses'
 import { Route as WorkspaceReportsWarehouseProfitRouteImport } from './routes/_workspace/reports.warehouse-profit'
 import { Route as WorkspaceReportsWarehousesRouteImport } from './routes/_workspace/reports.warehouses'
@@ -187,6 +188,12 @@ const WorkspaceReportsLowStockRoute =
     path: '/reports/low-stock',
     getParentRoute: () => WorkspaceRouteRoute,
   } as any)
+const WorkspaceReportsStaffTurnoverRoute =
+  WorkspaceReportsStaffTurnoverRouteImport.update({
+    id: '/reports/staff-turnover',
+    path: '/reports/staff-turnover',
+    getParentRoute: () => WorkspaceRouteRoute,
+  } as any)
 const WorkspaceReportsVirtualWarehousesRoute =
   WorkspaceReportsVirtualWarehousesRouteImport.update({
     id: '/reports/virtual-warehouses',
@@ -239,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/reports/batches': typeof WorkspaceReportsBatchesRoute
   '/reports/exhausted-batches': typeof WorkspaceReportsExhaustedBatchesRoute
   '/reports/low-stock': typeof WorkspaceReportsLowStockRoute
+  '/reports/staff-turnover': typeof WorkspaceReportsStaffTurnoverRoute
   '/reports/virtual-warehouses': typeof WorkspaceReportsVirtualWarehousesRoute
   '/reports/warehouse-profit': typeof WorkspaceReportsWarehouseProfitRoute
   '/reports/warehouses': typeof WorkspaceReportsWarehousesRoute
@@ -272,6 +280,7 @@ export interface FileRoutesByTo {
   '/reports/batches': typeof WorkspaceReportsBatchesRoute
   '/reports/exhausted-batches': typeof WorkspaceReportsExhaustedBatchesRoute
   '/reports/low-stock': typeof WorkspaceReportsLowStockRoute
+  '/reports/staff-turnover': typeof WorkspaceReportsStaffTurnoverRoute
   '/reports/virtual-warehouses': typeof WorkspaceReportsVirtualWarehousesRoute
   '/reports/warehouse-profit': typeof WorkspaceReportsWarehouseProfitRoute
   '/reports/warehouses': typeof WorkspaceReportsWarehousesRoute
@@ -307,6 +316,7 @@ export interface FileRoutesById {
   '/_workspace/reports/batches': typeof WorkspaceReportsBatchesRoute
   '/_workspace/reports/exhausted-batches': typeof WorkspaceReportsExhaustedBatchesRoute
   '/_workspace/reports/low-stock': typeof WorkspaceReportsLowStockRoute
+  '/_workspace/reports/staff-turnover': typeof WorkspaceReportsStaffTurnoverRoute
   '/_workspace/reports/virtual-warehouses': typeof WorkspaceReportsVirtualWarehousesRoute
   '/_workspace/reports/warehouse-profit': typeof WorkspaceReportsWarehouseProfitRoute
   '/_workspace/reports/warehouses': typeof WorkspaceReportsWarehousesRoute
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/reports/batches'
     | '/reports/exhausted-batches'
     | '/reports/low-stock'
+    | '/reports/staff-turnover'
     | '/reports/virtual-warehouses'
     | '/reports/warehouse-profit'
     | '/reports/warehouses'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/reports/batches'
     | '/reports/exhausted-batches'
     | '/reports/low-stock'
+    | '/reports/staff-turnover'
     | '/reports/virtual-warehouses'
     | '/reports/warehouse-profit'
     | '/reports/warehouses'
@@ -409,6 +421,7 @@ export interface FileRouteTypes {
     | '/_workspace/reports/batches'
     | '/_workspace/reports/exhausted-batches'
     | '/_workspace/reports/low-stock'
+    | '/_workspace/reports/staff-turnover'
     | '/_workspace/reports/virtual-warehouses'
     | '/_workspace/reports/warehouse-profit'
     | '/_workspace/reports/warehouses'
@@ -618,6 +631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceReportsLowStockRouteImport
       parentRoute: typeof WorkspaceRouteRoute
     }
+    '/_workspace/reports/staff-turnover': {
+      id: '/_workspace/reports/staff-turnover'
+      path: '/reports/staff-turnover'
+      fullPath: '/reports/staff-turnover'
+      preLoaderRoute: typeof WorkspaceReportsStaffTurnoverRouteImport
+      parentRoute: typeof WorkspaceRouteRoute
+    }
     '/_workspace/reports/virtual-warehouses': {
       id: '/_workspace/reports/virtual-warehouses'
       path: '/reports/virtual-warehouses'
@@ -688,6 +708,7 @@ interface WorkspaceRouteRouteChildren {
   WorkspaceReportsBatchesRoute: typeof WorkspaceReportsBatchesRoute
   WorkspaceReportsExhaustedBatchesRoute: typeof WorkspaceReportsExhaustedBatchesRoute
   WorkspaceReportsLowStockRoute: typeof WorkspaceReportsLowStockRoute
+  WorkspaceReportsStaffTurnoverRoute: typeof WorkspaceReportsStaffTurnoverRoute
   WorkspaceReportsVirtualWarehousesRoute: typeof WorkspaceReportsVirtualWarehousesRoute
   WorkspaceReportsWarehouseProfitRoute: typeof WorkspaceReportsWarehouseProfitRoute
   WorkspaceReportsWarehousesRoute: typeof WorkspaceReportsWarehousesRoute
@@ -718,6 +739,7 @@ const WorkspaceRouteRouteChildren: WorkspaceRouteRouteChildren = {
   WorkspaceReportsBatchesRoute: WorkspaceReportsBatchesRoute,
   WorkspaceReportsExhaustedBatchesRoute: WorkspaceReportsExhaustedBatchesRoute,
   WorkspaceReportsLowStockRoute: WorkspaceReportsLowStockRoute,
+  WorkspaceReportsStaffTurnoverRoute: WorkspaceReportsStaffTurnoverRoute,
   WorkspaceReportsVirtualWarehousesRoute:
     WorkspaceReportsVirtualWarehousesRoute,
   WorkspaceReportsWarehouseProfitRoute: WorkspaceReportsWarehouseProfitRoute,

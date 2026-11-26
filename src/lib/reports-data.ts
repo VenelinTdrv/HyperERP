@@ -9,6 +9,7 @@ export const REPORTS = {
   exhausted: 'Изчерпани партиди',
   virtual: 'Виртуални складове',
   lowStock: 'Намаляващи наличности',
+  staffTurnover: 'Оборот по служители',
 } as const;
 export type ReportKind = keyof typeof REPORTS;
 export const REPORT_WAREHOUSES = ['Склад Главен', 'Склад София', 'Склад Варна'];
@@ -168,7 +169,7 @@ export function virtualWarehouseOrders(query = '', warehouse = '', payment: Virt
 }
 
 export type ReportRow = { id: string; name: string; sku?: string; warehouse?: string; batch?: string; quantity: number; value: number; revenue?: number; cost?: number };
-export type StockReportKind = Exclude<ReportKind, 'virtual' | 'lowStock'>;
+export type StockReportKind = Exclude<ReportKind, 'virtual' | 'lowStock' | 'staffTurnover'>;
 export function reportRows(kind: StockReportKind, query = '', warehouse = ''): ReportRow[] {
   const q = query.trim().toLocaleLowerCase('bg-BG');
   const batches = REPORT_BATCHES.filter(row => (!warehouse || row.warehouse === warehouse) && (!q || `${row.name} ${row.sku} ${row.batch} ${row.warehouse}`.toLocaleLowerCase('bg-BG').includes(q)));

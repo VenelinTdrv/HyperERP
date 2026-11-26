@@ -9,7 +9,7 @@ import { REPORTS, REPORT_WAREHOUSES, reportRows, type ReportKind, type ReportRow
 import { VirtualWarehouseOrders } from '@/components/virtual-warehouse-orders';
 
 const money = (value: number) => new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'EUR' }).format(value);
-export function ReportsWorkspace({ kind }: { kind: Exclude<ReportKind, 'lowStock'> }) {
+export function ReportsWorkspace({ kind }: { kind: Exclude<ReportKind, 'lowStock' | 'staffTurnover'> }) {
   if (kind === 'virtual') return <VirtualWarehouseOrders />;
   return <StockReportsWorkspace kind={kind} />;
 }

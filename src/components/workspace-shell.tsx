@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { profileQuery } from '@/lib/erp-query';
 import { Link, useLocation } from '@tanstack/react-router';
 import { useState, type ReactNode } from 'react';
-import { ArrowLeftRight, BarChart3, ArrowRight, Wallet, Bell, Boxes, ChevronDown, CircleHelp, ClipboardList, FileText, Globe2, LayoutGrid, Layers, Menu, Package, PackageSearch, PackageX, CircleDollarSign, Settings2, ShoppingBag, Smartphone, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, TrendingUp, ArrowRight, Wallet, Bell, Boxes, ChevronDown, CircleHelp, ClipboardList, FileText, Globe2, LayoutGrid, Layers, Menu, Package, PackageSearch, PackageX, CircleDollarSign, Settings2, ShoppingBag, Smartphone, Truck, UserCog, Users, Warehouse, X } from 'lucide-react';
 import { REPORTS } from '@/lib/reports-data';
 import { Button } from '@/components/ui/button';
 import { LowStockBell } from '@/components/low-stock-bell';
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 const groups = [
  { name:'Операции', items:[{name:'Поръчки',icon:ClipboardList,to:'/orders' as const}, {name:'Продажби',icon:ShoppingBag,to:'/' as const}, {name:'Трансфер на стоки',icon:ArrowLeftRight,to:'/transfers' as const}, {name:'Доставки',icon:Truck,to:'/deliveries' as const}, {name:'Плащания',icon:Wallet,to:'/payments' as const}, {name:'Фактури',icon:FileText,to:'/invoices' as const}, {name:'Статистика',icon:BarChart3,to:'/statistics' as const}] },
  { name:'Каталог', items:[{name:'Артикули',icon:Package,to:'/articles' as const}, {name:'Комбота',icon:Boxes,to:'/combos' as const}, {name:'Категории',icon:LayoutGrid,to:'/categories' as const}] },
- { name:'Справки', items:[{name:REPORTS.warehouses,icon:Warehouse,to:'/reports/warehouses' as const},{name:REPORTS.articles,icon:PackageSearch,to:'/reports/articles' as const},{name:REPORTS.batches,icon:Layers,to:'/reports/batches' as const},{name:REPORTS.profit,icon:CircleDollarSign,to:'/reports/warehouse-profit' as const},{name:REPORTS.exhausted,icon:PackageX,to:'/reports/exhausted-batches' as const},{name:REPORTS.virtual,icon:Warehouse,to:'/reports/virtual-warehouses' as const},{name:REPORTS.lowStock,icon:PackageX,to:'/reports/low-stock' as const}] },
+ { name:'Справки', items:[{name:REPORTS.warehouses,icon:Warehouse,to:'/reports/warehouses' as const},{name:REPORTS.articles,icon:PackageSearch,to:'/reports/articles' as const},{name:REPORTS.batches,icon:Layers,to:'/reports/batches' as const},{name:REPORTS.profit,icon:CircleDollarSign,to:'/reports/warehouse-profit' as const},{name:REPORTS.exhausted,icon:PackageX,to:'/reports/exhausted-batches' as const},{name:REPORTS.virtual,icon:Warehouse,to:'/reports/virtual-warehouses' as const},{name:REPORTS.lowStock,icon:PackageX,to:'/reports/low-stock' as const},{name:REPORTS.staffTurnover,icon:TrendingUp,to:'/reports/staff-turnover' as const}] },
  { name:'Контакти и логистика', items:[{name:'Клиенти',icon:Users,to:'/clients' as const}, {name:'Доставчици',icon:Truck,to:'/suppliers' as const}, {name:'Държави',icon:Globe2,to:'/countries' as const}, {name:'Населени места',icon:Warehouse,to:'/settlements' as const}, {name:'Складове',icon:Warehouse,to:'/warehouses' as const}] },
  { name:'Администрация', items:[{name:'Потребители',icon:UserCog,to:'/users' as const}, {name:'Мобилно приложение',icon:Smartphone,to:'/mobile-app' as const}] },
 ];
