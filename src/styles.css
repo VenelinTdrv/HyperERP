@@ -221,6 +221,9 @@ dl.reports-summary { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .delivery-table-scroll { overflow:auto; }
 .delivery-table { width:100%; border-collapse:collapse; white-space:nowrap; }
 .delivery-table th { text-align:left; color:var(--muted-foreground); background:var(--muted); font-size:10px; font-weight:600; padding:13px 16px; border-block:1px solid var(--border); }
+/* Column titles must sit above the values they label, so alignment utilities on th win over the default left alignment. */
+.delivery-table th.text-right { text-align:right; }
+.delivery-table th.text-center { text-align:center; }
 .delivery-table td { padding:20px 16px; font-size:11px; border-bottom:1px solid var(--border); }
 .delivery-table tbody tr:last-child td { border-bottom:0; }
 .delivery-table tbody tr:hover { background:var(--muted); }
