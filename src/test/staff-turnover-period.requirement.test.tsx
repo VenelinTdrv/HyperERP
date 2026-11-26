@@ -15,6 +15,22 @@ const open = () => render(<StaffTurnoverReport today={TODAY} />);
 const periodInputs = () => [screen.getByLabelText('Период от'), screen.getByLabelText('Период до')] as const;
 
 describe('The turnover report opens on the current month', () => {
+  it('Every person sees current-month turnover in the selected period until different dates are chosen', () => {
+    open();
+    const rows = screen.getAllByRole('row').slice(1);
+    expect(rows).toHaveLength(6);
+    for (const row of rows) {
+      const cells = row.querySelectorAll('td');
+      expect(cells[3]?.textContent).toBe(cells[1]?.textContent);
+    }
+    const total = screen.getByText('Общо').closest('tr');
+    expect(total?.querySelectorAll('td')[3]?.textContent).toBe(money(664));
+    fireEvent.change(screen.getByLabelText('Период от'), { target: { value: '2026-10-01' } });
+    fireEvent.change(screen.getByLabelText('Период до'), { target: { value: '2026-10-31' } });
+    expect(total?.querySelectorAll('td')[1]?.textContent).toBe(money(664));
+    expect(total?.querySelectorAll('td')[3]?.textContent).toBe(money(816));
+  });
+
   it('Opening the report on 26 November 2026 shows the period 01.11.2026 – 26.11.2026', () => {
     open();
     const [from, to] = periodInputs();
