@@ -3,14 +3,14 @@ import { Download, Search, ShieldCheck, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WorkspaceShell } from '@/components/workspace-shell';
 import { REPORTS } from '@/lib/reports-data';
-import { previousMonthRange, staffTurnoverRows, turnoverOrders, type TurnoverRow } from '@/lib/staff-turnover';
+import { currentMonthRange, staffTurnoverRows, turnoverOrders, type TurnoverRow } from '@/lib/staff-turnover';
 
 const money = (value: number) => new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
 const bgDate = (value: string) => value ? value.split('-').reverse().join('.') : '…';
 
 export function StaffTurnoverReport({ today = new Date() }: { today?: Date }) {
   const orders = useMemo(() => turnoverOrders(today), [today]);
-  const initial = previousMonthRange(today);
+  const initial = currentMonthRange(today);
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
   const [query, setQuery] = useState('');

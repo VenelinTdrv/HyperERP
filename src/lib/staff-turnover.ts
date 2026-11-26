@@ -69,3 +69,9 @@ export const previousMonthRange = (today = new Date()) => ({
   from: iso(new Date(today.getFullYear(), today.getMonth() - 1, 1)),
   to: iso(new Date(today.getFullYear(), today.getMonth(), 0)),
 });
+
+// The report opens on the current month: from the 1st up to today.
+export const currentMonthRange = (today = new Date()) => ({
+  from: iso(new Date(today.getFullYear(), today.getMonth(), 1)),
+  to: iso(today),
+});
